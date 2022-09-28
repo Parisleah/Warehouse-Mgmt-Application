@@ -10,7 +10,6 @@ import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Profile/1_addShopName.dart';
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/db/database.dart';
-import 'package:warehouse_mnmt/db/db_shop.dart';
 import 'package:warehouse_mnmt/main.dart';
 
 import '../Model/Profile.dart';
@@ -35,22 +34,21 @@ class _AllShopPageState extends State<AllShopPage> {
 
   @override
   void initState() {
-    super.initState();
-    // refreshProfile();
-    refreshAllShops();
     profile = widget.profile;
+    super.initState();
+    refreshProfile();
+    refreshAllShops();
   }
 
-  Future refreshProfile(profile) async {
-    setState(() => isLoading = true);
-    profile = await DatabaseManager.instance.readProfile(profile.id);
-    setState(() => isLoading = false);
+  Future refreshProfile() async {
+    profile = await DatabaseManager.instance.readProfile(widget.profile.id!);
+    print('REFRESH PROFILE NAME -> ${profile!.name}');
+    setState(() {});
   }
 
   Future refreshAllShops() async {
-    setState(() => isLoading = true);
     shops = await DatabaseManager.instance.readAllShops();
-    setState(() => isLoading = false);
+    setState(() {});
   }
 
   @override
@@ -229,8 +227,9 @@ class _AllShopPageState extends State<AllShopPage> {
                               profile: profile!,
                             ),
                           ));
+                      refreshProfile();
                       setState(() {
-                        refreshProfile(profile);
+                        print('Comback from Editing -> ${profile!.name}');
                       });
                     }),
                     child: ClipRRect(
@@ -241,12 +240,17 @@ class _AllShopPageState extends State<AllShopPage> {
                             padding: const EdgeInsets.all(3),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: Image.file(
-                                File(profile!.image),
-                                width: 40,
-                                height: 40,
-                                fit: BoxFit.cover,
-                              ),
+                              child: profile?.image == null
+                                  ? Icon(
+                                      Icons.image,
+                                      color: Colors.white,
+                                    )
+                                  : Image.file(
+                                      File(profile!.image),
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           )),
                     ),
@@ -277,7 +281,7 @@ class _AllShopPageState extends State<AllShopPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddShopPage(
-                                        profile: widget.profile,
+                                        profile: profile!,
                                       )),
                             );
                             refreshAllShops();

@@ -186,7 +186,7 @@ CREATE TABLE $tableShop (
     return result.map((json) => Profile.fromJson(json)).toList();
   }
 
-  Future<Profile> readProfile(int id) async {
+  Future<Profile?> readProfile(int id) async {
     final db = await instance.database;
     final maps = await db.query(tableProfile,
         columns: ProfileFields.values,
@@ -197,6 +197,7 @@ CREATE TABLE $tableShop (
       print('Found -> ${maps}');
       return Profile.fromJson(maps.first);
     } else {
+      // return null;
       throw Exception('ID $id not found');
     }
   }

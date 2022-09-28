@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import '../Component/moneyBox.dart';
 import '../Component/imgCarouselWidget.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class DashboardPage extends StatefulWidget {
   final Shop shop;
@@ -19,9 +21,12 @@ class _DashboardPageState extends State<DashboardPage> {
   bool get isDark => themeMode == ThemeMode.dark;
   final CustomTextField saveForm = new CustomTextField();
   final controller = TextEditingController();
+  DateTime date = DateTime.now();
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting();
+
     controller.addListener(() => setState(() {}));
   }
 
@@ -34,6 +39,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    DateFormat dateFormat;
+    dateFormat = new DateFormat.yMMMMd('th');
+
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -61,23 +69,38 @@ class _DashboardPageState extends State<DashboardPage> {
               baselineType: TextBaseline.alphabetic,
               baseline: 25,
             )),
-            bottom: const TabBar(tabs: [
-              Tab(
-                child: Text("วันนี้"),
-              ),
-              Tab(
-                child: Text("สัปดาห ์"),
-              ),
-              Tab(
-                child: Text("เดือน"),
-              ),
-              Tab(
-                child: Text("ปี"),
-              ),
-              Tab(
-                child: Text("ระบุวันที่"),
-              )
-            ]),
+            bottom: TabBar(
+                onTap: (value) {
+                  date = DateTime.now();
+
+                  setState(() {
+                    date = DateTime(
+                      value == 3 ? date.year - 1 : date.year,
+                      value == 2 ? date.month - 1 : date.month,
+                      value == 1 ? date.day - 7 : date.day - 0,
+                      value == 0 ? date.day - 0 : date.day - 0,
+                    );
+                  });
+
+                  print(date);
+                },
+                tabs: [
+                  Tab(
+                    child: Text("วันนี้"),
+                  ),
+                  Tab(
+                    child: Text("สัปดาห ์"),
+                  ),
+                  Tab(
+                    child: Text("เดือน"),
+                  ),
+                  Tab(
+                    child: Text("ปี"),
+                  ),
+                  Tab(
+                    child: Text("ระบุวันที่"),
+                  )
+                ]),
           ),
         ),
         body: SingleChildScrollView(
@@ -91,16 +114,66 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(
                     height: 160,
                   ),
-
+                  // Color.fromARGB(255, 37, 37, 82),
+                  // Color.fromARGB(255, 123, 52, 255),
+                  Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 4))
+                      ],
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).backgroundColor,
+                          Theme.of(context).colorScheme.onSecondary,
+                        ],
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                        stops: [0.1, 0.8],
+                        tileMode: TileMode.clamp,
+                      ),
+                    ),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'วันนี้',
+                            style: TextStyle(
+                                fontSize: 25,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Center(
+                            child: Text(
+                              dateFormat.format(date),
+                              style:
+                                  TextStyle(fontSize: 30, color: Colors.white),
+                              // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+                            ),
+                          )
+                        ]),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   MoneyBox(
                       Icon(
                         Icons.sell,
                         color: Colors.white,
                       ),
+                      Icon(
+                        Icons.arrow_upward,
+                        color: Colors.white,
+                      ),
                       'ยอดขาย',
                       212000,
-                      Color.fromARGB(255, 37, 37, 82),
-                      Color.fromARGB(255, 123, 52, 255),
+                      Theme.of(context).backgroundColor,
+                      Theme.of(context).colorScheme.onSecondary,
                       150,
                       Colors.white),
                   const SizedBox(
@@ -108,10 +181,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   MoneyBox(
                       Icon(Icons.price_change, color: Colors.white),
+                      Icon(Icons.price_change, color: Colors.white),
                       'ยอดต้นทุน',
                       124500.165,
-                      Color.fromARGB(255, 123, 52, 255),
-                      Color.fromARGB(255, 37, 37, 82),
+                      Theme.of(context).backgroundColor,
+                      Theme.of(context).colorScheme.onSecondary,
                       150,
                       Colors.white),
                   const SizedBox(
@@ -119,10 +193,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   MoneyBox(
                       Icon(Icons.attach_money_rounded, color: Colors.white),
+                      Icon(Icons.price_change, color: Colors.white),
                       'กำไร',
                       87499.84,
-                      Color.fromARGB(255, 37, 37, 82),
-                      Color.fromARGB(255, 123, 52, 255),
+                      Theme.of(context).backgroundColor,
+                      Theme.of(context).colorScheme.onSecondary,
                       150,
                       Colors.white),
                   const SizedBox(

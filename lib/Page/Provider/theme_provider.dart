@@ -59,7 +59,7 @@ class MyThemes {
       background: Color.fromRGBO(20, 20, 20, 1.0),
       error: Colors.green,
       onPrimary: Colors.white,
-      onSecondary: dark_primary_accent_color,
+      onSecondary: Color.fromRGBO(29, 29, 65, 1.0),
       // Icon Color
       onSurface: Colors.white,
       onBackground: Colors.brown,
@@ -134,8 +134,9 @@ class MyThemes {
         // Search TextField
         background: Color.fromARGB(255, 22, 22, 50),
         error: light_primary_accent_color,
+        // Elevated Button Theme Text Color
         onPrimary: Colors.white,
-        onSecondary: light_primary_accent_color,
+        onSecondary: Color.fromRGBO(29, 29, 65, 1.0),
         onSurface: light_primary_accent_color,
         onBackground: light_primary_accent_color,
         onError: light_primary_accent_color,

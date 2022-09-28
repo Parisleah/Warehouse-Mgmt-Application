@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class MoneyBox extends StatelessWidget {
-  final Widget icon;
+  final Widget mainIcon;
+  final Widget trendIcon;
   Color amountFontColor;
   String title;
   double amount;
@@ -10,8 +11,8 @@ class MoneyBox extends StatelessWidget {
   Color secondaryColor;
   double size;
 
-  MoneyBox(this.icon, this.title, this.amount, this.primaryColor,
-      this.secondaryColor, this.size, this.amountFontColor);
+  MoneyBox(this.mainIcon, this.trendIcon, this.title, this.amount,
+      this.primaryColor, this.secondaryColor, this.size, this.amountFontColor);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,18 @@ class MoneyBox extends StatelessWidget {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              this.icon,
+              Row(
+                children: [
+                  this.mainIcon,
+                  Spacer(),
+                  this.trendIcon,
+                  Text(
+                    '${NumberFormat("#,###,###.##").format(amount / 7)} ฿',
+                    style: TextStyle(fontSize: 15, color: amountFontColor),
+                    // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+                  )
+                ],
+              ),
               Text(
                 title,
                 style: TextStyle(

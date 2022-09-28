@@ -26,6 +26,7 @@ File? _image;
 class _EditProfilePageState extends State<EditProfilePage> {
   Profile? profile;
   bool isNameChange = false;
+  bool isHidePin = true;
   final profileNameController = TextEditingController();
   final profilePhoneController = TextEditingController();
   @override
@@ -55,6 +56,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       name: profileNameController.text,
     );
     await DatabaseManager.instance.updateProfile(profile);
+    print('UPDATE PROFILE NAME -> ${profile.name}');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("เปลี่ยนชื่อ"),
@@ -222,10 +224,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         onFieldSubmitted: (context) {
                                           setState(() {
                                             updateProfileName();
+                                            refreshProfile();
                                             isNameChange == !isNameChange;
                                             profileNameController.clear();
-                                            refreshProfile();
                                           });
+                                          setState(() {});
                                         },
                                         style: const TextStyle(
                                             color: Colors.white),
@@ -404,50 +407,81 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 color: Color.fromRGBO(56, 48, 77, 1),
                                 borderRadius: BorderRadius.circular(15)),
                             child: Row(children: [
-                              const Padding(
+                              Padding(
                                 padding: const EdgeInsets.all(20.0),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.lock_open,
                                   color: Colors.white,
                                   size: 20,
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              const Icon(
-                                Icons.circle,
-                                color: Color.fromARGB(255, 136, 136, 136),
-                                size: 10,
-                              ),
-                              const SizedBox(width: 3),
-                              const Icon(
-                                Icons.circle,
-                                color: Color.fromARGB(255, 136, 136, 136),
-                                size: 10,
-                              ),
-                              const SizedBox(width: 3),
-                              const Icon(
-                                Icons.circle,
-                                color: Color.fromARGB(255, 136, 136, 136),
-                                size: 10,
-                              ),
-                              const SizedBox(width: 3),
-                              const Icon(
-                                Icons.circle,
-                                color: Color.fromARGB(255, 136, 136, 136),
-                                size: 10,
-                              ),
-                              const SizedBox(width: 3),
-                              const Icon(
-                                Icons.circle,
-                                color: Color.fromARGB(255, 136, 136, 136),
-                                size: 10,
-                              ),
-                              const SizedBox(width: 3),
-                              const Icon(
-                                Icons.circle,
-                                color: Color.fromARGB(255, 136, 136, 136),
-                                size: 10,
-                              ),
+                              SizedBox(width: 10),
+                              isHidePin == false
+                                  ? Row(
+                                      children: [
+                                        Icon(
+                                          Icons.circle,
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136),
+                                          size: 10,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Icon(
+                                          Icons.circle,
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136),
+                                          size: 10,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Icon(
+                                          Icons.circle,
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136),
+                                          size: 10,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Icon(
+                                          Icons.circle,
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136),
+                                          size: 10,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Icon(
+                                          Icons.circle,
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136),
+                                          size: 10,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Icon(
+                                          Icons.circle,
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136),
+                                          size: 10,
+                                        ),
+                                      ],
+                                    )
+                                  // ${profile!.pin[0]} ${profile!.pin[1]} ${profile!.pin[2]} ${profile!.pin[3]} ${profile!.pin[4]} ${profile!.pin[5]}
+                                  : Text(
+                                      profile!.pin,
+                                      style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 136, 136, 136)),
+                                    ),
+                              Spacer(),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        isHidePin = !isHidePin;
+                                      });
+                                    },
+                                    child: isHidePin == false
+                                        ? Icon(Icons.remove_red_eye_outlined)
+                                        : Icon(Icons.remove_red_eye_rounded)),
+                              )
                             ]),
                           ),
                         ),

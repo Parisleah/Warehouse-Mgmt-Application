@@ -554,7 +554,7 @@ class _ShopPageState extends State<ShopPage> {
                         ),
                         Container(
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSecondary,
+                              color: Theme.of(context).backgroundColor,
                               borderRadius: BorderRadius.circular(20)),
                           child: Padding(
                             padding: const EdgeInsets.all(0.0),
@@ -596,7 +596,7 @@ class _ShopPageState extends State<ShopPage> {
                         ),
                         Container(
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSecondary,
+                              color: Theme.of(context).backgroundColor,
                               borderRadius: BorderRadius.circular(20)),
                           child: Padding(
                             padding: const EdgeInsets.all(0.0),
