@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:warehouse_mnmt/Page/Component/ImagePickerWidget.dart';
+
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
 
 import '../../db/database.dart';
@@ -416,7 +416,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 ),
                               ),
                               SizedBox(width: 10),
-                              isHidePin == false
+                              isHidePin == true
                                   ? Row(
                                       children: [
                                         Icon(
@@ -478,7 +478,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         isHidePin = !isHidePin;
                                       });
                                     },
-                                    child: isHidePin == false
+                                    child: isHidePin == true
                                         ? Icon(Icons.remove_red_eye_outlined)
                                         : Icon(Icons.remove_red_eye_rounded)),
                               )

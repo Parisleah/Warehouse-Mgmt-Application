@@ -72,13 +72,14 @@ class _DashboardPageState extends State<DashboardPage> {
             bottom: TabBar(
                 onTap: (value) {
                   date = DateTime.now();
-
+                  // date = 30 / 9 / 2022
+                  date = DateTime(date.day, date.month, date.year);
                   setState(() {
                     date = DateTime(
                       value == 3 ? date.year - 1 : date.year,
                       value == 2 ? date.month - 1 : date.month,
-                      value == 1 ? date.day - 7 : date.day - 0,
-                      value == 0 ? date.day - 0 : date.day - 0,
+                      value == 1 ? date.day - 7 : date.day,
+                      value == 0 ? date.day : date.day,
                     );
                   });
 

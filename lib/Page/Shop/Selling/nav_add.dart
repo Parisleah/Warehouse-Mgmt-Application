@@ -193,8 +193,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                       .white),
                                                             ),
                                                             Text(
-                                                              product
-                                                                  .prodCategId!,
+                                                              '${product.prodCategId!}',
                                                               style: const TextStyle(
                                                                   fontSize: 12,
                                                                   color: Colors

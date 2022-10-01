@@ -3,6 +3,7 @@ import 'package:warehouse_mnmt/Page/Component/searchBox.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 
+import '../Component/searchBoxController.dart';
 import 'Selling/nav_add.dart';
 
 class SellingPage extends StatefulWidget {
@@ -14,6 +15,7 @@ class SellingPage extends StatefulWidget {
 
 class _SellingPageState extends State<SellingPage> {
   bool isTapSelect = true;
+
 
   @override
   Widget build(BuildContext context) {

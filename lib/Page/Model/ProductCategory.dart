@@ -11,12 +11,12 @@ class ProductCategoryFields {
 class ProductCategory {
   final int? prodCategId;
   final String prodCategName;
-  final int shopId;
+  final int? shopId;
 
   ProductCategory({
     this.prodCategId,
     required this.prodCategName,
-    required this.shopId,
+    this.shopId,
   });
   ProductCategory copy({
     int? prodCategId,

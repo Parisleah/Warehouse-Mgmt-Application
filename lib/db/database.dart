@@ -3,12 +3,13 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductModel_ndProperty.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductModel_stProperty.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import '../Page/Model/ProductCategory.dart';
 import '../Page/Model/ProductLot.dart';
-import '../Page/Model/ProductModel_ndProperty.dart';
-import '../Page/Model/ProductModel_stProperty.dart';
+
 import '../Page/Model/Profile.dart';
 
 class DatabaseManager {
@@ -19,7 +20,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main10.db');
+    _database = await _initDB('main13.db');
     return _database!;
   }
 
@@ -41,8 +42,8 @@ class DatabaseManager {
 
   static const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL';
   static const boolType = 'BOOLEAN NOT NULL';
-  static const integerType = 'INTEGER NOT NULL';
-  static const textType = 'TEXT NOT NULL';
+  static const integerType = 'INTEGER';
+  static const textType = 'TEXT';
 
   static final createTableProfile = """
   CREATE TABLE IF NOT EXISTS $tableProfile (
@@ -64,7 +65,7 @@ class DatabaseManager {
       );""";
   // Product
   static final createTableProduct = """
-  CREATE TABLE IF NOT EXISTS $tableShop (
+  CREATE TABLE IF NOT EXISTS $tableProduct (
        ${ProductFields.prodId} $idType,
   ${ProductFields.prodName} $textType,
   ${ProductFields.prodDescription} $textType,
@@ -170,7 +171,7 @@ CREATE TABLE $tableShop (
   }
 
   // Profile
-  Future<Profile> create(Profile profile) async {
+  Future<Profile> createProfile(Profile profile) async {
     final db = await instance.database;
 
     final id = await db.insert(tableProfile, profile.toJson());
@@ -197,7 +198,7 @@ CREATE TABLE $tableShop (
       print('Found -> ${maps}');
       return Profile.fromJson(maps.first);
     } else {
-      // return null;
+      return null;
       throw Exception('ID $id not found');
     }
   }
@@ -259,6 +260,48 @@ CREATE TABLE $tableShop (
   }
 
 // Shop
+// Product
+  Future<List<Product>> readAllProducts(int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${ProductFields.prodId} DESC';
+    final result = await db.query(tableProduct,
+        columns: ProductFields.values,
+        where: '${ProductFields.shopId} = ?',
+        whereArgs: [shopId],
+        orderBy: orderBy);
+    print(result);
+    return result.map((json) => Product.fromJson(json)).toList();
+  }
+
+  Future<List<Product>> readAllProductsByName(int shopId, name) async {
+    final db = await instance.database;
+    final orderBy = '${ProductFields.prodId} ASC';
+
+    final result = await db.rawQuery(
+        "SELECT * FROM $tableProduct WHERE ${ProductFields.prodName} LIKE '${name}%'");
+    print(result);
+    return result.map((json) => Product.fromJson(json)).toList();
+  }
+
+  Future<Product> createProduct(Product product) async {
+    final db = await instance.database;
+    final id = await db.insert(tableProduct, product.toJson());
+    return product.copy(prodId: id);
+  }
+
+  Future<int> updateProduct(Product product) async {
+    final db = await instance.database;
+    return db.update(tableProduct, product.toJson(),
+        where: '${ProductFields.prodId} = ?', whereArgs: [product.prodId]);
+  }
+
+  Future<int> deleteProduct(int id) async {
+    final db = await instance.database;
+    return db.delete(tableProduct,
+        where: '${ProductFields.prodId} = ?', whereArgs: [id]);
+  }
+
+// Product
 
 // ProductCategory
   Future<ProductCategory> createProductCategory(
@@ -268,10 +311,14 @@ CREATE TABLE $tableShop (
     return prodCateg.copy(prodCategId: id);
   }
 
-  Future<List<ProductCategory>> readAllProductCategorys() async {
+  Future<List<ProductCategory>> readAllProductCategorys(int shopId) async {
     final db = await instance.database;
     final orderBy = '${ProductCategoryFields.prodCategId} ASC';
-    final result = await db.query(tableProductCategory, orderBy: orderBy);
+    final result = await db.query(tableProductCategory,
+        columns: ProductCategoryFields.values,
+        where: '${ProductCategoryFields.shopId} = ?',
+        whereArgs: [shopId]);
+    print(result);
     return result.map((json) => ProductCategory.fromJson(json)).toList();
   }
 
@@ -283,24 +330,24 @@ CREATE TABLE $tableShop (
 
 // ProductCategory
 // ProductModel
-  Future<ProductModel> createProductType(ProductModel prodModel) async {
+  Future<ProductModel> createProductModel(ProductModel prodModel) async {
     final db = await instance.database;
 
     final id = await db.insert(tableProductModel, prodModel.toJson());
     return prodModel.copy(prodModelId: id);
   }
 
-  Future<List<ProductCategory>> readAllProductTypes() async {
+  Future<List<ProductModel>> readAllProductModels() async {
     final db = await instance.database;
-    final orderBy = '${ProductCategoryFields.prodCategId} ASC';
-    final result = await db.query(tableProductCategory, orderBy: orderBy);
-    return result.map((json) => ProductCategory.fromJson(json)).toList();
+    final orderBy = '${ProductModelFields.prodModelId} ASC';
+    final result = await db.query(tableProductModel, orderBy: orderBy);
+    return result.map((json) => ProductModel.fromJson(json)).toList();
   }
 
-  Future<int> deleteProductType(int id) async {
+  Future<int> deleteProductModel(int id) async {
     final db = await instance.database;
-    return db.delete(tableProductCategory,
-        where: '${ProductCategoryFields.prodCategId} = ?', whereArgs: [id]);
+    return db.delete(tableProductModel,
+        where: '${ProductModelFields.prodModelId} = ?', whereArgs: [id]);
   }
 // ProductType
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:warehouse_mnmt/Page/Component/searchBoxController.dart';
 
 class SearchBox extends StatefulWidget {
   String title;
@@ -16,7 +17,7 @@ class _SearchBoxState extends State<SearchBox> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
         controller: controller,
         style: TextStyle(color: Colors.white),
         decoration: InputDecoration(

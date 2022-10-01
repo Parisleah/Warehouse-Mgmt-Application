@@ -3,8 +3,8 @@ const String tableProductModel_ndProperty = 'productModel_ndProperty';
 class ProductModel_ndPropertyFields {
   static final List<String> values = [pmndPropId, pmndPropName, prodModelId];
 
-  static final String pmndPropId = 'pmstPropId';
-  static final String pmndPropName = 'pmstPropName';
+  static final String pmndPropId = 'pmndPropId';
+  static final String pmndPropName = 'pmndPropName';
   static final String prodModelId = 'prodModelId';
 }
 

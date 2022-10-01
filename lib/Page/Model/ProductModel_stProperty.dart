@@ -36,8 +36,8 @@ class ProductModel_stProperty {
         prodModelId: json[ProductModel_stPropertyFields.prodModelId] as int,
       );
   Map<String, Object?> toJson() => {
-        ProductModel_stPropertyFields.pmstPropId: pmstPropId,
+        ProductModel_stPropertyFields.prodModelId: pmstPropId,
         ProductModel_stPropertyFields.pmstPropName: pmstPropName,
-        ProductModel_stPropertyFields.prodModelId: prodModelId,
+        ProductModel_stPropertyFields.prodModelId: pmstPropId,
       };
 }

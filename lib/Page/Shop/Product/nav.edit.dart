@@ -14,15 +14,15 @@ import '../../Component/ImagePickerController.dart';
 import '../../Component/TextField/CustomTextField.dart';
 import '../../Model/ProductModel_ndProperty.dart';
 
-class ProductNavAdd extends StatefulWidget {
+class ProductNavEdit extends StatefulWidget {
   final Shop shop;
-  const ProductNavAdd({required this.shop, Key? key}) : super(key: key);
+  const ProductNavEdit({required this.shop, Key? key}) : super(key: key);
 
   @override
-  State<ProductNavAdd> createState() => _ProductNavAddState();
+  State<ProductNavEdit> createState() => _ProductNavEditState();
 }
 
-class _ProductNavAddState extends State<ProductNavAdd> {
+class _ProductNavEditState extends State<ProductNavEdit> {
   ImagePickerController productImgController = ImagePickerController();
 
   TextEditingController productNameController = TextEditingController();
@@ -61,7 +61,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
 
   String stPropName = 'สี';
   String ndPropName = 'ขนาด';
-  var productCategory = ProductCategory(prodCategName: 'เลือกหมวดหมู่สินค้า');
+  var productCategory = ProductCategory(prodCategName: 'เลือกประเภทสินค้า');
   List<ProductCategory> productCategorys = [];
   // Product Model
   List<ProductModel> productModels = [];
@@ -83,8 +83,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
       showSnackBarIfEmpty('รูปสินค้า');
     } else if (productNameController.text.isEmpty) {
       showSnackBarIfEmpty('ชื่อสินค้า');
-    } else if (productCategory.prodCategName == 'เลือกหมวดหมู่สินค้า') {
-      showSnackBarIfEmpty('หมวดหมู่สินค้า');
     } else if (productNameController.text.isNotEmpty) {
       final product = Product(
           prodName: productNameController.text,
@@ -96,15 +94,16 @@ class _ProductNavAddState extends State<ProductNavAdd> {
           shopId: widget.shop.shopid!);
       print(
           'INSERT -> [${product.prodId}, ${product.prodName}, ${product.prodDescription}, ${product.prodCategId} WHERE ${product.shopId}]');
-      if (productModels.isEmpty) {
-        print('Product Models is Empty');
-      } else {
-        for (var i in productModels) {
-          await DatabaseManager.instance.createProductModel(i);
-        }
-      }
+
       await DatabaseManager.instance.createProduct(product);
       Navigator.pop(context);
+      // if (productModels.isEmpty) {
+      //   print('Product Models is Empty');
+      // } else {
+      //   for (var i in productModels) {
+      //     await DatabaseManager.instance.createProductModel(i);
+      //   }
+      // }
     }
   }
 

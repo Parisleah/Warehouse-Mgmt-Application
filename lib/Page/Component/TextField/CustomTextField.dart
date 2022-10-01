@@ -9,10 +9,9 @@ const primary_color = Color.fromRGBO(56, 48, 77, 1);
 class CustomTextField {
   final _formKey = GlobalKey<FormState>();
 
-  static Widget textField(BuildContext context, String title, bool? _validate, 
+  static Widget textField(BuildContext context, String title, bool? _validate,
       {length,
       bool isNumber = false,
-
       Color? bgColor,
       required textController}) {
     bool _validate = false;
@@ -38,7 +37,7 @@ class CustomTextField {
               controller: textController,
               //-----------------------------------------------------
 
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
               cursorColor: primary_color,
               decoration: InputDecoration(
                 errorText: _validate ? 'โปรดระบุ' : null, //

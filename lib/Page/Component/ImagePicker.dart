@@ -24,11 +24,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   Future getImage() async {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) return;
-    // final imageTemporary = File(image.path);
 
-    // setState(() {
-    //   _image = imageTemporary;
-    // });
     setState(() {
       widget.controller.xfile = image;
     });
@@ -60,23 +56,32 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.image,
-                    size: 100,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .background
-                        .withOpacity(0.9),
-                  ),
-                  Text(
-                    "โปรดเลือกรูป",
-                    style: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .background
-                          .withOpacity(0.9),
-                    ),
-                  )
+                  ElevatedButton(
+                      onPressed: () async {
+                        getImage();
+                      },
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image,
+                              size: 100,
+                              color: Color.fromRGBO(75, 75, 75, 1.0),
+                              // Theme.of(context)
+                              //     .colorScheme
+                              //     .background
+                              //     .withOpacity(0.9)
+                            ),
+                            Text(
+                              "โปรดเลือกรูป",
+                              style: TextStyle(
+                                color: Color.fromRGBO(75, 75, 75, 1.0),
+                              ),
+                            )
+                          ]),
+                      style: ElevatedButton.styleFrom(
+                          fixedSize: Size(180, 180),
+                          primary: Color.fromRGBO(175, 175, 175, 1.0))),
                 ],
               ),
             ),

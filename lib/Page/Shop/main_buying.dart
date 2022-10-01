@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 
 import '../Component/searchBox.dart';
+import '../Component/searchBoxController.dart';
 
 class BuyingPage extends StatefulWidget {
   const BuyingPage({Key? key}) : super(key: key);
@@ -11,6 +12,7 @@ class BuyingPage extends StatefulWidget {
 }
 
 class _BuyingPageState extends State<BuyingPage> {
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(

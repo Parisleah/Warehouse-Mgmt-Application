@@ -9,7 +9,7 @@ import 'package:warehouse_mnmt/Page/Component/Dialog/CustomDialog.dart';
 import 'package:warehouse_mnmt/Page/Profile/AllShop.dart';
 
 import '../../../main.dart';
-import '../../Component/ImagePickerWidget.dart';
+
 import '../../Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
 

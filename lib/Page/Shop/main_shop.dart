@@ -29,17 +29,6 @@ class _ShopPageState extends State<ShopPage> {
   // TextField
 
   File? _image;
-  Future getImage() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image == null) return;
-    final imageTemporary = File(image.path);
-    print(_image);
-    print(_image.runtimeType);
-
-    setState(() {
-      _image = imageTemporary;
-    });
-  }
 
   bool isChange = false;
   Shop? shop;
@@ -49,6 +38,19 @@ class _ShopPageState extends State<ShopPage> {
     super.initState();
     shopNameController.addListener(() => setState(() {}));
     shopPhoneController.addListener(() => setState(() {}));
+  }
+
+  Future getImage(isChange) async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+    final imageTemporary = File(image.path);
+    print(_image);
+    print(_image.runtimeType);
+    isChange = true;
+    setState(() {
+      _image = imageTemporary;
+    });
   }
 
   @override
@@ -173,7 +175,7 @@ class _ShopPageState extends State<ShopPage> {
                                             color: Color.fromARGB(
                                                 255, 94, 94, 94)),
                                         onPressed: () async {
-                                          await getImage();
+                                          await getImage(isChange);
                                           DialogSetState(() {
                                             isChange = !isChange;
                                           });

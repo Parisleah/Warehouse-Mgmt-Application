@@ -270,7 +270,7 @@ class _OtpScreenState extends State<OtpScreen> {
         phone: widget.profilePhone,
         image: widget.profileImg,
         pin: pin);
-    await DatabaseManager.instance.create(profile);
+    await DatabaseManager.instance.createProfile(profile);
     Navigator.push(
         context,
         MaterialPageRoute(
