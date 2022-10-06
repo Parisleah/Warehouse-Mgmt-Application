@@ -51,7 +51,7 @@ class Product {
         shopId: shopId ?? this.shopId,
       );
   static Product fromJson(Map<String, Object?> json) => Product(
-        prodId: json[ProductFields.prodId] as int,
+        prodId: json[ProductFields.prodId] as int?,
         prodName: json[ProductFields.prodName] as String,
         prodDescription: json[ProductFields.prodDescription] as String,
         prodImage: json[ProductFields.prodImage] as String,

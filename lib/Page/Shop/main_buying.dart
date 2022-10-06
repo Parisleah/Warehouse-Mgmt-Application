@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_add.dart';
 
 import '../Component/searchBox.dart';
 import '../Component/searchBoxController.dart';
 
 class BuyingPage extends StatefulWidget {
-  const BuyingPage({Key? key}) : super(key: key);
+  final Shop shop;
+  const BuyingPage({required this.shop, Key? key}) : super(key: key);
 
   @override
   State<BuyingPage> createState() => _BuyingPageState();
 }
 
 class _BuyingPageState extends State<BuyingPage> {
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -22,6 +24,8 @@ class _BuyingPageState extends State<BuyingPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(180),
           child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             automaticallyImplyLeading: false,
             toolbarHeight: 70,
             title: const Text(
@@ -31,10 +35,12 @@ class _BuyingPageState extends State<BuyingPage> {
             actions: [
               IconButton(
                 onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     new MaterialPageRoute(
-                  //         builder: (context) => sellingNavAdd()));
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => BuyingNavAdd(
+                                shop: widget.shop,
+                              )));
                 },
                 icon: const Icon(
                   Icons.add,
@@ -112,8 +118,7 @@ class _BuyingPageState extends State<BuyingPage> {
           ),
         ),
         body: Container(
-          // decoration: BoxDecoration(
-          //     gradient: scafBG_dark_Color),
+          decoration: BoxDecoration(gradient: scafBG_dark_Color),
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -128,7 +133,7 @@ class _BuyingPageState extends State<BuyingPage> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
+                      // color: Theme.of(context).colorScheme.background,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(

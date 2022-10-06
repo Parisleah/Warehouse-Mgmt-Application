@@ -1,10 +1,11 @@
 import 'dart:io';
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Shop/Product/nav_add.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/nav_add.dart';
 import 'package:warehouse_mnmt/db/database.dart';
@@ -15,6 +16,7 @@ import '../Component/searchBoxController.dart';
 import '../Model/Product.dart';
 import '../Model/ProductCategory.dart';
 import '../Model/Shop.dart';
+import 'Product/nav.edit.dart';
 
 class ProductPage extends StatefulWidget {
   final Shop shop;
@@ -25,19 +27,26 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
+  TextEditingController searchProductController = TextEditingController();
   @override
   void initState() {
     super.initState();
     refreshProducts();
     refreshProductCategorys();
+
     setState(() {});
+    searchProductController.addListener(() => setState(() {}));
   }
 
-  TextEditingController searchProductController = TextEditingController();
   List<Product> products = [];
   List<ProductCategory> productCategorys = [];
+  List<ProductModel> productModels = [];
+
   bool _validate = false;
   Future refreshProducts() async {
+    productModels = await DatabaseManager.instance.readAllProductModels();
+    productCategorys = await DatabaseManager.instance
+        .readAllProductCategorys(widget.shop.shopid!);
     products =
         await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
     setState(() {});
@@ -51,25 +60,43 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme _textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(155),
+        preferredSize: const Size.fromHeight(210),
         child: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           automaticallyImplyLeading: false,
-          title: const Text(
-            "สินค้า",
-            textAlign: TextAlign.start,
+          title: Row(
+            children: [
+              Text(
+                "สินค้า",
+                textAlign: TextAlign.start,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: CircleAvatar(
+                  radius: 10,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  child: Text(
+                      '${NumberFormat("#,###.##").format(products.length)}',
+                      style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold)),
+                ),
+              )
+            ],
           ),
           flexibleSpace: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Baseline(
                 baseline: 120,
                 baselineType: TextBaseline.alphabetic,
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                         padding: const EdgeInsets.all(5),
@@ -145,8 +172,10 @@ class _ProductPageState extends State<ProductPage> {
                                         width: 0,
                                       )
                                     : IconButton(
-                                        onPressed: () =>
-                                            searchProductController.clear(),
+                                        onPressed: () {
+                                          searchProductController.clear();
+                                          refreshProducts();
+                                        },
                                         icon: const Icon(
                                           Icons.close_sharp,
                                           color: Colors.white,
@@ -154,6 +183,124 @@ class _ProductPageState extends State<ProductPage> {
                                       ),
                               )),
                         )),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    productCategorys.isEmpty
+                        ? Container(
+                            width: 0,
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  height: 50,
+                                  width: 380,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .appBarTheme
+                                        .backgroundColor,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            // Icon(
+                                            //   Icons.category,
+                                            //   color: Colors.white,
+                                            // ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10),
+                                              child: Text(
+                                                'หมวดหมู่สินค้า',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5),
+                                              child: CircleAvatar(
+                                                radius: 10,
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                child: Text(
+                                                    '${NumberFormat("#,###.##").format(productCategorys.length)}',
+                                                    style: const TextStyle(
+                                                        fontSize: 10,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 270,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .background,
+                                        child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            padding: EdgeInsets.zero,
+                                            itemCount: productCategorys.length,
+                                            itemBuilder: (context, index) {
+                                              final prodCateg =
+                                                  productCategorys[index];
+                                              return TextButton(
+                                                onPressed: () async {
+                                                  products = await DatabaseManager
+                                                      .instance
+                                                      .readAllProductsByCategory(
+                                                          widget.shop.shopid!,
+                                                          prodCateg
+                                                              .prodCategId!);
+                                                  setState(() {});
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            5.0),
+                                                    child: Center(
+                                                      child: Text(
+                                                        prodCateg.prodCategName,
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                   ],
                 )),
           ),
@@ -176,233 +323,306 @@ class _ProductPageState extends State<ProductPage> {
           ],
         ),
       ),
-      body: Container(
-        // decoration: BoxDecoration(gradient: scafBG_dark_Color),
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 150,
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      products.isEmpty
-                          ? RefreshIndicator(
-                              onRefresh: refreshProducts,
-                              child: Center(
-                                  child: Text(
-                                "(พื้นที่วาง Widget)",
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 30),
-                              )),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Container(
-                                height: 480.0,
-                                width: 440.0,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(14),
-                                  // color: Color.fromRGBO(37, 35, 53, 1.0),
+      body: SingleChildScrollView(
+        child: Container(
+          height: 800,
+          decoration: BoxDecoration(gradient: scafBG_dark_Color),
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 130,
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      // color: Theme.of(context).colorScheme.background,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        products.isEmpty
+                            ? GestureDetector(
+                                onVerticalDragStart: (detail) {
+                                  refreshProducts();
+                                },
+                                child: Container(
+                                  height: 490.0,
+                                  width: 440.0,
+                                  child: Center(
+                                      child: Text(
+                                    "(ไม่มีสินค้า${searchProductController.text.isEmpty ? '' : ' ' + searchProductController.text})",
+                                    style: TextStyle(
+                                        color: Colors.grey, fontSize: 30),
+                                  )),
                                 ),
-                                child: RefreshIndicator(
-                                  onRefresh: refreshProducts,
-                                  child: ListView.builder(
-                                      padding: EdgeInsets.zero,
-                                      itemCount: products.length,
-                                      itemBuilder: (context, index) {
-                                        final product = products[index];
-                                        var category;
-                                        for (var prCategory
-                                            in productCategorys) {
-                                          if (product.prodCategId ==
-                                              prCategory.prodCategId) {
-                                            category = prCategory.prodCategName;
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Container(
+                                  height: 480.0,
+                                  width: 440.0,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    // color: Color.fromRGBO(37, 35, 53, 1.0),
+                                  ),
+                                  child: RefreshIndicator(
+                                    onRefresh: refreshProducts,
+                                    child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: products.length,
+                                        itemBuilder: (context, index) {
+                                          final product = products[index];
+                                          var category;
+                                          for (var prCategory
+                                              in productCategorys) {
+                                            if (product.prodCategId ==
+                                                prCategory.prodCategId) {
+                                              category = prCategory;
+                                            }
                                           }
-                                        }
 
-                                        return Dismissible(
-                                          key: Key(products[index].prodName),
-                                          onDismissed: (direction) async {
-                                            await DatabaseManager.instance
-                                                .deleteProduct(product.prodId!);
-                                            refreshProducts();
-                                            setState(() {});
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              backgroundColor: Colors.redAccent,
-                                              content: Text(
-                                                  "ลบสินค้า ${product.prodName}"),
-                                              duration: Duration(seconds: 3),
-                                            ));
-                                          },
-                                          background: Container(
-                                            decoration: BoxDecoration(
-                                                color: Colors.redAccent,
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: const [
-                                                Icon(
-                                                  Icons.delete_forever,
-                                                  color: Colors.white,
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          direction:
-                                              DismissDirection.endToStart,
-                                          resizeDuration: Duration(seconds: 1),
-                                          child: TextButton(
-                                            onPressed: () {
-                                              // Navigator.of(context).push(
-                                              //     MaterialPageRoute(
-                                              //         builder: (context) =>
-                                              //             productNavEdit(
-                                              //                 product: product)));
+                                          var cost = [];
+                                          var price = [];
+
+                                          for (var prModel in productModels) {
+                                            if (prModel.prodId ==
+                                                product.prodId) {
+                                              cost.add(prModel.cost);
+                                              price.add(prModel.price);
+                                              print(
+                                                  ' + ${prModel.cost} +  ${prModel.price}');
+                                            }
+                                          }
+                                          var _minCost = 0;
+                                          var _maxCost = 0;
+                                          var _minPrice = 0;
+                                          var _maxPrice = 0;
+
+                                          if (cost.isNotEmpty &&
+                                              price.isNotEmpty) {
+                                            var minCost = cost.reduce(
+                                                (curr, next) =>
+                                                    curr < next ? curr : next);
+                                            var maxCost = cost.reduce(
+                                                (curr, next) =>
+                                                    curr > next ? curr : next);
+                                            var minprice = price.reduce(
+                                                (curr, next) =>
+                                                    curr < next ? curr : next);
+                                            var maxprice = price.reduce(
+                                                (curr, next) =>
+                                                    curr > next ? curr : next);
+                                            _minCost = minCost;
+                                            _maxCost = maxCost;
+                                            _minPrice = minprice;
+                                            _maxPrice = maxprice;
+                                          }
+
+                                          return Dismissible(
+                                            key: Key(products[index].prodName),
+                                            onDismissed: (direction) async {
+                                              await DatabaseManager.instance
+                                                  .deleteProduct(
+                                                      product.prodId!);
+                                              refreshProducts();
+                                              setState(() {});
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                                content: Text(
+                                                    "ลบสินค้า ${product.prodName}"),
+                                                duration: Duration(seconds: 2),
+                                              ));
                                             },
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 0.0,
-                                                  horizontal: 0.0),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: Container(
-                                                  height: 90,
-                                                  width: 400,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Container(
-                                                        width: 90,
-                                                        height: 90,
-                                                        child: Image.file(
-                                                          File(product
-                                                              .prodImage!),
-                                                          fit: BoxFit.cover,
+                                            background: Container(
+                                              margin: EdgeInsets.only(
+                                                  left: 0,
+                                                  top: 10,
+                                                  right: 10,
+                                                  bottom: 10),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.redAccent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.delete_forever,
+                                                    color: Colors.white,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            direction:
+                                                DismissDirection.endToStart,
+                                            resizeDuration:
+                                                Duration(seconds: 1),
+                                            child: TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProductNavEdit(
+                                                              product: product,
+                                                              prodCategory:
+                                                                  category,
+                                                              shop: widget.shop,
+                                                            )));
+                                              },
+                                              child: Container(
+                                                // decoration: BoxDecoration(
+                                                //   boxShadow: [
+                                                //     BoxShadow(
+                                                //         color: Colors.black,
+                                                //         spreadRadius: 1,
+                                                //         blurRadius: 5,
+                                                //         offset: Offset(0, 4))
+                                                //   ],
+                                                // ),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                    ),
+                                                    height: 90,
+                                                    width: 400,
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Container(
+                                                          width: 90,
+                                                          height: 90,
+                                                          child: Image.file(
+                                                            File(product
+                                                                .prodImage!),
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      SizedBox(width: 10),
-                                                      Expanded(
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: <Widget>[
-                                                            Text(
-                                                              product.prodName,
-                                                              style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                            Container(
-                                                              decoration: BoxDecoration(
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .secondary,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10)),
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        2.0),
-                                                                child: Text(
-                                                                  category ==
-                                                                          null
-                                                                      ? ""
-                                                                      : category,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                          .white),
+                                                        const SizedBox(
+                                                            width: 10),
+                                                        Expanded(
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: <Widget>[
+                                                              Text(
+                                                                product
+                                                                    .prodName,
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .secondary,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          2.0),
+                                                                  child: Text(
+                                                                    category ==
+                                                                            null
+                                                                        ? "ไม่มีหมวดหมู่สินค้า"
+                                                                        : category
+                                                                            .prodCategName,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                            Text(
-                                                                'ต้นทุน ${NumberFormat("#,###.##").format(product.prodId)}',
-                                                                style: const TextStyle(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    fontSize:
-                                                                        12)),
-                                                            Text(
-                                                                'ราคา ${NumberFormat("#,###.##").format(product.prodCategId)}',
-                                                                style: const TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        12)),
-                                                          ],
+                                                              Text(
+                                                                  'ต้นทุน ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      fontSize:
+                                                                          12)),
+                                                              Text(
+                                                                  'ราคา ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          12)),
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      CircleAvatar(
-                                                        radius: 15,
-                                                        backgroundColor: Theme
-                                                                .of(context)
-                                                            .backgroundColor,
-                                                        child: Text(
-                                                            '${NumberFormat("#,###.##").format(product.shopId)}',
-                                                            style: const TextStyle(
-                                                                fontSize: 15,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
-                                                      ),
-                                                      // Delete Product
-                                                      const Icon(
-                                                          Icons
-                                                              .more_vert_outlined,
-                                                          color: Color.fromARGB(
-                                                              255,
-                                                              205,
-                                                              205,
-                                                              205)),
-                                                    ],
+                                                        CircleAvatar(
+                                                          radius: 15,
+                                                          backgroundColor:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .secondary,
+                                                          child: Text(
+                                                              '${NumberFormat("#,###.##").format(product.prodId)}',
+                                                              style: const TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)),
+                                                        ),
+                                                        // Delete Product
+                                                        const Icon(
+                                                            Icons
+                                                                .more_vert_outlined,
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    205,
+                                                                    205,
+                                                                    205)),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }),
+                                          );
+                                        }),
+                                  ),
                                 ),
-                              ),
-                            )
-                    ],
+                              )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

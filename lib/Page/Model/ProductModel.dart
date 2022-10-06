@@ -23,8 +23,8 @@ class ProductModelFields {
 class ProductModel {
   final int? prodModelId;
   final String prodModelname;
-  final int stProperty;
-  final int ndProperty;
+  final String? stProperty;
+  final String? ndProperty;
   final int cost;
   final int price;
   final int? prodId;
@@ -32,8 +32,8 @@ class ProductModel {
   ProductModel({
     this.prodModelId,
     required this.prodModelname,
-    required this.stProperty,
-    required this.ndProperty,
+    this.stProperty,
+    this.ndProperty,
     required this.cost,
     required this.price,
     this.prodId,
@@ -41,8 +41,8 @@ class ProductModel {
   ProductModel copy({
     int? prodModelId,
     String? prodModelname,
-    int? stProperty,
-    int? ndProperty,
+    String? stProperty,
+    String? ndProperty,
     int? cost,
     int? price,
     int? prodId,
@@ -59,8 +59,8 @@ class ProductModel {
   static ProductModel fromJson(Map<String, Object?> json) => ProductModel(
         prodModelId: json[ProductModelFields.prodModelId] as int,
         prodModelname: json[ProductModelFields.prodModelname] as String,
-        stProperty: json[ProductModelFields.stProperty] as int,
-        ndProperty: json[ProductModelFields.ndProperty] as int,
+        stProperty: json[ProductModelFields.stProperty] as String,
+        ndProperty: json[ProductModelFields.ndProperty] as String,
         cost: json[ProductModelFields.cost] as int,
         price: json[ProductModelFields.price] as int,
         prodId: json[ProductModelFields.prodId] as int,

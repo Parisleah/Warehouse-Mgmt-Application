@@ -47,6 +47,7 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
     print("สร้าง ${widget.shopName} Successfully!!");
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        behavior: SnackBarBehavior.floating,
         content: Text("สร้าง ${widget.shopName} เสร็จสิ้น! "),
         duration: Duration(seconds: 1),
       ),
@@ -181,41 +182,6 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
             ),
           );
         });
-    // Alert(
-    //   context: context,
-    //   type: AlertType.success,
-    //   title:
-    //       "สร้างโปรไฟล์เสร็จแล้ว \n ${widget.profileName} ${widget.profilePhone}",
-    //   buttons: [
-    //     DialogButton(
-    //       radius: BorderRadius.circular(18),
-    //       gradient: LinearGradient(
-    //         colors: [
-    //           Color.fromRGBO(29, 29, 65, 1.0),
-    //           // Color.fromARGB(255, 90, 70, 136),
-    //           Theme.of(context).backgroundColor,
-    //         ],
-    //         begin: Alignment.bottomLeft,
-    //         end: Alignment.topRight,
-    //         stops: [0.1, 0.8],
-    //         tileMode: TileMode.clamp,
-    //       ),
-    //       // ignore: sort_child_properties_last
-    //       child: Text(
-    //         "ตกลง",
-    //         style: TextStyle(color: Colors.white, fontSize: 20),
-    //       ),
-    //       onPressed: () {
-    //         Navigator.push(
-    //           context,
-    //           MaterialPageRoute(builder: (context) => MyHomePage()),
-    //         );
-    //       },
-    //       color: Color.fromRGBO(50, 224, 119, 1.0),
-    //       width: 120,
-    //     )
-    //   ],
-    // ).show();
   }
 
   @override
@@ -382,13 +348,16 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                           name: widget.shopName,
                           phone: widget.shopPhone,
                           image: _image!.path,
-                          profileId: widget.profile.id!);
+                          profileId: widget.profile.id == null
+                              ? 1
+                              : widget.profile.id!);
                       showAlert(shop);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
+                          behavior: SnackBarBehavior.floating,
                           backgroundColor: Colors.redAccent,
-                          content: Text("โปรดเพิ่มรุปภาพ"),
+                          content: Text("โปรดเพิ่มรูปภาพ"),
                           duration: Duration(seconds: 3),
                         ),
                       );

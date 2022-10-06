@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:warehouse_mnmt/Page/Component/ImagePicker.dart';
+
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
@@ -16,7 +17,15 @@ import '../../Model/ProductModel_ndProperty.dart';
 
 class ProductNavEdit extends StatefulWidget {
   final Shop shop;
-  const ProductNavEdit({required this.shop, Key? key}) : super(key: key);
+  final Product product;
+  final ProductCategory prodCategory;
+
+  const ProductNavEdit(
+      {required this.product,
+      required this.prodCategory,
+      required this.shop,
+      Key? key})
+      : super(key: key);
 
   @override
   State<ProductNavEdit> createState() => _ProductNavEditState();
@@ -24,7 +33,6 @@ class ProductNavEdit extends StatefulWidget {
 
 class _ProductNavEditState extends State<ProductNavEdit> {
   ImagePickerController productImgController = ImagePickerController();
-
   TextEditingController productNameController = TextEditingController();
   TextEditingController productDescriptionController = TextEditingController();
   TextEditingController productCategoryNameController = TextEditingController();
@@ -40,17 +48,17 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   List<TextEditingController> editPriceControllers = [];
   TextEditingController editAllCostController = TextEditingController();
   TextEditingController editAllPriceController = TextEditingController();
-
+  List<ProductModel> productModels = [];
   @override
   void initState() {
     super.initState();
     refreshProductCategorys();
-
+    refreshProductModels();
     setState(() {});
     print(
         'Welcome to ${widget.shop.name} -> Product Categorys -> ${productCategorys.length}');
     productNameController.addListener(() => setState(() {}));
-    ;
+
     productCategoryNameController.addListener(() => setState(() {}));
   }
 
@@ -58,14 +66,22 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   bool _validate = false;
   bool isDialogChooseFst = false;
   bool isDelete_ndProp = false;
-
+  File? _image;
   String stPropName = 'สี';
   String ndPropName = 'ขนาด';
   var productCategory = ProductCategory(prodCategName: 'เลือกประเภทสินค้า');
   List<ProductCategory> productCategorys = [];
   // Product Model
-  List<ProductModel> productModels = [];
+
   List<ProductModel_stProperty> stPropsList = [];
+  // Product Model
+  Future refreshProductModels() async {
+    productModels = await DatabaseManager.instance
+        .readAllProductModelsInProduct(widget.product.prodId!);
+    print(productModels);
+    setState(() {});
+  }
+
   List<ProductModel_ndProperty> ndPropsList = [];
 
   bool isFoundNullCost = false;
@@ -78,33 +94,32 @@ class _ProductNavEditState extends State<ProductNavEdit> {
     ));
   }
 
-  Future _insertProduct(shop) async {
-    if (productImgController.path == null) {
-      showSnackBarIfEmpty('รูปสินค้า');
-    } else if (productNameController.text.isEmpty) {
-      showSnackBarIfEmpty('ชื่อสินค้า');
-    } else if (productNameController.text.isNotEmpty) {
-      final product = Product(
-          prodName: productNameController.text,
-          prodDescription: productDescriptionController.text,
-          prodImage: productImgController.path,
-          prodCategId: productCategory.prodCategId == null
-              ? null
-              : productCategory.prodCategId,
-          shopId: widget.shop.shopid!);
-      print(
-          'INSERT -> [${product.prodId}, ${product.prodName}, ${product.prodDescription}, ${product.prodCategId} WHERE ${product.shopId}]');
+  Future getImage(isChange) async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-      await DatabaseManager.instance.createProduct(product);
-      Navigator.pop(context);
-      // if (productModels.isEmpty) {
-      //   print('Product Models is Empty');
-      // } else {
-      //   for (var i in productModels) {
-      //     await DatabaseManager.instance.createProductModel(i);
-      //   }
-      // }
-    }
+    if (image == null) return;
+    final imageTemporary = File(image.path);
+    print(_image);
+    print(_image.runtimeType);
+    isChange = true;
+    setState(() {
+      _image = imageTemporary;
+    });
+  }
+
+  Future _updateProduct(shop) async {
+    final product = Product(
+        prodName: productNameController.text,
+        prodDescription: productDescriptionController.text,
+        prodImage: productImgController.path,
+        prodCategId: productCategory.prodCategId == null
+            ? null
+            : productCategory.prodCategId,
+        shopId: widget.shop.shopid!);
+    print(
+        'UPDATE PRODUCT -> [${product.prodId}, ${product.prodName}, ${product.prodDescription}, ${product.prodCategId} WHERE ${product.shopId}]');
+    await DatabaseManager.instance.updateProduct(product);
+    Navigator.pop(context);
   }
 
   // Product
@@ -144,9 +159,9 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         for (var nd in ndPropsList) {
           print('st ->${st.pmstPropName} nd -> ${nd.pmndPropName}');
           final model = ProductModel(
-              prodModelname: '${st.pmstPropName},${nd.pmndPropName}',
-              stProperty: 0,
-              ndProperty: 0,
+              prodModelname: '${stPropName},${ndPropName}',
+              stProperty: '${st.pmstPropName}',
+              ndProperty: '${nd.pmndPropName}',
               cost: int.parse(editCostControllers[i].text),
               price: int.parse(editPriceControllers[i].text));
           productModels.add(model);
@@ -245,9 +260,9 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         for (var nd in ndPropsList) {
           print('st ->${st.pmstPropName} nd -> ${nd.pmndPropName}');
           final model = ProductModel(
-              prodModelname: '${st.pmstPropName},${nd.pmndPropName}',
-              stProperty: 0,
-              ndProperty: 0,
+              prodModelname: '${stPropName},${ndPropName}',
+              stProperty: '${st.pmstPropName}',
+              ndProperty: '${nd.pmndPropName}',
               cost: 0,
               price: 0);
           productModels.add(model);
@@ -259,8 +274,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
       } else {
         final model = ProductModel(
             prodModelname: '${st.pmstPropName}',
-            stProperty: 0,
-            ndProperty: 0,
+            stProperty: '${st.pmstPropName}',
             cost: 0,
             price: 0);
         productModels.add(model);
@@ -1467,7 +1481,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                         onTap: () {
                                           _updateChooseProductCateg(
                                               productCategory);
-                                          print(productCategory.prodCategName);
+
                                           Navigator.pop(context);
                                         },
                                         child: Padding(
@@ -1530,7 +1544,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
           preferredSize: const Size.fromHeight(70),
           child: AppBar(
             title: const Text(
-              "เพิ่มสินค้า",
+              "แก้ไขสินค้า",
               textAlign: TextAlign.start,
             ),
           ),
@@ -1552,7 +1566,72 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20)),
-                    child: ImagePickerWidget(controller: productImgController),
+                    child: Container(
+                      height: 200,
+                      width: 200,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Stack(
+                        children: [
+                          if (_image != null)
+                            Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.file(
+                                  _image!,
+                                  width: 180,
+                                  height: 180,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          else
+                            Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.file(
+                                  File(widget.product.prodImage!),
+                                  width: 180,
+                                  height: 180,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          Positioned(
+                            top: 0.0,
+                            right: 0.0,
+                            child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black.withOpacity(0.7),
+                                        spreadRadius: 0,
+                                        blurRadius: 5,
+                                        offset: Offset(0, 4))
+                                  ],
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(
+                                      Icons.add_photo_alternate_outlined,
+                                      size: 25,
+                                      color: Color.fromARGB(255, 94, 94, 94)),
+                                  onPressed: () async {
+                                    // await getImage(isChange);
+                                    // DialogSetState(() {
+                                    //   isChange = !isChange;
+                                    // });
+                                    // if (_image!.path != null) {}
+                                  },
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -1566,7 +1645,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                   ),
                   CustomTextField.textField(
                     context,
-                    'ระบุชื่อสินค้า',
+                    widget.product.prodName,
                     _validate,
                     length: 30,
                     textController: productNameController,
@@ -1594,7 +1673,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                           borderRadius: BorderRadius.circular(15)),
                       child: Row(children: [
                         Text(
-                          productCategory.prodCategName,
+                          widget.prodCategory.prodCategName,
                           style: TextStyle(color: Colors.grey),
                         ),
                         Spacer(),
@@ -1616,7 +1695,10 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                   ),
                   CustomTextField.textField(
                     context,
-                    'ระบุรายละเอียดสินค้า',
+                    widget.product.prodDescription == null ||
+                            widget.product.prodDescription == ''
+                        ? 'เพิ่มรายละเอียดสินค้า'
+                        : widget.product.prodDescription!,
                     _validate,
                     length: 100,
                     textController: productDescriptionController,
@@ -1724,10 +1806,48 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                 const SizedBox(
                                                   width: 10,
                                                 ),
-                                                Text(
-                                                  productModel.prodModelname,
-                                                  style: TextStyle(
-                                                      color: Colors.white),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .background,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            3.0),
+                                                    child: Text(
+                                                      '${productModel.stProperty}',
+                                                      style: const TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .background,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            3.0),
+                                                    child: Text(
+                                                      '${productModel.ndProperty}',
+                                                      style: const TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
                                                 ),
                                                 const SizedBox(
                                                   width: 10,
@@ -1754,13 +1874,9 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                     onPressed: () {
                                                       productModels.removeWhere(
                                                           (item) =>
-                                                              item.prodModelname
-                                                                  .split(
-                                                                      ',')[1] ==
+                                                              item.ndProperty ==
                                                               productModel
-                                                                  .prodModelname
-                                                                  .split(
-                                                                      ',')[1]);
+                                                                  .ndProperty);
                                                       setState(() {});
                                                     },
                                                     child: Icon(
@@ -1824,9 +1940,9 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                           style: ElevatedButton.styleFrom(
                               fixedSize: const Size(80, 40)),
                           onPressed: () async {
-                            _insertProduct(widget.shop);
+                            _updateProduct(widget.shop);
                           },
-                          child: Text('ยืนยัน')),
+                          child: Text('บันทึก')),
                     ],
                   ),
                 ],

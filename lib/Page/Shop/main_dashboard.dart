@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:warehouse_mnmt/Page/Component/RaisedGradientButton%20.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
@@ -209,13 +210,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   //     length: 30,
                   //     textController: controller,
                   //     'กำหนดชื่อโปรไฟล์ของคุณ'),
-                  ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.save),
-                      label: const Text('Save')),
 
                   // Container(
-                  //   height: 200,
+                  //   height: 250,
                   //   decoration: BoxDecoration(
                   //     gradient: const LinearGradient(
                   //       colors: [
@@ -232,7 +229,24 @@ class _DashboardPageState extends State<DashboardPage> {
                   //   child: Column(
                   //     children: [Text("Top10"), ImgCarousel(images)],
                   //   ),
-                  // )
+                  // ),
+                  // RaisedGradientButton(
+                  //     child: Text(
+                  //       'Button',
+                  //       style: TextStyle(color: Colors.white),
+                  //     ),
+                  //     gradient: LinearGradient(
+                  //       colors: <Color>[
+                  //         Color.fromRGBO(29, 29, 65, 1.0),
+                  //         Color.fromARGB(255, 90, 70, 136)
+                  //       ],
+                  //     ),
+                  //     onPressed: () {
+                  //       print('button clicked');
+                  //     }),
+                  SizedBox(
+                    height: 50,
+                  )
                 ],
               ),
             ),

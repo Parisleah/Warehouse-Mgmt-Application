@@ -45,6 +45,8 @@ const light_primary_accent_color = Color.fromARGB(255, 72, 179, 127);
 
 class MyThemes {
   static final darkTheme = ThemeData(
+    snackBarTheme:
+        SnackBarThemeData(contentTextStyle: TextStyle(color: Colors.white)),
     // Font
     fontFamily: 'NotoSansThai',
 
@@ -126,6 +128,8 @@ class MyThemes {
   );
 
   static final lightTheme = ThemeData(
+    snackBarTheme:
+        SnackBarThemeData(contentTextStyle: TextStyle(color: Colors.white)),
     // Main Colors
     scaffoldBackgroundColor: Color.fromARGB(255, 19, 19, 44),
     colorScheme: const ColorScheme.dark(
