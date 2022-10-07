@@ -8,6 +8,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
+import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
 
 import '../../../db/database.dart';
 import '../../Model/Product.dart';
@@ -16,9 +17,11 @@ import '../../Model/ProductModel_stProperty.dart';
 
 class BuyingNavShowProd extends StatefulWidget {
   final Product product;
+  final ValueChanged<PurchasingItemsModel> update;
 
   BuyingNavShowProd({
     Key? key,
+    required this.update,
     required this.product,
   }) : super(key: key);
 
@@ -31,10 +34,8 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
   List<ProductLot> productLots = [];
   List<ProductModel_stProperty> stPropertys = [];
   List<ProductModel_ndProperty> ndPropertys = [];
-
+  ProductModel? selectedValue;
   String? value;
-  // TextField -------------------------------------------------------------
-  // prodAmountController TextField
   final prodAmountController = TextEditingController();
   final prodRequestController = TextEditingController();
   // Text Field
@@ -49,6 +50,9 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     );
   }
 
+  final _formKey = GlobalKey<FormState>();
+  final _formKeyAmount = GlobalKey<FormState>();
+
   Future refreshProducts() async {
     productModels = await DatabaseManager.instance
         .readAllProductModelsInProduct(widget.product.prodId!);
@@ -56,21 +60,15 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     setState(() {});
   }
 
-  _get1stName(prodModel) async {
-    stPropertys = await DatabaseManager.instance
-        .readAll1stProperty(prodModel.prodModelId!);
-
-    for (var st in stPropertys) {
-      if (st.pmstPropId == prodModel.stProperty) {
-        return '${st.pmstPropName}';
-        break;
-      }
+  int ctotal = 0;
+  void _calculateTotal(model, int amount) {
+    if (model != null) {
+      ctotal = model.cost * amount;
+    } else {
+      ctotal = 0;
     }
   }
 
-  String? selectedValue;
-
-  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,6 +171,9 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                         fontWeight: FontWeight.normal,
                         color: Colors.grey),
                   ),
+                  SizedBox(
+                    height: 10,
+                  ),
                 ]),
                 // Drop Down แบบสินค้า
                 Form(
@@ -183,6 +184,27 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: DropdownButtonFormField2(
+                          validator: (value) {
+                            if (value == null) {
+                              return 'โปรดเลือกรูปแบบสินค้า';
+                            }
+                          },
+                          onChanged: (value) {
+                            selectedValue = value as ProductModel;
+                            if (prodAmountController.text.isNotEmpty) {
+                              int amount = int.parse(prodAmountController.text);
+                              _calculateTotal(selectedValue, amount);
+                            }
+
+                            setState(() {});
+                          },
+                          onSaved: (value) {
+                            selectedValue = value as ProductModel;
+
+                            setState(() {});
+                          },
+                          dropdownMaxHeight: 200,
+                          itemHeight: 80,
                           buttonDecoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
@@ -209,7 +231,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                             color: Colors.white,
                           ),
                           iconSize: 30,
-                          buttonHeight: 80,
+                          buttonHeight: 90,
                           buttonPadding:
                               const EdgeInsets.only(left: 20, right: 10),
                           dropdownDecoration: BoxDecoration(
@@ -227,50 +249,55 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Container(
+                                          height: 100,
                                           color:
                                               Color.fromRGBO(66, 64, 87, 1.0),
                                           child: Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: Column(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      '${_get1stName(item)}',
+                                                      '${item.stProperty} ${(item.ndProperty)}',
                                                       style: TextStyle(
                                                           fontSize: 12,
-                                                          color: Colors.white),
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold),
                                                     ),
                                                     const SizedBox(
                                                       width: 10,
                                                     ),
                                                     Text(
-                                                      '${(item.prodModelname)}',
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: Colors.white),
-                                                    ),
-                                                    Spacer(),
-                                                    CircleAvatar(
-                                                      backgroundColor:
-                                                          Color.fromRGBO(
-                                                              30, 30, 49, 1.0),
-                                                      radius: 10,
-                                                      child: Text(
-                                                          '${NumberFormat("#,###.##").format(1)}',
-                                                          style: const TextStyle(
-                                                              fontSize: 10,
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                    ),
+                                                        'ต้นทุน ${NumberFormat("#,###.##").format(item.cost)}',
+                                                        style: const TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 10)),
+                                                    Text(
+                                                        ' ราคา ${NumberFormat("#,###.##").format(item.price)}',
+                                                        style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 10)),
                                                   ],
+                                                ),
+                                                Spacer(),
+                                                CircleAvatar(
+                                                  backgroundColor:
+                                                      Color.fromRGBO(
+                                                          30, 30, 49, 1.0),
+                                                  radius: 10,
+                                                  child: Text(
+                                                      '${NumberFormat("#,###.##").format(item.prodModelId)}',
+                                                      style: const TextStyle(
+                                                          fontSize: 10,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                 ),
                                               ],
                                             ),
@@ -280,17 +307,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                     ),
                                   ))
                               .toList(),
-                          validator: (value) {
-                            if (value == null) {
-                              return 'โปรดเลือกรูปแบบสินค้า';
-                            }
-                          },
-                          onChanged: (value) {
-                            //Do something when changing the item if you want.
-                          },
-                          onSaved: (value) {
-                            selectedValue = value.toString();
-                          },
                         ),
                       ),
                     ],
@@ -298,54 +314,84 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                 ),
 
                 //Container of จำนวนสินค้า
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        "จำนวนสินค้า",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
+                Form(
+                  key: _formKeyAmount,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          "จำนวนสินค้า",
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: const Color.fromRGBO(56, 48, 77, 1.0),
-                          borderRadius: BorderRadius.circular(15)),
-                      width: 350,
-                      height: 60,
-                      child: TextField(
-                          textAlign: TextAlign.start,
-                          keyboardType: TextInputType.number,
-                          //-----------------------------------------------------
-                          style: const TextStyle(color: Colors.grey),
-                          controller: prodAmountController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.transparent,
-                            border: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide.none),
-                            hintText: "1",
-                            hintStyle: const TextStyle(
-                                color: Colors.grey, fontSize: 14),
-                            suffixIcon: !prodAmountController.text.isEmpty
-                                ? IconButton(
-                                    onPressed: () =>
-                                        prodAmountController.clear(),
-                                    icon: const Icon(
-                                      Icons.close_sharp,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-                          )),
-                    ),
-                  ],
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: const Color.fromRGBO(56, 48, 77, 1.0),
+                            borderRadius: BorderRadius.circular(15)),
+                        width: 350,
+                        height: 60,
+                        child: TextFormField(
+                            textAlign: TextAlign.start,
+                            keyboardType: TextInputType.number,
+                            onChanged: (text) {
+                              if (prodAmountController.text.isNotEmpty &&
+                                  prodAmountController.text != null &&
+                                  prodAmountController.text != '') {
+                                int amount =
+                                    int.parse(prodAmountController.text);
+                                _calculateTotal(selectedValue, amount);
+                              }
+
+                              setState(() {});
+                            },
+                            //-----------------------------------------------------
+                            style: const TextStyle(color: Colors.grey),
+                            controller: prodAmountController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'ใส่จำนวน';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.transparent,
+                              border: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  borderSide: BorderSide.none),
+                              hintText: "ระบุจำนวน",
+                              hintStyle: const TextStyle(
+                                  color: Colors.grey, fontSize: 14),
+                              suffixIcon: !prodAmountController.text.isEmpty
+                                  ? IconButton(
+                                      onPressed: () {
+                                        prodAmountController.clear();
+                                        ctotal = 0;
+                                      },
+                                      icon: const Icon(
+                                        Icons.close_sharp,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
+                            )),
+                      ),
+                    ],
+                  ),
                 ),
                 // Container of จำนวนสินค้า
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Text(
+                    "ค่าใช้จ่าย ${NumberFormat("#,###,###.##").format(ctotal)}",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ),
+
                 // Container of คำขอร้องพิเศษ
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,7 +399,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                        "คำขอร้องพิเศษ",
+                        "คำร้องขอพิเศษ",
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ),
@@ -413,21 +459,67 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                               style: TextStyle(fontSize: 17),
                             ),
                           ),
-                          productLots.isEmpty
-                              ? Container(
-                                  width: 0,
-                                )
-                              : ElevatedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      _formKey.currentState!.save();
-                                    }
-                                  },
-                                  child: Text(
-                                    "ยืนยัน",
-                                    style: TextStyle(fontSize: 17),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_formKey.currentState!.validate() &&
+                                  _formKeyAmount.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  backgroundColor:
+                                      Theme.of(context).backgroundColor,
+                                  behavior: SnackBarBehavior.floating,
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_cart_outlined,
+                                        color: Colors.white,
+                                      ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(30),
+                                        child: Container(
+                                          width: 20,
+                                          height: 20,
+                                          child: Image.file(
+                                            File(widget.product.prodImage!),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .backgroundColor,
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3.0),
+                                          child: Text(
+                                            "+${prodAmountController.text}",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(" ${widget.product.prodName} "),
+                                    ],
                                   ),
-                                )
+                                  duration: Duration(seconds: 5),
+                                ));
+                                final puritem = PurchasingItemsModel(
+                                    amount:
+                                        int.parse(prodAmountController.text),
+                                    prodModelId: widget.product.prodId,
+                                    total: ctotal);
+                                widget.update(puritem);
+                                Navigator.pop(context);
+                              }
+                            },
+                            child: Text(
+                              "ยืนยัน",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                          )
                         ],
                       )
                     ],

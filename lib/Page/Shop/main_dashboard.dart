@@ -4,8 +4,9 @@ import 'package:warehouse_mnmt/Page/Component/RaisedGradientButton%20.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
-import '../Component/moneyBox.dart';
-import '../Component/imgCarouselWidget.dart';
+
+import '../Component/MoneyBox.dart';
+import '../Component/ImgCarouselWidget.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -36,6 +37,15 @@ class _DashboardPageState extends State<DashboardPage> {
     "assets/images/products/2.png",
     "assets/images/products/3.png",
     "assets/images/products/4.png"
+  ];
+  final covidUSADailyNewCases = [
+    12.17,
+    11.15,
+    10.02,
+    11.21,
+    13.83,
+    14.16,
+    14.30
   ];
 
   @override
@@ -107,7 +117,8 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            // decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            height: MediaQuery.of(context).size.height * 1.4,
+            decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -244,6 +255,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   //     onPressed: () {
                   //       print('button clicked');
                   //     }),
+
                   SizedBox(
                     height: 50,
                   )

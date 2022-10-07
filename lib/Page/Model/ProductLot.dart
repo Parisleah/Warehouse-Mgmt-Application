@@ -18,15 +18,15 @@ class ProductLotFields {
 class ProductLot {
   final int? prodLotId;
   final DateTime orderedTime;
-  final int? amount;
-  final int? remainAmount;
+  final int amount;
+  final int remainAmount;
   final int? prodModelId;
 
   ProductLot({
     this.prodLotId,
     required this.orderedTime,
-    this.amount,
-    this.remainAmount,
+    required this.amount,
+    required this.remainAmount,
     this.prodModelId,
   });
   ProductLot copy({

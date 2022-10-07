@@ -73,7 +73,7 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
             end: Alignment.bottomCenter,
           )),
           child: Column(children: [
-            const SizedBox(height: 100),
+            const SizedBox(height: 90),
             dealers.isEmpty
                 ? Container(
                     width: 440,
@@ -94,8 +94,7 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                           itemCount: dealers.length,
                           itemBuilder: (context, index) {
                             final dealer = dealers[index];
-                            return 
-                                Dismissible(
+                            return Dismissible(
                               background: Container(
                                 decoration: BoxDecoration(
                                     color: Colors.redAccent,
@@ -130,41 +129,44 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                                   duration: Duration(seconds: 2),
                                 ));
                               },
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    primary:
-                                        const Color.fromRGBO(56, 54, 76, 1.0),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15))),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  widget.update(dealer);
-                                },
-                                child: Row(children: [
-                                  Icon(Icons.person_pin_circle),
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(dealer.dName,
-                                            style: TextStyle(
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white)),
-                                        Wrap(children: [
-                                          Text('ที่อยู่ ${dealer.dAddress}',
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      primary:
+                                          const Color.fromRGBO(56, 54, 76, 1.0),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15))),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    widget.update(dealer);
+                                  },
+                                  child: Row(children: [
+                                    Icon(Icons.person_pin_circle),
+                                    Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(dealer.dName,
                                               style: TextStyle(
-                                                  fontSize: 15,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold,
                                                   color: Colors.white)),
-                                        ]),
-                                      ],
+                                          Wrap(children: [
+                                            Text('ที่อยู่ ${dealer.dAddress}',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white)),
+                                          ]),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  const Spacer(),
-                                ]),
+                                    const Spacer(),
+                                  ]),
+                                ),
                               ),
                             );
                             // Choose Customer Button;

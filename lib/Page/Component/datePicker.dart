@@ -34,13 +34,14 @@ class _datePickerState extends State<datePicker> {
             lastDate: DateTime(2100),
             builder: (context, child) => Theme(
                   data: ThemeData().copyWith(
-                    colorScheme: const ColorScheme.dark(
+                    colorScheme: ColorScheme.dark(
                       primary: Colors.white,
-                      onPrimary: Colors.greenAccent,
-                      surface: Color.fromRGBO(30, 30, 65, 1.0),
+                      onPrimary: Theme.of(context).backgroundColor,
+                      surface: Theme.of(context).colorScheme.onBackground,
                       onSurface: Colors.white,
                     ),
-                    dialogBackgroundColor: Color.fromARGB(255, 49, 49, 111),
+                    dialogBackgroundColor:
+                        Theme.of(context).colorScheme.background,
                   ),
                   child: child!,
                 ));

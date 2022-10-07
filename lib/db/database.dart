@@ -23,7 +23,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main17.db');
+    _database = await _initDB('main21.db');
     return _database!;
   }
 
@@ -125,16 +125,16 @@ class DatabaseManager {
   ${PurchasingFields.purId} $idType,
   ${PurchasingFields.orderedDate} $textType,
   ${PurchasingFields.dealerId} $integerType,
-  ${PurchasingFields.shippingId} $integerType,
   ${PurchasingFields.shippingCost} $integerType,
   ${PurchasingFields.amount} $integerType,
   ${PurchasingFields.total} $integerType,
-  ${PurchasingFields.isReceive} $boolType
+  ${PurchasingFields.isReceive} $boolType,
+  ${PurchasingFields.shopId} $integerType
       );""";
   static final createTablePurchasingItems = """
   CREATE TABLE IF NOT EXISTS $tablePurchasingItems (
   ${PurchasingItemsFields.purItemsId} $idType,
-  ${PurchasingItemsFields.prodId} $integerType,
+  ${PurchasingItemsFields.prodModelId} $integerType,
   ${PurchasingItemsFields.amount} $integerType,
   ${PurchasingItemsFields.total} $integerType,
   ${PurchasingItemsFields.purId} $integerType
@@ -196,10 +196,6 @@ class DatabaseManager {
 //   )
 // ''');
 //   }
-
-  void _createTableProdCategory(Batch batch) {
-    batch.execute(createTableProductCategory);
-  }
 
   // Profile
   Future<Profile> createProfile(Profile profile) async {
@@ -488,10 +484,50 @@ class DatabaseManager {
   // 2nd Property
 
   // Product lot ????????????????????????????????????????????
-  // ?
+  Future<List<ProductLot>> readAllProductLots(int prodModelID) async {
+    final db = await instance.database;
+    final orderBy = '${ProductLotFields.prodLotId} ASC';
+    final result = await db.query(tableProductLot,
+        columns: ProductLotFields.values,
+        where: '${ProductLotFields.prodModelId} = ?',
+        whereArgs: [prodModelID],
+        orderBy: orderBy);
+    return result.map((json) => ProductLot.fromJson(json)).toList();
+  }
+
+  Future<ProductLot> createProductLot(ProductLot productLot) async {
+    final db = await instance.database;
+    final id = await db.insert(tableProductLot, productLot.toJson());
+    return productLot.copy(prodLotId: id);
+  }
+
+  Future<int> updateProductLot(ProductLot productLot) async {
+    final db = await instance.database;
+    return db.update(tableProductLot, productLot.toJson(),
+        where: '${ProductLotFields.prodLotId} = ?',
+        whereArgs: [productLot.prodLotId]);
+  }
+
+  Future<int> deleteProductLot(int prodLotId) async {
+    final db = await instance.database;
+    return db.delete(tableProductLot,
+        where: '${ProductLotFields.prodLotId} = ?', whereArgs: [prodLotId]);
+  }
   // Product lot ????????????????????????????????????????????
 
   // Purchasing
+  Future<List<PurchasingModel>> readAllPurchasings(int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingFields.purId} DESC';
+    final result = await db.query(tablePurchasing,
+        columns: PurchasingFields.values,
+        where: '${PurchasingFields.shopId} = ?',
+        whereArgs: [shopId],
+        orderBy: orderBy);
+    print(result);
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
+
   Future<PurchasingModel> createPurchasing(PurchasingModel pur) async {
     final db = await instance.database;
     final id = await db.insert(tablePurchasing, pur.toJson());

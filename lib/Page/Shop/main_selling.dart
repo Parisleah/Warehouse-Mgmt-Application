@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:warehouse_mnmt/Page/Component/searchBox.dart';
+import 'package:warehouse_mnmt/Page/Component/SearchBox.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 
-import '../Component/searchBoxController.dart';
+import '../Component/SearchBoxController.dart';
 import 'Selling/nav_add.dart';
 
 class SellingPage extends StatefulWidget {
@@ -16,7 +16,6 @@ class SellingPage extends StatefulWidget {
 class _SellingPageState extends State<SellingPage> {
   bool isTapSelect = true;
 
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -26,6 +25,8 @@ class _SellingPageState extends State<SellingPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(180),
           child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             automaticallyImplyLeading: false,
             title: const Text(
               "ขายสินค้า",
@@ -115,8 +116,7 @@ class _SellingPageState extends State<SellingPage> {
           ),
         ),
         body: Container(
-          // decoration: BoxDecoration(
-          //     gradient: scafBG_dark_Color),
+          decoration: BoxDecoration(gradient: scafBG_dark_Color),
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.all(10.0),

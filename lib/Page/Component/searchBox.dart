@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:warehouse_mnmt/Page/Component/searchBoxController.dart';
+import 'package:warehouse_mnmt/Page/Component/SearchBoxController.dart';
 
 class SearchBox extends StatefulWidget {
   String title;

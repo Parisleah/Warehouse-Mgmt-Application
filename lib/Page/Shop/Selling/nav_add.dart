@@ -5,7 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 
-import '../../Component/datePicker.dart';
+import '../../Component/DatePicker.dart';
 
 class SellingNavAdd extends StatefulWidget {
   const SellingNavAdd({Key? key}) : super(key: key);
@@ -161,18 +161,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                       56, 54, 76, 1.0),
                                                   child: Row(
                                                     children: <Widget>[
-                                                      // Container(
-                                                      //     width: 80,
-                                                      //     height: 80,
-                                                      //     decoration:
-                                                      //         new BoxDecoration(
-                                                      //             image:
-                                                      //                 new DecorationImage(
-                                                      //       image: new AssetImage(
-                                                      //           product
-                                                      //               .prodImage),
-                                                      //       fit: BoxFit.fill,
-                                                      //     ))),
                                                       SizedBox(width: 10),
                                                       Expanded(
                                                         child: Column(
@@ -199,44 +187,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                   color: Colors
                                                                       .white),
                                                             ),
-                                                            // Text(
-                                                            //     'ราคา ${NumberFormat("#,###.##").format(product.prodPrice)} / หน่วย',
-                                                            //     style: const TextStyle(
-                                                            //         color: Colors
-                                                            //             .grey,
-                                                            //         fontSize:
-                                                            //             12)),
-                                                            // Text(
-                                                            //     'ราคา ${NumberFormat("#,###.##").format(product.prodPrice * product.prodAmount)}',
-                                                            //     style: const TextStyle(
-                                                            //         color: Colors
-                                                            //             .grey,
-                                                            //         fontSize:
-                                                            //             12)),
                                                           ],
                                                         ),
                                                       ),
-                                                      // Padding(
-                                                      //   padding:
-                                                      //       const EdgeInsets
-                                                      //           .all(5.0),
-                                                      //   child: CircleAvatar(
-                                                      //     radius: 15,
-                                                      //     backgroundColor:
-                                                      //         Color.fromRGBO(30,
-                                                      //             30, 49, 1.0),
-                                                      //     child:
-                                                      //     Text(
-                                                      //         '${NumberFormat("#,###.##").format(product.prodAmount)}',
-                                                      //         style: const TextStyle(
-                                                      //             fontSize: 15,
-                                                      //             color: Colors
-                                                      //                 .greenAccent,
-                                                      //             fontWeight:
-                                                      //                 FontWeight
-                                                      //                     .bold)),
-                                                      //   ),
-                                                      // ),
                                                       IconButton(
                                                         iconSize: 20,
                                                         icon: Icon(Icons.delete,

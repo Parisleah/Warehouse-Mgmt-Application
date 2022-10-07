@@ -11,8 +11,8 @@ import 'package:warehouse_mnmt/Page/Shop/Selling/nav_add.dart';
 import 'package:warehouse_mnmt/db/database.dart';
 
 import '../Component/TextField/CustomTextField.dart';
-import '../Component/searchBox.dart';
-import '../Component/searchBoxController.dart';
+import '../Component/SearchBox.dart';
+import '../Component/SearchBoxController.dart';
 import '../Model/Product.dart';
 import '../Model/ProductCategory.dart';
 import '../Model/Shop.dart';
@@ -92,96 +92,64 @@ class _ProductPageState extends State<ProductPage> {
           flexibleSpace: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Baseline(
-                baseline: 120,
+                baseline: 110,
                 baselineType: TextBaseline.alphabetic,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .background
-                                .withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(15)),
-                        width: 380,
-                        height: 80,
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: TextFormField(
-                              keyboardType: TextInputType.text,
-                              onChanged: (text) async {
-                                products = await DatabaseManager.instance
-                                    .readAllProductsByName(widget.shop.shopid!,
-                                        searchProductController.text);
-                                setState(() {});
-                              },
-                              // maxLength: length,
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(30),
-                              ],
-                              controller: searchProductController,
-                              //-----------------------------------------------------
+                    TextFormField(
+                        keyboardType: TextInputType.text,
+                        onChanged: (text) async {
+                          products = await DatabaseManager.instance
+                              .readAllProductsByName(widget.shop.shopid!,
+                                  searchProductController.text);
+                          setState(() {});
+                        },
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(100),
+                        ],
+                        controller: searchProductController,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 15),
+                        cursorColor: primary_color,
+                        decoration: InputDecoration(
+                          // labelText: title,
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.background,
+                          border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20)),
+                              borderSide: BorderSide.none),
 
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
-                              cursorColor: primary_color,
-                              decoration: InputDecoration(
-                                errorText: _validate ? 'โปรดระบุ' : null, //
-                                contentPadding: EdgeInsets.only(
-                                    top: 25, bottom: 10, left: 10, right: 10),
-                                // labelText: title,
-                                filled: true,
-                                labelStyle: TextStyle(color: Colors.white),
-                                counterStyle: TextStyle(color: Colors.white),
-                                // fillColor: Theme.of(context).colorScheme.background,
-                                focusColor: Color.fromARGB(255, 255, 0, 0),
-                                hoverColor: Colors.white,
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10.0),
-                                  ),
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(20.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.surface,
+                            ),
+                          ),
+                          hintText: 'ชื่อสินค้า',
+                          hintStyle:
+                              const TextStyle(color: Colors.grey, fontSize: 14),
+                          prefixIcon:
+                              const Icon(Icons.search, color: Colors.white),
+                          suffixIcon: searchProductController.text.isEmpty
+                              ? Container(
+                                  width: 0,
+                                )
+                              : IconButton(
+                                  onPressed: () {
+                                    searchProductController.clear();
+                                    refreshProducts();
+                                  },
+                                  icon: const Icon(
+                                    Icons.close_sharp,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                disabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                  ),
-                                ),
-
-                                hintText: 'ชื่อสินค้า',
-                                hintStyle: const TextStyle(
-                                    color: Colors.grey, fontSize: 14),
-                                prefixIcon: const Icon(Icons.search,
-                                    color: Colors.white),
-                                suffixIcon: searchProductController.text.isEmpty
-                                    ? Container(
-                                        width: 0,
-                                      )
-                                    : IconButton(
-                                        onPressed: () {
-                                          searchProductController.clear();
-                                          refreshProducts();
-                                        },
-                                        icon: const Icon(
-                                          Icons.close_sharp,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                              )),
                         )),
                     SizedBox(
                       height: 10,
@@ -325,7 +293,7 @@ class _ProductPageState extends State<ProductPage> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: 800,
+          height: (MediaQuery.of(context).size.height),
           decoration: BoxDecoration(gradient: scafBG_dark_Color),
           alignment: Alignment.center,
           child: Padding(
@@ -333,7 +301,7 @@ class _ProductPageState extends State<ProductPage> {
             child: Column(
               children: [
                 const SizedBox(
-                  height: 130,
+                  height: 200,
                 ),
                 Expanded(
                   child: Container(
@@ -350,13 +318,13 @@ class _ProductPageState extends State<ProductPage> {
                                   refreshProducts();
                                 },
                                 child: Container(
-                                  height: 490.0,
-                                  width: 440.0,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.65,
                                   child: Center(
                                       child: Text(
                                     "(ไม่มีสินค้า${searchProductController.text.isEmpty ? '' : ' ' + searchProductController.text})",
                                     style: TextStyle(
-                                        color: Colors.grey, fontSize: 30),
+                                        color: Colors.grey, fontSize: 25),
                                   )),
                                 ),
                               )

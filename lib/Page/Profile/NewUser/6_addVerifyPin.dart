@@ -282,6 +282,7 @@ class _OtpScreenState extends State<OtpScreen> {
   validation(veriPin, oldPin) {
     if (oldPin == veriPin) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.greenAccent,
         content: Text("ถูกต้อง"),
         duration: Duration(seconds: 3),
@@ -290,6 +291,7 @@ class _OtpScreenState extends State<OtpScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.redAccent,
           content: Text("รหัสไม่ตรงกัน"),
           duration: Duration(seconds: 3),

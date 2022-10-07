@@ -86,16 +86,12 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   }
 
   Future _insertProduct(shop) async {
-    
     if (productImgController.path == null) {
       showSnackBarIfEmpty('รูปสินค้า');
     } else if (productNameController.text.isEmpty) {
       showSnackBarIfEmpty('ชื่อสินค้า');
     } else if (productCategory.prodCategName == 'เลือกหมวดหมู่สินค้า') {
       showSnackBarIfEmpty('หมวดหมู่สินค้า');
-
-
-
     } else if (productNameController.text.isNotEmpty) {
       // Insert Product -> Database
       final product = Product(
@@ -1534,6 +1530,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                   await DatabaseManager.instance
                                       .createProductCategory(prodCategory);
                                   productCategoryNameController.clear();
+
                                   refreshProductCategorys();
 
                                   DialogSetState(() {});

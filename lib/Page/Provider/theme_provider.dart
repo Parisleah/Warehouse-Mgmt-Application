@@ -64,7 +64,7 @@ class MyThemes {
       onSecondary: Color.fromRGBO(29, 29, 65, 1.0),
       // Icon Color
       onSurface: Colors.white,
-      onBackground: Colors.brown,
+      onBackground: Color.fromRGBO(30, 30, 30, 1.0),
       onError: dark_primary_accent_color,
       brightness: Brightness.dark,
       primary: Color.fromRGBO(17, 17, 17, 1.0),

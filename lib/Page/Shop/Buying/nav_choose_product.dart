@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
+import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
 
 import '../../../db/database.dart';
 import '../../Model/ProductCategory.dart';
@@ -15,7 +16,9 @@ import 'nav_showProduct.dart';
 
 class BuyiingNavChooseProduct extends StatefulWidget {
   final Shop shop;
-  const BuyiingNavChooseProduct({required this.shop, Key? key})
+  final ValueChanged<PurchasingItemsModel> update;
+  const BuyiingNavChooseProduct(
+      {required this.shop, required this.update, Key? key})
       : super(key: key);
 
   @override
@@ -33,6 +36,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
   //  Visible -----------
   bool _validate = false;
   List<Product> products = [];
+  List<PurchasingItemsModel> inCart = [];
   List<ProductCategory> productCategorys = [];
   List<ProductModel> productModels = [];
   TextEditingController searchController = TextEditingController();
@@ -46,12 +50,18 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
   }
 
   Future refreshProducts() async {
-    productModels = await DatabaseManager.instance.readAllProductModels();
     productCategorys = await DatabaseManager.instance
         .readAllProductCategorys(widget.shop.shopid!);
     products =
         await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
+    productModels = await DatabaseManager.instance.readAllProductModels();
     setState(() {});
+  }
+
+  addProductInCart(PurchasingItemsModel purchasing) {
+    inCart.add(purchasing);
+    widget.update(purchasing);
+    print('Recieved Product! ${inCart}');
   }
 
   @override
@@ -243,8 +253,9 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                             return TextButton(
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        BuyingNavShowProd(product: product)));
+                                    builder: (context) => BuyingNavShowProd(
+                                        update: addProductInCart,
+                                        product: product)));
                               },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
