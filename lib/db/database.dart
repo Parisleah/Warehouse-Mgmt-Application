@@ -6,14 +6,18 @@ import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_ndProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_stProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Model/Selling.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import '../Page/Model/Customer.dart';
+import '../Page/Model/CustomerAdress.dart';
 import '../Page/Model/Dealer.dart';
 import '../Page/Model/ProductCategory.dart';
 import '../Page/Model/ProductLot.dart';
 
 import '../Page/Model/Profile.dart';
 import '../Page/Model/Purchasing.dart';
+import '../Page/Model/Selling_item.dart';
 
 class DatabaseManager {
   static final DatabaseManager instance = DatabaseManager._init();
@@ -23,7 +27,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main21.db');
+    _database = await _initDB('main32.db');
     return _database!;
   }
 
@@ -44,6 +48,10 @@ class DatabaseManager {
       await db.execute(createTablePurchasing);
       await db.execute(createTablePurchasingItems);
       await db.execute(createTableDealer);
+      await db.execute(createTableSelling);
+      await db.execute(createTableSellingItem);
+      await db.execute(createTableCustomer);
+      await db.execute(createTableCustomerAddress);
     });
   }
 
@@ -125,6 +133,7 @@ class DatabaseManager {
   ${PurchasingFields.purId} $idType,
   ${PurchasingFields.orderedDate} $textType,
   ${PurchasingFields.dealerId} $integerType,
+  ${PurchasingFields.shipping} $textType,
   ${PurchasingFields.shippingCost} $integerType,
   ${PurchasingFields.amount} $integerType,
   ${PurchasingFields.total} $integerType,
@@ -134,6 +143,7 @@ class DatabaseManager {
   static final createTablePurchasingItems = """
   CREATE TABLE IF NOT EXISTS $tablePurchasingItems (
   ${PurchasingItemsFields.purItemsId} $idType,
+  ${PurchasingItemsFields.prodId} $integerType,
   ${PurchasingItemsFields.prodModelId} $integerType,
   ${PurchasingItemsFields.amount} $integerType,
   ${PurchasingItemsFields.total} $integerType,
@@ -144,58 +154,47 @@ class DatabaseManager {
   ${DealerFields.dealerId} $idType,
   ${DealerFields.dName} $textType,
   ${DealerFields.dAddress} $textType,
-  ${DealerFields.dPhone} $textType
+  ${DealerFields.dPhone} $textType,
+${DealerFields.shopId} $integerType
       );""";
-
-  // Purchasing
-
-  // Future _createDB(Database db, int version) async {
-  //   await db.execute(createTableProfile);
-  //   await db.execute(createTableShop);
-  //   await db.execute(createTableProduct);
-  //   await db.execute(createTableProductCategory);
-  // }
-
-//   Future<void> DropTableIfExistsThenReCreate() async {
-//     String filePath = 'main.db';
-//     final dbPath = await getDatabasesPath();
-//     final path = join(dbPath, filePath);
-
-//     Database db = await openDatabase(path, onCreate: _createDB,
-//         onUpgrade: (db, oldVersion, newVersion) async {
-//       var batch = db.batch();
-//       if (oldVersion == 1) {
-//         // We update existing table and create the new tables
-//         _createTableProdCategory(batch);
-//       }
-//       await batch.commit();
-//     });
-//     await db.execute("DROP TABLE IF EXISTS $tableProfile");
-
-//     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL';
-//     const boolType = 'BOOLEAN NOT NULL';
-//     const integerType = 'INTEGER NOT NULL';
-//     const textType = 'TEXT NOT NULL';
-
-//     await db.execute('''
-// CREATE TABLE $tableProfile (
-//   ${ProfileFields.id} $idType,
-//   ${ProfileFields.name} $textType,
-//   ${ProfileFields.phone} $textType,
-//   ${ProfileFields.image} $textType,
-//   ${ProfileFields.pin} $textType
-//   )
-// ''');
-//     await db.execute('''
-// CREATE TABLE $tableShop (
-//   ${ShopFields.shopid} $idType,
-//   ${ShopFields.name} $textType,
-//   ${ShopFields.phone} $textType,
-//   ${ShopFields.image} $textType,
-//   ${ShopFields.profileId} $integerType
-//   )
-// ''');
-//   }
+  // New Creation
+  static final createTableSelling = """
+  CREATE TABLE IF NOT EXISTS $tableSelling (
+  ${SellingFields.selId} $idType,
+  ${SellingFields.orderedDate} $textType,
+  ${SellingFields.customerId} $integerType,
+  ${SellingFields.cAddreId} $integerType,
+  ${SellingFields.shipping} $textType,
+  ${SellingFields.shippingCost} $integerType,
+  ${SellingFields.amount} $integerType,
+  ${SellingFields.total} $integerType,
+  ${SellingFields.speacialReq} $textType,
+  ${SellingFields.isDelivered} $boolType,
+  ${SellingFields.shopId} $integerType
+      );""";
+  static final createTableSellingItem = """
+  CREATE TABLE IF NOT EXISTS $tableSellingItem (
+  ${SellingItemFields.selItemId} $idType,
+  ${SellingItemFields.prodId} $integerType,
+  ${SellingItemFields.prodModelId} $integerType,
+  ${SellingItemFields.prodLotId} $integerType,
+  ${SellingItemFields.amount} $integerType,
+  ${SellingItemFields.total} $integerType,
+  ${SellingItemFields.selId} $integerType
+      );""";
+  static final createTableCustomer = """
+  CREATE TABLE IF NOT EXISTS $tableCustomer (
+  ${CustomerFields.cusId} $idType,
+  ${CustomerFields.cName} $textType,
+  ${CustomerFields.shopId} $integerType
+      );""";
+  static final createTableCustomerAddress = """
+  CREATE TABLE IF NOT EXISTS $tableCustomerAddress (
+  ${CustomerAddressFields.cAddreId} $idType,
+  ${CustomerAddressFields.cAddress} $textType,
+  ${CustomerAddressFields.cPhone} $textType,
+  ${CustomerAddressFields.cusId} $integerType
+      );""";
 
   // Profile
   Future<Profile> createProfile(Profile profile) async {
@@ -288,6 +287,7 @@ class DatabaseManager {
 
 // Shop
 // Product
+
   Future<List<Product>> readAllProducts(int shopId) async {
     final db = await instance.database;
     final orderBy = '${ProductFields.prodId} DESC';
@@ -483,10 +483,17 @@ class DatabaseManager {
   }
   // 2nd Property
 
-  // Product lot ????????????????????????????????????????????
-  Future<List<ProductLot>> readAllProductLots(int prodModelID) async {
+  // Product lot
+  Future<List<ProductLot>> readAllProductLots() async {
     final db = await instance.database;
-    final orderBy = '${ProductLotFields.prodLotId} ASC';
+    final orderBy = '${ProductLotFields.prodModelId} ASC';
+    final result = await db.query(tableProductLot, orderBy: orderBy);
+    return result.map((json) => ProductLot.fromJson(json)).toList();
+  }
+
+  Future<List<ProductLot>> readAllProductLotsByModelID(int prodModelID) async {
+    final db = await instance.database;
+    final orderBy = '${ProductLotFields.prodLotId} DESC';
     final result = await db.query(tableProductLot,
         columns: ProductLotFields.values,
         where: '${ProductLotFields.prodModelId} = ?',
@@ -513,7 +520,7 @@ class DatabaseManager {
     return db.delete(tableProductLot,
         where: '${ProductLotFields.prodLotId} = ?', whereArgs: [prodLotId]);
   }
-  // Product lot ????????????????????????????????????????????
+  // Product lot
 
   // Purchasing
   Future<List<PurchasingModel>> readAllPurchasings(int shopId) async {
@@ -597,7 +604,136 @@ class DatabaseManager {
   }
   // Dealers
 
-  // Purchasing
+  // Purchasing (1.1-1.4)
+  // 1.1 Selling
+  Future<List<SellingModel>> readAllSellings(int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${SellingFields.selId} DESC';
+    final result = await db.query(tableSelling,
+        columns: SellingFields.values,
+        where: '${SellingFields.shopId} = ?',
+        whereArgs: [shopId],
+        orderBy: orderBy);
+    print(result);
+    return result.map((json) => SellingModel.fromJson(json)).toList();
+  }
+
+  Future<SellingModel> createSelling(SellingModel selling) async {
+    final db = await instance.database;
+    final id = await db.insert(tableSelling, selling.toJson());
+    return selling.copy(selId: id);
+  }
+
+  Future<int> updateSelling(SellingModel selling) async {
+    final db = await instance.database;
+    return db.update(tableSelling, selling.toJson(),
+        where: '${SellingFields.selId} = ?', whereArgs: [selling.selId]);
+  }
+
+  Future<int> deleteSelling(int selId) async {
+    final db = await instance.database;
+    return db.delete(tableSelling,
+        where: '${SellingFields.selId} = ?', whereArgs: [selId]);
+  }
+  // 1.1 Selling
+  
+
+  // 1.2 Selling Items
+  Future<List<SellingItemModel>> readAllSellingItems() async {
+    final db = await instance.database;
+    final orderBy = '${SellingItemFields.selItemId} DESC';
+    final result = await db.query(tableSellingItem, orderBy: orderBy);
+    print(result);
+    return result.map((json) => SellingItemModel.fromJson(json)).toList();
+  }
+
+  Future<SellingItemModel> createSellingItem(SellingItemModel item) async {
+    final db = await instance.database;
+    final id = await db.insert(tableSellingItem, item.toJson());
+    return item.copy(selItemId: id);
+  }
+
+  Future<int> deleteSellingItem(int selId) async {
+    final db = await instance.database;
+    return db.delete(tableSellingItem,
+        where: '${SellingItemFields.selId} = ?', whereArgs: [selId]);
+  }
+  // 1.2 Selling Items
+
+  // 1.3 Customer
+  Future<List<CustomerModel>> readAllCustomers() async {
+    final db = await instance.database;
+    final orderBy = '${CustomerFields.cusId} DESC';
+    final result = await db.query(tableCustomer, orderBy: orderBy);
+    print(result);
+    return result.map((json) => CustomerModel.fromJson(json)).toList();
+  }
+
+  Future<List<CustomerModel>> readAllCustomerInShop(int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${CustomerFields.cusId} DESC';
+    final result = await db.query(tableCustomer,
+        columns: CustomerFields.values,
+        where: '${CustomerFields.shopId} = ?',
+        orderBy: orderBy,
+        whereArgs: [shopId]);
+    print(result);
+    return result.map((json) => CustomerModel.fromJson(json)).toList();
+  }
+
+  Future<CustomerModel> createCustomer(CustomerModel customer) async {
+    final db = await instance.database;
+    final id = await db.insert(tableCustomer, customer.toJson());
+    return customer.copy(dealerId: id);
+  }
+
+  Future<int> updateCustomer(CustomerModel customer) async {
+    final db = await instance.database;
+    return db.update(tableCustomer, customer.toJson(),
+        where: '${CustomerFields.cusId} = ?', whereArgs: [customer.cusId]);
+  }
+
+  Future<int> deleteCustomer(int cusId) async {
+    final db = await instance.database;
+    return db.delete(tableCustomer,
+        where: '${CustomerFields.cusId} = ?', whereArgs: [cusId]);
+  }
+
+  // 1.3 Customer
+
+  // 1.4 Customer Address
+  Future<List<CustomerAddressModel>> readCustomerAllAddress(int cusId) async {
+    final db = await instance.database;
+    final orderBy = '${CustomerAddressFields.cusId} DESC';
+    final result = await db.query(tableCustomerAddress,
+        columns: CustomerAddressFields.values,
+        where: '${CustomerAddressFields.cusId} = ?',
+        whereArgs: [cusId],
+        orderBy: orderBy);
+    print(result);
+    return result.map((json) => CustomerAddressModel.fromJson(json)).toList();
+  }
+
+  Future<CustomerAddressModel> createCustomerAddress(
+      CustomerAddressModel address) async {
+    final db = await instance.database;
+    final id = await db.insert(tableCustomerAddress, address.toJson());
+    return address.copy(addreId: id);
+  }
+
+  Future<int> updateCustomerAddress(CustomerAddressModel address) async {
+    final db = await instance.database;
+    return db.update(tableCustomerAddress, address.toJson(),
+        where: '${CustomerAddressFields.cAddreId} = ?',
+        whereArgs: [address.cAddreId]);
+  }
+
+  Future<int> deleteCustomerAddress(int cAddreId) async {
+    final db = await instance.database;
+    return db.delete(tableCustomerAddress,
+        where: '${CustomerAddressFields.cAddreId} = ?', whereArgs: [cAddreId]);
+  }
+  // 1.4 Customer Address
 
   Future close() async {
     final db = await instance.database;

@@ -72,7 +72,7 @@ class _ShopPageState extends State<ShopPage> {
       await DatabaseManager.instance.updateShop(shop);
     }
 
-    showAlert(shop) async {
+    dialogEditShop(shop) async {
       await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -487,7 +487,7 @@ class _ShopPageState extends State<ShopPage> {
                         icon: Icon(Icons.edit,
                             size: 25,
                             color: Theme.of(context).colorScheme.background),
-                        onPressed: () => showAlert(shop),
+                        onPressed: () => dialogEditShop(shop),
                       )),
                   const SizedBox(
                     width: 10,

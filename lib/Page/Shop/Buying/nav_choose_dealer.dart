@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 
 import '../../../db/database.dart';
+import '../../Model/Shop.dart';
 import 'nav_create_dealer.dart';
 
 class BuyingNavChooseDealer extends StatefulWidget {
+  final Shop shop;
   final ValueChanged<DealerModel> update;
 
-  const BuyingNavChooseDealer({required this.update, Key? key})
+  const BuyingNavChooseDealer(
+      {required this.shop, required this.update, Key? key})
       : super(key: key);
   @override
   State<BuyingNavChooseDealer> createState() => _buying_nav_chooseDealerState();
@@ -50,7 +53,9 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
               await Navigator.push(
                   context,
                   new MaterialPageRoute(
-                      builder: (context) => BuyingNavCreateDealer()));
+                      builder: (context) => BuyingNavCreateDealer(
+                            shop: widget.shop,
+                          )));
               refreshDealer();
             },
             icon: Icon(Icons.add),
@@ -150,11 +155,25 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(dealer.dName,
-                                              style: TextStyle(
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white)),
+                                          Row(
+                                            children: [
+                                              Text(dealer.dName,
+                                                  style: TextStyle(
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white)),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(dealer.dPhone,
+                                                  style: TextStyle(
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white)),
+                                            ],
+                                          ),
                                           Wrap(children: [
                                             Text('ที่อยู่ ${dealer.dAddress}',
                                                 style: TextStyle(

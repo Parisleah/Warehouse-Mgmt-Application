@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -281,12 +283,6 @@ class _OtpScreenState extends State<OtpScreen> {
 
   validation(veriPin, oldPin) {
     if (oldPin == veriPin) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.greenAccent,
-        content: Text("ถูกต้อง"),
-        duration: Duration(seconds: 3),
-      ));
       addProfile(veriPin);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

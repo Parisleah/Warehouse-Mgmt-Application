@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 
 // Components ?
 import 'package:warehouse_mnmt/Page/Component/styleButton.dart';
+import 'package:warehouse_mnmt/Page/Model/Customer.dart';
+import 'package:warehouse_mnmt/db/database.dart';
+
+import '../../Model/Shop.dart';
 
 class selling_nav_createCustomer extends StatefulWidget {
-  const selling_nav_createCustomer({Key? key}) : super(key: key);
+  final Shop shop;
+  const selling_nav_createCustomer({required this.shop, Key? key})
+      : super(key: key);
 
   @override
   State<selling_nav_createCustomer> createState() =>
@@ -17,14 +23,10 @@ class _selling_nav_createCustomerState
     extends State<selling_nav_createCustomer> {
   // Text Field
   final cusNameController = TextEditingController();
-  final cusAddressController = TextEditingController();
-  final cusPhoneController = TextEditingController();
 
   void initState() {
     super.initState();
     cusNameController.addListener(() => setState(() {}));
-    cusAddressController.addListener(() => setState(() {}));
-    cusPhoneController.addListener(() => setState(() {}));
   }
   // Text Field
 
@@ -109,140 +111,34 @@ class _selling_nav_createCustomerState
           ),
           // Text & Container Text Field of ชื่อ - นามสกุล
 
-          // Text & Container Text Field of ที่อยู่
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const Text(
-                  "สถานที่จัดส่ง",
-                  style: TextStyle(fontSize: 15, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                color: const Color.fromRGBO(56, 48, 77, 1.0),
-                borderRadius: BorderRadius.circular(15)),
-            width: 400,
-            height: 100,
-            child: SizedBox(
-              height: 120,
-              width: 100.0,
-              child: TextField(
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 10,
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
-                  controller: cusAddressController,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.all(8),
-                    filled: true,
-                    fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
-                    border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none),
-                    hintStyle:
-                        const TextStyle(color: Colors.grey, fontSize: 14),
-                    suffixIcon: cusAddressController.text.isEmpty
-                        ? Container(
-                            width: 0,
-                          )
-                        : IconButton(
-                            onPressed: () => cusAddressController.clear(),
-                            icon: const Icon(
-                              Icons.close_sharp,
-                              color: Colors.white,
-                            ),
-                          ),
-                  )),
-            ),
-          ),
-          // Text & Container Text Field of ที่อยู่
-
-          // Text & Container Text Field of หมายเลขโทรศัพท์
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    "หมายเลขเบอร์โทรศัพท์",
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                color: const Color.fromRGBO(56, 48, 77, 1.0),
-                borderRadius: BorderRadius.circular(15)),
-            width: 400,
-            height: 70,
-            child: TextField(
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white),
-                controller: cusPhoneController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
-                  border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none),
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-                  suffixIcon: cusPhoneController.text.isEmpty
-                      ? Container(
-                          width: 0,
-                        )
-                      : IconButton(
-                          onPressed: () => cusPhoneController.clear(),
-                          icon: const Icon(
-                            Icons.close_sharp,
-                            color: Colors.white,
-                          ),
-                        ),
-                )),
-          ),
-          // Text & Container Text Field of หมายเลขโทรศัพท์
-
-          // ยกเลิก Button
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(children: [
-                  TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "ยกเลิก",
-                        style: TextStyle(fontSize: 17),
-                      ),
-                      style: cancelButtonStyle)
-                ]),
-                Column(children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "บันทึก",
-                      style: TextStyle(fontSize: 17),
+          Column(children: [
+            ElevatedButton(
+              onPressed: () async {
+                if (cusNameController.text.isEmpty ||
+                    cusNameController.text == null ||
+                    cusNameController.text == '') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.redAccent,
+                      behavior: SnackBarBehavior.floating,
+                      content: Text("โปรดระบุชื่อลูกค้า"),
+                      duration: Duration(seconds: 2),
                     ),
-                    style: saveButtonStyle,
-                  )
-                ]),
-              ],
-            ),
-          )
+                  );
+                } else {
+                  final customer = CustomerModel(
+                      cName: cusNameController.text,
+                      shopId: widget.shop.shopid!);
+                  await DatabaseManager.instance.createCustomer(customer);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text(
+                "เพิ่ม",
+                style: TextStyle(fontSize: 17),
+              ),
+            )
+          ])
           // บันทึก Button
         ]),
       ),

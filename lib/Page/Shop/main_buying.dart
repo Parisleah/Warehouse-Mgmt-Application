@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
@@ -35,6 +36,7 @@ class _BuyingPageState extends State<BuyingPage> {
     purchasings =
         await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
     dealers = await DatabaseManager.instance.readAllDealers();
+
     setState(() {});
   }
 
@@ -173,7 +175,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                     MediaQuery.of(context).size.height * 0.65,
                                 child: Center(
                                     child: Text(
-                                  'ไม่มีการสั่งซื้อ',
+                                  '(ไม่มีการสั่งซื้อ)',
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 25),
                                 )),
@@ -239,7 +241,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                   child: Row(
                                                 children: [
                                                   Text(
-                                                      "ลบรายการสั่งซื้อ ${_dealer.dName}"),
+                                                      "ลบรายการสั่งซื้อ ${_dealer.cName}"),
                                                   Text(
                                                       ' ยอด ${NumberFormat("#,###.##").format(purchasing.total)}',
                                                       style: const TextStyle(

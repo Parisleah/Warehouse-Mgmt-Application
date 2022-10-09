@@ -44,21 +44,9 @@ class CustomTextField {
                 contentPadding:
                     EdgeInsets.only(top: 25, bottom: 10, left: 10, right: 10),
                 // labelText: title,
-                filled: true,
-                labelStyle: TextStyle(color: Colors.white),
-                counterStyle: TextStyle(color: Colors.white),
-                // fillColor: Theme.of(context).colorScheme.background,
-                focusColor: Color.fromARGB(255, 255, 0, 0),
-                hoverColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.background,
 
-                // border: const OutlineInputBorder(
-                //   borderRadius: BorderRadius.all(
-                //     Radius.circular(10.0),
-                //   ),
-                //   borderSide: BorderSide(
-                //     color: Colors.green,
-                //   ),
-                // ),
+                hoverColor: Colors.white,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(10.0),
@@ -67,18 +55,13 @@ class CustomTextField {
                     color: Theme.of(context).colorScheme.surface,
                   ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: const BorderSide(
-                    color: Colors.transparent,
-                  ),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                ),
+                border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20)),
+                    borderSide: BorderSide.none),
                 hintText: title,
                 hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
                 // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),

@@ -83,8 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final screens = [
       DashboardPage(shop: widget.shop),
-       SellingPage(),
-       BuyingPage(shop: widget.shop),
+      SellingPage(shop: widget.shop),
+      BuyingPage(shop: widget.shop),
       ProductPage(shop: widget.shop),
       ShopPage(shop: widget.shop),
     ];

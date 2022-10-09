@@ -1,14 +1,20 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Component/RaisedGradientButton%20.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+import 'package:warehouse_mnmt/Page/Model/Selling.dart';
+import 'package:warehouse_mnmt/Page/Model/Selling_item.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 
+import '../../db/database.dart';
 import '../Component/MoneyBox.dart';
 import '../Component/ImgCarouselWidget.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import '../Model/Purchasing.dart';
 
 class DashboardPage extends StatefulWidget {
   final Shop shop;
@@ -21,15 +27,47 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   ThemeMode themeMode = ThemeMode.light;
   bool get isDark => themeMode == ThemeMode.dark;
-  final CustomTextField saveForm = new CustomTextField();
-  final controller = TextEditingController();
+  List<Color> gradientColors = [
+    Color.fromARGB(255, 141, 106, 225),
+    Color.fromRGBO(29, 29, 65, 1.0)
+  ];
   DateTime date = DateTime.now();
+  List<PurchasingModel> purchasings = [];
+  List<SellingModel> sellings = [];
+  var sale = 0;
+  var cost = 0;
+  var profit = 0;
+
   @override
   void initState() {
-    super.initState();
     initializeDateFormatting();
+    super.initState();
+    refreshPurchasings();
 
-    controller.addListener(() => setState(() {}));
+    setState(() {});
+  }
+
+  Future refreshPurchasings() async {
+    purchasings =
+        await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
+    sellings =
+        await DatabaseManager.instance.readAllSellings(widget.shop.shopid!);
+    _calculateDashboard(sale, cost, profit);
+    setState(() {});
+  }
+
+  _calculateDashboard(_sale, _cost, _profit) {
+    _cost = 0;
+    _sale = 0;
+    for (var purchasing in purchasings) {
+      _cost += purchasing.total;
+    }
+    for (var selling in sellings) {
+      _sale += selling.total;
+    }
+    cost = _cost;
+    sale = _sale;
+    profit = _sale - _cost;
   }
 
   List<String> images = [
@@ -37,15 +75,6 @@ class _DashboardPageState extends State<DashboardPage> {
     "assets/images/products/2.png",
     "assets/images/products/3.png",
     "assets/images/products/4.png"
-  ];
-  final covidUSADailyNewCases = [
-    12.17,
-    11.15,
-    10.02,
-    11.21,
-    13.83,
-    14.16,
-    14.30
   ];
 
   @override
@@ -117,7 +146,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height * 1.4,
+            height: MediaQuery.of(context).size.height * 1.9,
             decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
@@ -184,7 +213,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         color: Colors.white,
                       ),
                       'ยอดขาย',
-                      212000,
+                      sale,
                       Theme.of(context).backgroundColor,
                       Theme.of(context).colorScheme.onSecondary,
                       150,
@@ -196,7 +225,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       Icon(Icons.price_change, color: Colors.white),
                       Icon(Icons.price_change, color: Colors.white),
                       'ยอดต้นทุน',
-                      124500.165,
+                      cost,
                       Theme.of(context).backgroundColor,
                       Theme.of(context).colorScheme.onSecondary,
                       150,
@@ -208,7 +237,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       Icon(Icons.attach_money_rounded, color: Colors.white),
                       Icon(Icons.price_change, color: Colors.white),
                       'กำไร',
-                      87499.84,
+                      profit,
                       Theme.of(context).backgroundColor,
                       Theme.of(context).colorScheme.onSecondary,
                       150,
@@ -216,11 +245,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  // CustomTextField.textField(
-                  //     context,
-                  //     length: 30,
-                  //     textController: controller,
-                  //     'กำหนดชื่อโปรไฟล์ของคุณ'),
 
                   // Container(
                   //   height: 250,
@@ -241,20 +265,109 @@ class _DashboardPageState extends State<DashboardPage> {
                   //     children: [Text("Top10"), ImgCarousel(images)],
                   //   ),
                   // ),
-                  // RaisedGradientButton(
-                  //     child: Text(
-                  //       'Button',
-                  //       style: TextStyle(color: Colors.white),
-                  //     ),
-                  //     gradient: LinearGradient(
-                  //       colors: <Color>[
-                  //         Color.fromRGBO(29, 29, 65, 1.0),
-                  //         Color.fromARGB(255, 90, 70, 136)
-                  //       ],
-                  //     ),
-                  //     onPressed: () {
-                  //       print('button clicked');
-                  //     }),
+
+                  Padding(
+                    padding: const EdgeInsets.only(right: 38),
+                    child: Center(
+                      child: SizedBox(
+                        width: 400,
+                        height: 300,
+                        child: LineChart(LineChartData(
+                            borderData: FlBorderData(
+                                show: true,
+                                border:
+                                    Border.all(color: Colors.white, width: 2)),
+                            gridData: FlGridData(
+                              show: true,
+                              getDrawingHorizontalLine: (value) {
+                                return FlLine(
+                                    color: Color.fromARGB(255, 93, 93, 93),
+                                    strokeWidth: 1);
+                              },
+                              drawVerticalLine: false,
+                              getDrawingVerticalLine: (value) {
+                                return FlLine(
+                                    color: Colors.white, strokeWidth: 1);
+                              },
+                            ),
+                            titlesData: FlTitlesData(
+                              show: true,
+                              bottomTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 35,
+                                  getTextStyles: (context, value) {
+                                    return const TextStyle(
+                                        color: Color(0xff68737d),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold);
+                                  },
+                                  getTitles: (value) {
+                                    switch (value.toInt()) {
+                                      case 0:
+                                        return 'Sep 19';
+                                      case 4:
+                                        return 'Oct 10';
+                                      case 8:
+                                        return 'Nov 16';
+                                    }
+                                    return '';
+                                  },
+                                  margin: 8),
+                              rightTitles: SideTitles(),
+                              topTitles: SideTitles(),
+                              leftTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 35,
+                                getTextStyles: (context, value) {
+                                  return const TextStyle(
+                                      color: Color(0xff68737d),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold);
+                                },
+                                getTitles: (value) {
+                                  switch (value.toInt()) {
+                                    case 0:
+                                      return '0';
+                                    case 2:
+                                      return '50';
+                                    case 4:
+                                      return '100';
+                                    case 6:
+                                      return '150';
+                                  }
+                                  return '';
+                                },
+                                margin: 12,
+                              ),
+                            ),
+                            maxX: 8,
+                            maxY: 8,
+                            minY: 0,
+                            minX: 0,
+                            lineBarsData: [
+                              LineChartBarData(
+                                  spots: [
+                                    const FlSpot(0, 0),
+                                    const FlSpot(5, 5),
+                                    const FlSpot(7, 6),
+                                    const FlSpot(8, 4),
+                                  ],
+                                  isCurved: true,
+                                  colors: [
+                                    Colors.black12,
+                                    Colors.white70,
+                                    Colors.white
+                                  ],
+                                  barWidth: 5,
+                                  belowBarData: BarAreaData(
+                                      show: true,
+                                      colors: gradientColors
+                                          .map((e) => e.withOpacity(0.3))
+                                          .toList()))
+                            ])),
+                      ),
+                    ),
+                  ),
 
                   SizedBox(
                     height: 50,

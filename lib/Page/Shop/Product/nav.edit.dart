@@ -5,10 +5,12 @@ import 'package:intl/intl.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_stProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_ndProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Shop/Product/nav_editModel.dart';
 
 import '../../../db/database.dart';
 import '../../Component/ImagePickerController.dart';
@@ -62,7 +64,6 @@ class _ProductNavEditState extends State<ProductNavEdit> {
     productCategoryNameController.addListener(() => setState(() {}));
   }
 
-  // Product
   bool _validate = false;
   bool isDialogChooseFst = false;
   bool isDelete_ndProp = false;
@@ -71,14 +72,13 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   String ndPropName = 'ขนาด';
   var productCategory = ProductCategory(prodCategName: 'เลือกประเภทสินค้า');
   List<ProductCategory> productCategorys = [];
-  // Product Model
-
   List<ProductModel_stProperty> stPropsList = [];
-  // Product Model
+  List<ProductLot> productLots = [];
+
   Future refreshProductModels() async {
     productModels = await DatabaseManager.instance
         .readAllProductModelsInProduct(widget.product.prodId!);
-    print(productModels);
+    productLots = await DatabaseManager.instance.readAllProductLots();
     setState(() {});
   }
 
@@ -175,6 +175,84 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         }
       }
     });
+  }
+
+  showAlertDeleteProductModel(ProductModel model) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)), //this right here
+            child: SizedBox(
+              width: 300,
+              height: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          // Theme.of(context).colorScheme.background
+                          // color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.delete_forever,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          Text(
+                            'ลบรูปแบบสินค้า ${model.stProperty} ${model.ndProperty} ?',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 20,
+                              // fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(80, 40)),
+                            onPressed: () async {
+                              // await DatabaseManager.instance
+                              //     .deleteShop(shop.shopid!);
+                              Navigator.pop(context);
+                              refreshProductModels();
+                            },
+                            child: Text('ลบ')),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.redAccent,
+                                fixedSize: const Size(80, 40)),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('ยกเลิก')),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Future<void> _showEdit_PropCostPrice_Dialog(TextEditingController pController,
@@ -1775,115 +1853,228 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                     itemCount: productModels.length,
                                     itemBuilder: (context, index) {
                                       final productModel = productModels[index];
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Navigator.pop(context);
+                                      var _amountOfProd = 0;
+                                      for (var lot in productLots) {
+                                        if (productModel.prodModelId ==
+                                            lot.prodModelId) {
+                                          _amountOfProd += lot.amount!;
+                                        }
+                                      }
+                                      var amountOfProd = _amountOfProd;
+                                      return Dismissible(
+                                        key: UniqueKey(),
+                                        onDismissed: (direction) async {
+                                          // await DatabaseManager.instance
+                                          //     .deleteProduct(product.prodId!);
+                                          showAlertDeleteProductModel(
+                                              productModel);
+                                          refreshProductModels();
+                                          setState(() {});
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Colors.redAccent,
+                                            content: Text(
+                                                "ลบสินค้า ${productModel.stProperty} ${productModel.ndProperty}"),
+                                            duration: Duration(seconds: 2),
+                                          ));
                                         },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Container(
-                                            height: 50,
+                                        direction: DismissDirection.endToStart,
+                                        resizeDuration: Duration(seconds: 1),
+                                        background: Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.delete_forever,
+                                                  color: Colors.white,
+                                                ),
+                                                SizedBox(
+                                                  width: 20,
+                                                ),
+                                              ],
+                                            ),
+                                            margin: EdgeInsets.only(
+                                                left: 0,
+                                                top: 10,
+                                                right: 10,
+                                                bottom: 10),
                                             decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
+                                                color: Colors.redAccent,
                                                 borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Row(children: [
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                  '${index + 1}',
-                                                  style: TextStyle(
-                                                      fontSize: 15,
-                                                      color: Theme.of(context)
-                                                          .backgroundColor),
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .background,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            3.0),
-                                                    child: Text(
-                                                      '${productModel.stProperty}',
-                                                      style: const TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.white),
-                                                    ),
+                                                    BorderRadius.circular(10))),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                new MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProductEditModel(model: productModel,)));
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Container(
+                                              height: 100,
+                                              decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: Row(children: [
+                                                  const SizedBox(
+                                                    width: 10,
                                                   ),
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .background,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            3.0),
-                                                    child: Text(
-                                                      '${productModel.ndProperty}',
-                                                      style: const TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.white),
-                                                    ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            '${index + 1}',
+                                                            style: TextStyle(
+                                                                fontSize: 15,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .backgroundColor),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .background,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10)),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(3.0),
+                                                              child: Text(
+                                                                '${productModel.stProperty}',
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .background,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10)),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(3.0),
+                                                              child: Text(
+                                                                '${productModel.ndProperty}',
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Text(
+                                                        'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
+                                                        style: TextStyle(
+                                                            color: Colors.grey),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Text(
+                                                        'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                  '${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
-                                                  style: TextStyle(
-                                                      color: Colors.grey),
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                  '${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                                Spacer(),
-                                                ElevatedButton(
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                            primary: Colors
-                                                                .transparent),
-                                                    onPressed: () {
-                                                      productModels.removeWhere(
-                                                          (item) =>
-                                                              item.ndProperty ==
-                                                              productModel
-                                                                  .ndProperty);
-                                                      setState(() {});
-                                                    },
-                                                    child: Icon(
-                                                      Icons.delete,
-                                                      color: Colors.white,
-                                                    )),
-                                              ]),
+                                                  Spacer(),
+                                                  amountOfProd == 0
+                                                      ? Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .numbers_outlined,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                            Text('สินค้าหมด ',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .white,
+                                                                )),
+                                                          ],
+                                                        )
+                                                      : Container(
+                                                          decoration: BoxDecoration(
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .background,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(5.0),
+                                                            child: Row(
+                                                              children: [
+                                                                Text('คงเหลือ ',
+                                                                    style:
+                                                                        const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    )),
+                                                                Text(
+                                                                    '${NumberFormat("#,###.##").format(amountOfProd)}',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                ]),
+                                              ),
                                             ),
                                           ),
                                         ),

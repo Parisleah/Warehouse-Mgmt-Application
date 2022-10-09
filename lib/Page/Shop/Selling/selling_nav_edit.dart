@@ -6,12 +6,11 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_chooseCustomer.dart';
 
 // Page
-import 'package:warehouse_mnmt/Page/Shop/Selling/selling_page.dart';
-import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_pickProd.dart';
-import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_chooseShipping.dart';
+
+import 'package:warehouse_mnmt/Page/Shop/Selling/nav_choose_product.dart';
 
 // import 'package:warehouse_mnmt/Page/pickProduct/pickProduct_page.dart';
-import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_pickProd.dart';
+import 'package:warehouse_mnmt/Page/Shop/Selling/nav_choose_product.dart';
 
 // Component
 import 'package:warehouse_mnmt/Page/Component/datePicker.dart';
@@ -19,7 +18,6 @@ import 'package:warehouse_mnmt/Page/Component/styleButton.dart';
 
 // Model
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
-import 'package:warehouse_mnmt/Page/Model/SellingPage/customers.dart';
 
 // Class for TextField Decimal Format (ex. 1,000,200.00 $)
 import 'package:warehouse_mnmt/Page/Component/TextField/textField_component.dart';
@@ -30,11 +28,11 @@ class sellingNavEdit extends StatefulWidget {
   // Navigation ---------------------------------------------------
 
   // customer ---------------------------------------------------------
-  final Customer customer;
+  // final Customer customer;
 
   sellingNavEdit({
     Key? key,
-    required this.customer,
+    // required this.customer,
   }) : super(key: key);
   // customer ---------------------------------------------------------
 
@@ -116,12 +114,12 @@ class _sellingNavEditState extends State<sellingNavEdit> {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(widget.customer.urlAvatar),
+                // backgroundImage: AssetImage(widget.customer.urlAvatar),
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  widget.customer.username,
+                  'widget.customer.username',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -224,9 +222,9 @@ class _sellingNavEditState extends State<sellingNavEdit> {
                               final product = products[index];
                               return TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => sellingNavPickProd(
-                                          product: product)));
+                                  // Navigator.of(context).push(MaterialPageRoute(
+                                  //     builder: (context) => sellingNavPickProd(
+                                  //         product: product)));
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
@@ -336,11 +334,11 @@ class _sellingNavEditState extends State<sellingNavEdit> {
                     icon: const Icon(Icons.arrow_forward_ios,
                         color: Colors.white),
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) =>
-                                  selling_nav_chooseShipping()));
+                      // Navigator.push(
+                      //     context,
+                      //     new MaterialPageRoute(
+                      //         builder: (context) =>
+                      //             selling_nav_chooseShipping()));
                     },
                   ),
                 ]),
@@ -499,11 +497,11 @@ class _sellingNavEditState extends State<sellingNavEdit> {
                   IconButton(
                     icon: Icon(Icons.arrow_forward_ios, color: Colors.white),
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) =>
-                                  selling_nav_chooseCustomer()));
+                      // Navigator.push(
+                      //     context,
+                      //     new MaterialPageRoute(
+                      //         builder: (context) =>
+                      //             SellingNavChooseCustomer()));
                     },
                   ),
                 ]),

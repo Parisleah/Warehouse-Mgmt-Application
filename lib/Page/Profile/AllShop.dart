@@ -42,7 +42,7 @@ class _AllShopPageState extends State<AllShopPage> {
 
   Future refreshProfile() async {
     profile = await DatabaseManager.instance.readProfile(1);
-    print('REFRESH PROFILE NAME -> ${profile!.name}');
+    dialogWelcome(widget.profile);
     setState(() {});
   }
 
@@ -55,6 +55,79 @@ class _AllShopPageState extends State<AllShopPage> {
   void dispose() {
     DatabaseManager.instance.close();
     super.dispose();
+  }
+
+  dialogWelcome(Profile profile) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)), //this right here
+            child: SizedBox(
+              width: 300,
+              height: 350,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'ยินดีต้อนรับ',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 25,
+                        // fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.file(
+                          File(profile.image),
+                          width: 180,
+                          height: 180,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.background,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text('คุณ ${profile.name}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                )),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('เข้าสู่ร้านค้า'))
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   showAlertDeleteShop(Shop shop) async {

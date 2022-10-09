@@ -1,14 +1,28 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:warehouse_mnmt/Page/Model/Customer.dart';
+import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
+import 'package:warehouse_mnmt/Page/Model/Selling.dart';
+import 'package:warehouse_mnmt/Page/Model/Selling_item.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_choose_shipping.dart';
+import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_chooseCustomer.dart';
+import 'package:warehouse_mnmt/Page/Shop/Selling/nav_choose_product.dart';
+import 'package:warehouse_mnmt/db/database.dart';
 
 import '../../Component/DatePicker.dart';
+import '../../Model/ProductModel.dart';
+import '../../Model/Shop.dart';
 
 class SellingNavAdd extends StatefulWidget {
-  const SellingNavAdd({Key? key}) : super(key: key);
+  final Shop shop;
+  const SellingNavAdd({required this.shop, Key? key}) : super(key: key);
 
   @override
   State<SellingNavAdd> createState() => _SellingNavAddState();
@@ -17,16 +31,97 @@ class SellingNavAdd extends StatefulWidget {
 class _SellingNavAddState extends State<SellingNavAdd> {
   TextEditingController shipPricController = TextEditingController();
   TextEditingController specReqController = TextEditingController();
-  double _onlyProd_price = 0;
-  double _shipping_price = 0;
-  double _total_price = 0;
+  CustomerModel _customer = CustomerModel(cName: 'ยังไม่ระบุลูกค้า');
+  CustomerAddressModel _address = CustomerAddressModel(
+    cAddress: 'ที่อยู่',
+    cPhone: 'เบอร์โทร',
+  );
+  String _shipping = 'ระบุการจัดส่ง';
+  DateTime date = DateTime.now();
+  final df = new DateFormat('dd-MM-yyyy hh:mm a');
+
+  var shippingCost = 0;
+  var totalPrice = 0;
+  var noShippingPrice = 0;
+  var amount = 0;
+  double vat7percent = 0.0;
+  double noVatPrice = 0.0;
+  bool isDelivered = false;
+  List<Product> products = [];
+  List<ProductModel> models = [];
+  List<ProductLot> lots = [];
+  List<SellingItemModel> carts = [];
+  _addProductInCart(SellingItemModel product) {
+    carts.add(product);
+  }
 
   @override
   void initState() {
     super.initState();
+    refreshProducts();
+    shipPricController.addListener(() => setState(() {}));
+    shipPricController.addListener(() => setState(() {}));
+    specReqController.addListener(() => setState(() {}));
   }
 
-  List<Product> products = [];
+  Future refreshProducts() async {
+    products =
+        await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
+
+    models = await DatabaseManager.instance.readAllProductModels();
+    lots = await DatabaseManager.instance.readAllProductLots();
+    setState(() {});
+  }
+
+  _updateCustomer(CustomerModel customer) {
+    setState(() {
+      _customer = customer;
+    });
+  }
+
+  _updateCustomerAddress(CustomerAddressModel address) {
+    setState(() {
+      _address = address;
+    });
+  }
+
+  _updateShipping(shipping) {
+    setState(() {
+      _shipping = shipping;
+    });
+  }
+
+  _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice,
+      oldvat7percent, oldNoVatPrice) {
+    oldTotal = 0;
+    oldAmount = 0;
+    oldNoShippingPrice = 0;
+    oldvat7percent = 0;
+    oldNoVatPrice = 0;
+
+    for (var i in carts) {
+      oldTotal += i.total;
+      oldAmount += i.amount;
+    }
+
+    totalPrice = oldTotal + oldShippingPrice;
+    amount = oldAmount;
+    shippingCost = oldShippingPrice;
+    noShippingPrice = oldTotal;
+    vat7percent = oldTotal * 7 / 100;
+    noVatPrice = oldTotal - vat7percent;
+    setState(() {});
+  }
+
+  _showAlertSnackBar(title) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Theme.of(context).backgroundColor,
+      content: Text(title),
+      duration: Duration(seconds: 2),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +129,30 @@ class _SellingNavAddState extends State<SellingNavAdd> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70),
         child: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () async {
+              if (carts.isNotEmpty) {
+                for (var selling in carts) {
+                  for (var lot in lots) {
+                    if (lot.prodLotId == selling.prodLotId) {
+                      final updateAmountDeletedProductLot = ProductLot(
+                          prodLotId: selling!.prodLotId,
+                          amount: selling!.amount,
+                          orderedTime: lot.orderedTime,
+                          prodModelId: selling!.prodModelId,
+                          remainAmount: selling!.amount + lot.remainAmount);
+                      await DatabaseManager.instance
+                          .updateProductLot(updateAmountDeletedProductLot);
+                    }
+                  }
+                }
+                Navigator.pop(context);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
           title: Column(
@@ -61,22 +180,157 @@ class _SellingNavAddState extends State<SellingNavAdd> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           )),
-          child:
-              // Text(
-              //   user.username,
-              //   style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-              // )
-              Padding(
+          child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(children: [
               const SizedBox(
                 height: 90,
               ),
               // Date Picker
-              datePicker(),
+              // Date Picker
+              Container(
+                width: 440,
+                height: 80,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      primary: Color.fromRGBO(56, 48, 77, 1.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15))),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_month),
+                        Spacer(),
+                        Text('${date.day}/${date.month}/${date.year}')
+                      ],
+                    ),
+                  ),
+                  onPressed: () async {
+                    DateTime? newDate = await showDatePicker(
+                        context: context,
+                        initialDate: date,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100),
+                        builder: (context, child) => Theme(
+                              data: ThemeData().copyWith(
+                                colorScheme: ColorScheme.dark(
+                                  primary: Colors.white,
+                                  onPrimary: Theme.of(context).backgroundColor,
+                                  surface: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
+                                  onSurface: Colors.white,
+                                ),
+                                dialogBackgroundColor:
+                                    Theme.of(context).colorScheme.background,
+                              ),
+                              child: child!,
+                            ));
+                    // 'Cancel' => null
+                    if (newDate == null) return;
+
+                    // 'OK' => DateTime
+                    setState(() => date = newDate);
+                  },
+                ),
+              ),
               const SizedBox(
                 height: 10,
               ),
+              // Container of ราคาขายรวม
+              Row(
+                children: [
+                  Text(
+                    "ลูกค้า",
+                    style: TextStyle(fontSize: 25, color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // Container of เลือกลูกค้า
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => SellingNavChooseCustomer(
+                                shop: widget.shop,
+                                updateCustomer: _updateCustomer,
+                                updateCustomerAddress: _updateCustomerAddress,
+                              )));
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(56, 48, 77, 1.0),
+                      borderRadius: BorderRadius.circular(15)),
+                  width: 400,
+                  height: _customer.cName == 'ยังไม่ระบุลูกค้า' ? 80 : 100,
+                  child: Row(children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text('${_customer.cusId}',
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
+                              Text(_customer.cName,
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          _customer.cName == 'ยังไม่ระบุลูกค้า'
+                                              ? Colors.grey
+                                              : Colors.white)),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              _customer.cName == 'ยังไม่ระบุลูกค้า'
+                                  ? Container(
+                                      width: 0,
+                                    )
+                                  : Text(
+                                      '(${_address.cPhone.replaceAllMapped(RegExp(r'(\d{3})(\d{3})(\d+)'), (Match m) => "${m[1]}-${m[2]}-${m[3]}")})',
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                          color: _customer.cName ==
+                                                  'ยังไม่ระบุลูกค้า'
+                                              ? Colors.grey
+                                              : Colors.white)),
+                            ],
+                          ),
+                          _customer.cName == 'ยังไม่ระบุลูกค้า'
+                              ? Container(
+                                  width: 0,
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_address.cAddress,
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.grey)),
+                                  ],
+                                ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                    const SizedBox(
+                      width: 10,
+                    )
+                  ]),
+                ),
+              ),
+              // Container of เลือกลูกค้า
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -91,18 +345,27 @@ class _SellingNavAddState extends State<SellingNavAdd> {
               ),
               // Container of รายการสินค้า
               Container(
-                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                     color: Color.fromRGBO(56, 48, 77, 1.0),
                     borderRadius: BorderRadius.circular(15)),
                 width: 440,
-                height: 340,
+                height: carts.isEmpty ? 70 : 340,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(children: [
                     ElevatedButton(
-                      // style: prodPickButtonStyle,
-                      onPressed: () {},
+                      onPressed: () async {
+                        await Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => SellingNavChooseProduct(
+                                      shop: widget.shop,
+                                      update: _addProductInCart,
+                                    )));
+                        _calculate(totalPrice, amount, shippingCost,
+                            noShippingPrice, vat7percent, noVatPrice);
+                        setState(() {});
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -112,132 +375,345 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                       ),
                     ),
                     // ListView
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Container(
-                        height: 224.0,
-                        width: 440.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color: Color.fromRGBO(37, 35, 53, 1.0),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            products.isEmpty
-                                ? const Text(
-                                    'ไม่มีสินค้า',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 25),
-                                  )
-                                : Container(
-                                    height: 224.0,
-                                    width: 440.0,
-                                    child: ListView.builder(
-                                        padding: EdgeInsets.zero,
-                                        itemCount: products.length,
-                                        itemBuilder: (context, index) {
-                                          final product = products[index];
-                                          return TextButton(
-                                            onPressed: () {
-                                              // Navigator.of(context).push(
-                                              //     MaterialPageRoute(
-                                              //         builder: (context) =>
-                                              //             sellingNavShowProd(
-                                              //                 product:
-                                              //                     product)));
-                                            },
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 0.0,
-                                                  horizontal: 0.0),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: Container(
-                                                  height: 80,
-                                                  width: 400,
-                                                  color: Color.fromRGBO(
-                                                      56, 54, 76, 1.0),
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      SizedBox(width: 10),
-                                                      Expanded(
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: <Widget>[
-                                                            Text(
-                                                              product.prodName,
-                                                              style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white),
+                    carts.isEmpty
+                        ? Container()
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Container(
+                              height: 224.0,
+                              width: 440.0,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: Color.fromRGBO(37, 35, 53, 1.0),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  carts.isEmpty
+                                      ? const Text(
+                                          '(ไม่มีสินค้า)',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 25),
+                                        )
+                                      : Container(
+                                          height: 224.0,
+                                          width: 440.0,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            color:
+                                                Color.fromRGBO(37, 35, 53, 1.0),
+                                          ),
+                                          child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              itemCount: carts.length,
+                                              itemBuilder: (context, index) {
+                                                final selling = carts[index];
+                                                var prodName;
+                                                var prodImg;
+                                                var prodModel;
+                                                for (var prod in products) {
+                                                  if (prod.prodId ==
+                                                      selling.prodModelId) {
+                                                    prodImg = prod.prodImage;
+                                                    prodName = prod.prodName;
+                                                  }
+                                                }
+
+                                                var stProperty;
+                                                var ndProperty;
+
+                                                for (var model in models) {
+                                                  if (model.prodModelId ==
+                                                      selling.prodModelId) {
+                                                    stProperty =
+                                                        model.stProperty;
+                                                    ndProperty =
+                                                        model.ndProperty;
+                                                  }
+                                                }
+
+                                                return Dismissible(
+                                                  key: UniqueKey(),
+                                                  onDismissed:
+                                                      (direction) async {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(SnackBar(
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Colors.redAccent,
+                                                      content: Container(
+                                                          child: Row(
+                                                        children: [
+                                                          ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30),
+                                                            child: Container(
+                                                              width: 20,
+                                                              height: 20,
+                                                              child: Image.file(
+                                                                File(prodImg),
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                             ),
-                                                            Text(
-                                                              '${product.prodCategId!}',
-                                                              style: const TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                          ],
+                                                          ),
+                                                          Text(" ลบสินค้า"),
+                                                          Text(
+                                                            ' ${prodName}',
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        ],
+                                                      )),
+                                                      duration:
+                                                          Duration(seconds: 5),
+                                                    ));
+                                                    carts.remove(selling);
+                                                    for (var lot in lots) {
+                                                      if (lot.prodLotId ==
+                                                          selling.prodLotId) {
+                                                        final updateAmountDeletedProductLot = ProductLot(
+                                                            prodLotId: selling
+                                                                ?.prodLotId,
+                                                            amount:
+                                                                selling?.amount,
+                                                            orderedTime:
+                                                                lot.orderedTime,
+                                                            prodModelId: selling
+                                                                ?.prodModelId,
+                                                            remainAmount: selling!
+                                                                    .amount +
+                                                                lot.remainAmount);
+                                                        await DatabaseManager
+                                                            .instance
+                                                            .updateProductLot(
+                                                                updateAmountDeletedProductLot);
+                                                      }
+                                                    }
+
+                                                    setState(() {});
+                                                  },
+                                                  background: Container(
+                                                    margin: EdgeInsets.only(
+                                                        left: 0,
+                                                        top: 10,
+                                                        right: 10,
+                                                        bottom: 10),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.redAccent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.delete_forever,
+                                                          color: Colors.white,
+                                                        ),
+                                                        SizedBox(
+                                                          width: 20,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  direction: DismissDirection
+                                                      .endToStart,
+                                                  resizeDuration:
+                                                      Duration(seconds: 1),
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      // Navigator.of(context).push(MaterialPageRoute(
+                                                      //     builder: (context) => sellingNavShowProd(
+                                                      //         product: product)));
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 0.0,
+                                                              horizontal: 0.0),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        child: Container(
+                                                          height: 80,
+                                                          width: 400,
+                                                          color: Color.fromRGBO(
+                                                              56, 54, 76, 1.0),
+                                                          child: Row(
+                                                            children: <Widget>[
+                                                              Container(
+                                                                width: 90,
+                                                                height: 90,
+                                                                child:
+                                                                    Image.file(
+                                                                  File(prodImg),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                  width: 10),
+                                                              Expanded(
+                                                                child: Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: <
+                                                                      Widget>[
+                                                                    Text(
+                                                                      '${prodName}',
+                                                                      style: const TextStyle(
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                    Row(
+                                                                      children: [
+                                                                        Container(
+                                                                          decoration: BoxDecoration(
+                                                                              // Theme.of(context)
+                                                                              //       .colorScheme
+                                                                              //       .background
+                                                                              color: Color.fromRGBO(36, 33, 50, 1.0),
+                                                                              borderRadius: BorderRadius.circular(10)),
+                                                                          child:
+                                                                              Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.all(3.0),
+                                                                            child:
+                                                                                Text(
+                                                                              stProperty,
+                                                                              style: const TextStyle(fontSize: 12, color: Colors.white),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              10,
+                                                                        ),
+                                                                        Container(
+                                                                          decoration: BoxDecoration(
+                                                                              color: Color.fromRGBO(36, 33, 50, 1.0),
+                                                                              borderRadius: BorderRadius.circular(10)),
+                                                                          child:
+                                                                              Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.all(3.0),
+                                                                            child:
+                                                                                Text(
+                                                                              ndProperty,
+                                                                              style: const TextStyle(fontSize: 12, color: Colors.white),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    Text(
+                                                                        'ราคา ${NumberFormat("#,###.##").format(selling.total)}',
+                                                                        style: const TextStyle(
+                                                                            color:
+                                                                                Colors.grey,
+                                                                            fontSize: 12)),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Color
+                                                                        .fromRGBO(
+                                                                            30,
+                                                                            30,
+                                                                            49,
+                                                                            1.0),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                      '${NumberFormat("#,###.##").format(selling.amount)}',
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color: Theme.of(context)
+                                                                              .backgroundColor,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)),
+                                                                ),
+                                                              ),
+                                                              const Icon(
+                                                                  Icons
+                                                                      .arrow_forward_ios,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          205,
+                                                                          205,
+                                                                          205)),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
-                                                      IconButton(
-                                                        iconSize: 20,
-                                                        icon: Icon(Icons.delete,
-                                                            color: Colors
-                                                                .redAccent),
-                                                        onPressed: () {
-                                                          setState(() {});
-                                                        },
-                                                      ),
-                                                    ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                  )
-                          ],
-                        ),
-                      ),
-                    ),
+                                                );
+                                              }),
+                                        )
+                                ],
+                              ),
+                            ),
+                          ),
                     // ListView
                     SizedBox(
                       height: 5,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "จำนวนทั้งหมด",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        // Padding(
-                        //   padding: const EdgeInsets.only(left: 5),
-                        //   child: CircleAvatar(
-                        //     radius: 12,
-                        //     backgroundColor: Color.fromRGBO(30, 30, 49, 1.0),
-                        //     child: Text(
-                        //         '${NumberFormat("#,###").format(_allProd_amt)}',
-                        //         style: const TextStyle(
-                        //             fontSize: 12,
-                        //             color: Colors.greenAccent,
-                        //             fontWeight: FontWeight.bold)),
-                        //   ),
-                        // ),
-                      ],
-                    )
+                    carts.isEmpty
+                        ? Container()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "จำนวนทั้งหมด",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor:
+                                      Color.fromRGBO(30, 30, 49, 1.0),
+                                  child: Text(
+                                      '${NumberFormat("#,###").format(carts.length)}',
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.greenAccent,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ],
+                          )
                   ]),
                 ),
               ),
@@ -246,35 +722,38 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 height: 10,
               ),
               // Container of การจัดส่ง
-              Container(
-                decoration: BoxDecoration(
-                    color: const Color.fromRGBO(56, 48, 77, 1.0),
-                    borderRadius: BorderRadius.circular(15)),
-                width: 400,
-                height: 70,
-                child: Row(children: [
-                  const Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text("การจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                  ),
-                  const Spacer(),
-                  // Text('$_shipping',
-                  //     style: TextStyle(fontSize: 15, color: Colors.grey)),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white),
-                    onPressed: () {
-                      // Navigator.push(
-                      //     context,
-                      //     new MaterialPageRoute(
-                      //         builder: (context) => selling_nav_chooseShipping(
-                      //               update: _updateShipping,
-                      //             )));
-                    },
-                  ),
-                ]),
+              GestureDetector(
+                onTap: (() {
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => ChooseShippingNav(
+                                update: _updateShipping,
+                              )));
+                }),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: const Color.fromRGBO(56, 48, 77, 1.0),
+                      borderRadius: BorderRadius.circular(15)),
+                  width: 400,
+                  height: 70,
+                  child: Row(children: [
+                    const Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text("การจัดส่ง",
+                          style: TextStyle(fontSize: 15, color: Colors.white)),
+                    ),
+                    const Spacer(),
+                    Text(_shipping,
+                        style: TextStyle(fontSize: 15, color: Colors.grey)),
+                    const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                  ]),
+                ),
               ),
+
               // Container of การจัดส่ง
               const SizedBox(
                 height: 10,
@@ -288,6 +767,22 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 width: 400,
                 height: 70,
                 child: TextField(
+                    onChanged: ((value) {
+                      if (shipPricController.text.isNotEmpty &&
+                          shipPricController.text != null) {
+                        _calculate(
+                            totalPrice,
+                            amount,
+                            int.parse(
+                              shipPricController.text,
+                            ),
+                            noShippingPrice,
+                            vat7percent,
+                            noVatPrice);
+                      } else {
+                        shippingCost = 0;
+                      }
+                    }),
                     textAlign: TextAlign.end,
                     keyboardType: TextInputType.number,
                     onSubmitted: (context) {
@@ -314,17 +809,22 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                       suffixIcon: !shipPricController.text.isEmpty
                           ? IconButton(
                               onPressed: () {
-                                // shipPricController.clear();
-
-                                // double totalProdPrice = 0;
-                                // for (var i = 0; i < products.length; i++) {
-                                //   final product = products[i];
-                                //   totalProdPrice +=
-                                //       product.prodPrice * product.prodAmount;
-                                // }
-
-                                // _total_price = totalProdPrice;
-                                // _shipping_price = 0;
+                                shippingCost = 0;
+                                shipPricController.clear();
+                                if (shipPricController.text.isNotEmpty &&
+                                    shipPricController.text != null) {
+                                  _calculate(
+                                      totalPrice,
+                                      amount,
+                                      int.parse(
+                                        shipPricController.text,
+                                      ),
+                                      noShippingPrice,
+                                      vat7percent,
+                                      noVatPrice);
+                                } else {
+                                  shippingCost = 0;
+                                }
                               },
                               icon: const Icon(
                                 Icons.close_sharp,
@@ -335,6 +835,36 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     )),
               ),
               // Container of ค่าจัดส่ง
+
+              const SizedBox(
+                height: 10,
+              ),
+              // Container of ราคาสุทธิ
+              Container(
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 400,
+                height: 70,
+                child: Row(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: const Text("ราคาสินค้ารวม",
+                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                        //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
+                        '${NumberFormat("#,###.##").format(noShippingPrice)}',
+                        textAlign: TextAlign.left,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
+                ]),
+              ),
+              // Container of ราคาสุทธิ
               const SizedBox(
                 height: 10,
               ),
@@ -352,46 +882,17 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(20.0),
-                  //   child: Text(
-                  //       '${NumberFormat("#,###.##").format(_vat_price)}',
-                  //       textAlign: TextAlign.left,
-                  //       style:
-                  //           const TextStyle(fontSize: 15, color: Colors.grey)),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                        '${NumberFormat("#,###.##").format(vat7percent)}',
+                        textAlign: TextAlign.left,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
                 ]),
               ),
               // Container of ภาษี 7 %
-              const SizedBox(
-                height: 10,
-              ),
-              // Container of ราคาสุทธิ
-              Container(
-                decoration: BoxDecoration(
-                    color: const Color.fromRGBO(56, 48, 77, 1.0),
-                    borderRadius: BorderRadius.circular(15)),
-                width: 400,
-                height: 70,
-                child: Row(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: const Text("ราคาสุทธิ",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                  ),
-                  Spacer(),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(20.0),
-                  //   child:
-                  //   // Text(
-                  //   //     '${NumberFormat("#,###.##").format(_withoutVat_price)}',
-                  //   //     textAlign: TextAlign.left,
-                  //   //     style:
-                  //   //         const TextStyle(fontSize: 15, color: Colors.grey)),
-                  // ),
-                ]),
-              ),
-              // Container of ราคาสุทธิ
               const SizedBox(
                 height: 10,
               ),
@@ -407,7 +908,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   child: Row(children: [
                     Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: const Text("ราคาขายรวม",
+                      child: const Text("ราคาสุทธิ",
                           style: TextStyle(fontSize: 15, color: Colors.white)),
                     ),
                     if (products.length != 0)
@@ -418,7 +919,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                           Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Text(
-                                'สินค้า (${NumberFormat("#,###,###,###.##").format(_onlyProd_price)})',
+                                'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
                                 textAlign: TextAlign.left,
                                 style: const TextStyle(
                                     fontSize: 12, color: Colors.grey)),
@@ -431,7 +932,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 Padding(
                                   padding: const EdgeInsets.all(5.0),
                                   child: Text(
-                                      '+ (${NumberFormat("#,###,###,###.##").format(_shipping_price)})',
+                                      '+ (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
                                       textAlign: TextAlign.left,
                                       style: const TextStyle(
                                           fontSize: 12,
@@ -445,7 +946,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                          '${NumberFormat("#,###,###,###.##").format(_total_price)}',
+                          '${NumberFormat("#,###,###,###.##").format(totalPrice)}',
                           textAlign: TextAlign.left,
                           style: const TextStyle(
                               fontSize: 15, color: Colors.grey)),
@@ -453,47 +954,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   ]),
                 ),
               ),
-              // Container of ราคาขายรวม
-              Row(
-                children: [
-                  Text(
-                    "ลูกค้า",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              // Container of เลือกลูกค้า
-              Container(
-                decoration: BoxDecoration(
-                    color: Color.fromRGBO(56, 48, 77, 1.0),
-                    borderRadius: BorderRadius.circular(15)),
-                width: 400,
-                height: 70,
-                child: Row(children: [
-                  // Padding(
-                  //   padding: const EdgeInsets.all(20.0),
-                  //   child: Text(
-                  //     _customer,
-                  //       style: TextStyle(fontSize: 15, color: Colors.grey)),
-                  // ),
-                  Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.arrow_forward_ios, color: Colors.white),
-                    onPressed: () {
-                      // Navigator.push(
-                      //     context,
-                      //     new MaterialPageRoute(
-                      //         builder: (context) => selling_nav_chooseCustomer(
-                      //               update: _updateCus,
-                      //             )));
-                    },
-                  ),
-                ]),
-              ),
-              // Container of เลือกลูกค้า
+
               Row(
                 children: [
                   Text(
@@ -537,6 +998,59 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     )),
               ),
               // Container of คำร้องขอพิเศษ
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                      child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        isDelivered = !isDelivered;
+                        if (isDelivered == false) {
+                          print('ยังไม่ได้รับสินค้า');
+                        } else {
+                          print('ได้รับสินค้าแล้ว');
+                        }
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, color: Colors.transparent),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: isDelivered
+                            ? Icon(
+                                Icons.check_box,
+                                size: 40.0,
+                                color: Theme.of(context).backgroundColor,
+                              )
+                            : Icon(
+                                Icons.check_box_outline_blank,
+                                size: 40.0,
+                                color: Theme.of(context).backgroundColor,
+                              ),
+                      ),
+                    ),
+                  )),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "จัดส่งสินค้าเรียบร้อยแล้ว",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
+                        style: TextStyle(fontSize: 15, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
 
               Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -545,7 +1059,26 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   children: [
                     Column(children: [
                       ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            for (var selling in carts) {
+                              for (var lot in lots) {
+                                if (lot.prodLotId == selling.prodLotId) {
+                                  final updateAmountDeletedProductLot =
+                                      ProductLot(
+                                          prodLotId: selling!.prodLotId,
+                                          amount: selling!.amount,
+                                          orderedTime: lot.orderedTime,
+                                          prodModelId: selling!.prodModelId,
+                                          remainAmount: selling!.amount +
+                                              lot.remainAmount);
+                                  await DatabaseManager.instance
+                                      .updateProductLot(
+                                          updateAmountDeletedProductLot);
+                                }
+                              }
+                            }
+                            Navigator.pop(context);
+                          },
                           child: Text(
                             "ยกเลิก",
                             style: TextStyle(fontSize: 17),
@@ -554,9 +1087,48 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     ]),
                     Column(children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (_customer.cName == 'ยังไม่ระบุลูกค้า') {
+                            _showAlertSnackBar('โปรดระบุลูกค้า');
+                          } else if (carts.isEmpty) {
+                            _showAlertSnackBar(
+                                'โปรดเลือกสินค้าอย่างน้อย 1 รายการ');
+                          } else {
+                            final createSelling = SellingModel(
+                                orderedDate: date,
+                                customerId: _customer.cusId!,
+                                cAddreId: _address.cAddreId!,
+                                shipping: _shipping == null ? '-' : _shipping,
+                                shippingCost: shippingCost,
+                                amount: amount,
+                                total: totalPrice,
+                                speacialReq: specReqController.text.isEmpty ||
+                                        specReqController.text == null
+                                    ? '-'
+                                    : specReqController.text,
+                                isDelivered: isDelivered,
+                                shopId: widget.shop.shopid!);
+
+                            final createdSelling = await DatabaseManager
+                                .instance
+                                .createSelling(createSelling);
+
+                            for (var cart in carts) {
+                              final item = SellingItemModel(
+                                  prodModelId: cart.prodModelId,
+                                  prodLotId: cart.prodLotId,
+                                  amount: cart.amount,
+                                  total: cart.total,
+                                  selId: createdSelling.selId);
+
+                              await DatabaseManager.instance
+                                  .createSellingItem(item);
+                            }
+                            Navigator.pop(context);
+                          }
+                        },
                         child: Text(
-                          "บันทึก",
+                          "เพิ่ม",
                           style: TextStyle(fontSize: 17),
                         ),
                       )

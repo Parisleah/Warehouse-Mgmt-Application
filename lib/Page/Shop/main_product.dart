@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Shop/Product/nav_add.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/nav_add.dart';
@@ -41,6 +42,7 @@ class _ProductPageState extends State<ProductPage> {
   List<Product> products = [];
   List<ProductCategory> productCategorys = [];
   List<ProductModel> productModels = [];
+  List<ProductLot> productLots = [];
 
   bool _validate = false;
   Future refreshProducts() async {
@@ -49,12 +51,14 @@ class _ProductPageState extends State<ProductPage> {
         .readAllProductCategorys(widget.shop.shopid!);
     products =
         await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
+    productLots = await DatabaseManager.instance.readAllProductLots();
     setState(() {});
   }
 
   Future refreshProductCategorys() async {
     productCategorys = await DatabaseManager.instance
         .readAllProductCategorys(widget.shop.shopid!);
+
     setState(() {});
   }
 
@@ -353,6 +357,8 @@ class _ProductPageState extends State<ProductPage> {
                                             }
                                           }
 
+                                          var _amountOfProd = 0;
+
                                           var cost = [];
                                           var price = [];
 
@@ -361,10 +367,17 @@ class _ProductPageState extends State<ProductPage> {
                                                 product.prodId) {
                                               cost.add(prModel.cost);
                                               price.add(prModel.price);
-                                              print(
-                                                  ' + ${prModel.cost} +  ${prModel.price}');
+
+                                              for (var lot in productLots) {
+                                                if (prModel.prodModelId ==
+                                                    lot.prodModelId) {
+                                                  _amountOfProd += lot.amount!;
+                                                }
+                                              }
                                             }
                                           }
+                                          var amountOfProd = _amountOfProd;
+
                                           var _minCost = 0;
                                           var _maxCost = 0;
                                           var _minPrice = 0;
@@ -548,32 +561,38 @@ class _ProductPageState extends State<ProductPage> {
                                                             ],
                                                           ),
                                                         ),
-                                                        CircleAvatar(
-                                                          radius: 15,
-                                                          backgroundColor:
-                                                              Theme.of(context)
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                              color: Theme.of(
+                                                                      context)
                                                                   .colorScheme
                                                                   .secondary,
-                                                          child: Text(
-                                                              '${NumberFormat("#,###.##").format(product.prodId)}',
-                                                              style: const TextStyle(
-                                                                  fontSize: 15,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold)),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(5.0),
+                                                            child: Row(
+                                                              children: [
+                                                                Text(
+                                                                    '${NumberFormat("#,###.##").format(amountOfProd)}',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)),
+                                                              ],
+                                                            ),
+                                                          ),
                                                         ),
-                                                        // Delete Product
-                                                        const Icon(
-                                                            Icons
-                                                                .more_vert_outlined,
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    205,
-                                                                    205,
-                                                                    205)),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        )
                                                       ],
                                                     ),
                                                   ),

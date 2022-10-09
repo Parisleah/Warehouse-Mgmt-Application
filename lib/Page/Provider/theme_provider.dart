@@ -100,14 +100,14 @@ class MyThemes {
                 offset: Offset(0, 3))
           ],
           borderRadius: BorderRadius.circular(15),
-          color: dark_primary_accent_color),
+          color: const Color.fromRGBO(56, 48, 77, 1.0)),
       indicatorSize: TabBarIndicatorSize.tab,
     ),
 
     // BottomAppBar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       unselectedItemColor: Colors.white,
-      selectedItemColor: dark_primary_accent_color,
+      selectedItemColor: const Color.fromRGBO(56, 48, 77, 1.0),
       backgroundColor: Color.fromARGB(255, 16, 16, 16),
       type: BottomNavigationBarType.fixed,
     ),
@@ -118,8 +118,8 @@ class MyThemes {
     // ElevatedButton
     elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-      backgroundColor:
-          MaterialStateProperty.all<Color>(dark_primary_accent_color),
+      backgroundColor: MaterialStateProperty.all<Color>(
+          const Color.fromRGBO(56, 48, 77, 1.0)),
       shape: MaterialStateProperty.all<OutlinedBorder>(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0))),
       // padding: MaterialStateProperty.all<EdgeInsetsGeometry>(

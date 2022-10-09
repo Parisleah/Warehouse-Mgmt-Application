@@ -41,18 +41,12 @@ class _AddShopPageState extends State<AddShopPage> {
         _validate = true;
       } else {
         _validate = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("ถูกต้อง"),
-            duration: Duration(seconds: 1),
-          ),
-        );
+
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  AddShopPhonePage(profile: widget.profile,
-                    shopName: profileNameController.text)
+              builder: (context) => AddShopPhonePage(
+                  profile: widget.profile, shopName: profileNameController.text)
 
               // profileName: profileNameController.text,
               ),

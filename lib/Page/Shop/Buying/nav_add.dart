@@ -26,7 +26,7 @@ class BuyingNavAdd extends StatefulWidget {
 }
 
 class _BuyingNavAddState extends State<BuyingNavAdd> {
-  List<PurchasingItemsModel> cart = [];
+  List<PurchasingItemsModel> carts = [];
   List<Product> products = [];
   List<ProductModel> models = [];
   DateTime date = DateTime.now();
@@ -40,10 +40,10 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   var amount = 0;
   bool isReceived = false;
   final shipPricController = TextEditingController();
-  final specReqController = TextEditingController();
+
   void initState() {
     super.initState();
-    specReqController.addListener(() => setState(() {}));
+
     shipPricController.addListener(() => setState(() {}));
     refreshProducts();
   }
@@ -56,7 +56,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
     setState(() {});
   }
 
-  _showDialog(title) {
+  _showAlertSnackBar(title) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       behavior: SnackBarBehavior.floating,
       backgroundColor: Theme.of(context).backgroundColor,
@@ -78,15 +78,15 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   }
 
   _addProductInCart(PurchasingItemsModel product) {
-    cart.add(product);
-    print('Cart (${cart.length}) -> ${cart}');
+    carts.add(product);
+    print('Cart (${carts.length}) -> ${carts}');
   }
 
   _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice) {
     oldTotal = 0;
     oldAmount = 0;
     oldNoShippingPrice = 0;
-    for (var i in cart) {
+    for (var i in carts) {
       oldTotal += i.total;
       oldAmount += i.amount;
     }
@@ -217,6 +217,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                           context,
                           new MaterialPageRoute(
                               builder: (context) => BuyingNavChooseDealer(
+                                    shop: widget.shop,
                                     update: _updateDealer,
                                   )));
                     }),
@@ -281,13 +282,13 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                       ),
                     ),
                     // ListView
-                    cart.isEmpty
+                    carts.isEmpty
                         ? Container(
                             width: 0,
                           )
                         : Padding(
                             padding: const EdgeInsets.only(top: 10),
-                            child: cart.isEmpty
+                            child: carts.isEmpty
                                 ? Container(
                                     width: 400,
                                     height: 200,
@@ -311,15 +312,16 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                     ),
                                     child: ListView.builder(
                                         padding: EdgeInsets.zero,
-                                        itemCount: cart.length,
+                                        itemCount: carts.length,
                                         itemBuilder: (context, index) {
-                                          final purchasing = cart[index];
+                                          final purchasing = carts[index];
                                           var prodName;
                                           var prodImg;
                                           var prodModel;
+
                                           for (var prod in products) {
                                             if (prod.prodId ==
-                                                purchasing.prodModelId) {
+                                                purchasing.prodId) {
                                               prodImg = prod.prodImage;
                                               prodName = prod.prodName;
                                             }
@@ -373,7 +375,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                                 )),
                                                 duration: Duration(seconds: 5),
                                               ));
-                                              cart.remove(purchasing);
+                                              carts.remove(purchasing);
                                               setState(() {});
                                             },
                                             background: Container(
@@ -566,7 +568,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                   ),
                           ),
                     // ListView
-                    cart.isEmpty
+                    carts.isEmpty
                         ? Container(
                             width: 10,
                           )
@@ -584,7 +586,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(3.0),
                                   child: Text(
-                                      '${NumberFormat("#,###.##").format(cart.length)}',
+                                      '${NumberFormat("#,###.##").format(carts.length)}',
                                       style: TextStyle(
                                           fontSize: 15,
                                           color:
@@ -875,32 +877,35 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_dealer.dName == 'ยังไม่ระบุตัวแทนจำหน่าย') {
-                            _showDialog('โปรดระบุตัวแทนจำหน่าย');
-                          } else if (cart.isEmpty || cart.length == 0) {
-                            _showDialog('รายการสั่งซื้อว่าง');
+                            _showAlertSnackBar('โปรดระบุตัวแทนจำหน่าย');
+                          } else if (carts.isEmpty || carts.length == 0) {
+                            _showAlertSnackBar('รายการสั่งซื้อว่าง');
                           } else {
                             // Purchasing
                             final purchased = PurchasingModel(
                                 orderedDate: date,
                                 dealerId: _dealer.dealerId!,
                                 shippingCost: shippingCost,
+                                shipping: _shipping,
                                 amount: amount,
                                 total: totalPrice,
                                 isReceive: isReceived,
                                 shopId: widget.shop.shopid!);
-                            await DatabaseManager.instance
+                            final createdPur = await DatabaseManager.instance
                                 .createPurchasing(purchased);
                             // items
-                            for (var cartIndex in cart) {
+
+                            for (var cart in carts) {
                               final item = PurchasingItemsModel(
-                                  prodModelId: cartIndex.prodModelId,
-                                  amount: cartIndex.amount,
-                                  total: cartIndex.total);
+                                  purId: createdPur.purId,
+                                  prodModelId: cart.prodModelId,
+                                  amount: cart.amount,
+                                  total: cart.total);
                               final productLot = ProductLot(
                                   orderedTime: date,
                                   amount: amount,
                                   remainAmount: amount,
-                                  prodModelId: cartIndex.prodModelId);
+                                  prodModelId: cart.prodModelId);
                               await DatabaseManager.instance
                                   .createPurchasingItem(item);
                               await DatabaseManager.instance

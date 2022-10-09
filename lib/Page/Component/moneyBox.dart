@@ -6,7 +6,7 @@ class MoneyBox extends StatelessWidget {
   final Widget trendIcon;
   Color amountFontColor;
   String title;
-  double amount;
+  int amount;
   Color primaryColor;
   Color secondaryColor;
   double size;
@@ -49,12 +49,12 @@ class MoneyBox extends StatelessWidget {
                 children: [
                   this.mainIcon,
                   Spacer(),
-                  this.trendIcon,
-                  Text(
-                    '${NumberFormat("#,###,###.##").format(amount / 7)} ฿',
-                    style: TextStyle(fontSize: 15, color: amountFontColor),
-                    // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
-                  )
+                  // this.trendIcon,
+                  // Text(
+                  //   '${NumberFormat("#,###,###.##").format(amount / 7)} ฿',
+                  //   style: TextStyle(fontSize: 15, color: amountFontColor),
+                  //   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+                  // )
                 ],
               ),
               Text(

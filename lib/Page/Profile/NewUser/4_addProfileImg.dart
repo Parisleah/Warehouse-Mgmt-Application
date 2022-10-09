@@ -61,7 +61,7 @@ class _AddImagePageState extends State<AddImagePage> {
                 borderRadius: BorderRadius.circular(30.0)), //this right here
             child: SizedBox(
               width: 300,
-              height: 360,
+              height: 420,
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Column(
@@ -69,10 +69,9 @@ class _AddImagePageState extends State<AddImagePage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.background,
-                          borderRadius: BorderRadius.circular(15)),
+                      width: 280,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Icon(
                             Icons.done,
@@ -80,13 +79,21 @@ class _AddImagePageState extends State<AddImagePage> {
                             size: 50,
                           ),
                           const Text(
-                            'สร้างโปรไฟล์เสร็จแล้ว',
+                            'เสร็จสิ้น',
                             style: TextStyle(
                               color: Color.fromARGB(255, 255, 255, 255),
                               fontSize: 25,
                               // fontWeight: FontWeight.bold),
                             ),
                           ),
+                          IconButton(
+                              onPressed: (() {
+                                Navigator.pop(context);
+                              }),
+                              icon: Icon(
+                                Icons.close_rounded,
+                                color: Colors.grey,
+                              ))
                         ],
                       ),
                     ),
@@ -105,7 +112,7 @@ class _AddImagePageState extends State<AddImagePage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Row(
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
@@ -143,8 +150,6 @@ class _AddImagePageState extends State<AddImagePage> {
                       ],
                     ),
                     ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(80, 40)),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -156,7 +161,7 @@ class _AddImagePageState extends State<AddImagePage> {
                                     )),
                           );
                         },
-                        child: Text('ยืนยัน'))
+                        child: Text('ถัดไป'))
                   ],
                 ),
               ),
@@ -168,6 +173,11 @@ class _AddImagePageState extends State<AddImagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -184,6 +194,13 @@ class _AddImagePageState extends State<AddImagePage> {
             padding: const EdgeInsets.all(20.0),
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: const Text(
+                  "รูปโปรไฟล์",
+                  style: TextStyle(color: Colors.white, fontSize: 22),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -208,9 +225,14 @@ class _AddImagePageState extends State<AddImagePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Container(
                     decoration: BoxDecoration(
                         color: Theme.of(context).backgroundColor,
@@ -220,7 +242,7 @@ class _AddImagePageState extends State<AddImagePage> {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.phone_in_talk_rounded,
+                            Icons.person_pin,
                             color: Colors.white,
                           ),
                           Text(
@@ -230,19 +252,12 @@ class _AddImagePageState extends State<AddImagePage> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
-                              )),
+                              ))
                         ],
                       ),
                     ),
                   ),
                 ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: const Text(
-                  "รูปโปรไฟล์",
-                  style: TextStyle(color: Colors.white, fontSize: 22),
-                ),
               ),
               const SizedBox(
                 height: 10,
@@ -330,9 +345,10 @@ class _AddImagePageState extends State<AddImagePage> {
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
+                          behavior: SnackBarBehavior.floating,
                           backgroundColor: Colors.redAccent,
-                          content: Text("โปรดเพิ่มรุปภาพ"),
-                          duration: Duration(seconds: 3),
+                          content: Text("โปรดเลือกรูปภาพ"),
+                          duration: Duration(seconds: 2),
                         ),
                       );
                     }

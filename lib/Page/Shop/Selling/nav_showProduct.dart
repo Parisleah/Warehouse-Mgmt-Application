@@ -14,29 +14,30 @@ import '../../../db/database.dart';
 import '../../Model/Product.dart';
 import '../../Model/ProductModel_ndProperty.dart';
 import '../../Model/ProductModel_stProperty.dart';
+import '../../Model/Selling_item.dart';
 
-class BuyingNavShowProd extends StatefulWidget {
+class SellingNavShowProd extends StatefulWidget {
   final Product product;
-  final int? productTotalAmount;
-  final ValueChanged<PurchasingItemsModel> update;
+  final ValueChanged<SellingItemModel> update;
 
-  BuyingNavShowProd({
+  SellingNavShowProd({
     Key? key,
-    this.productTotalAmount,
     required this.update,
     required this.product,
   }) : super(key: key);
 
   @override
-  State<BuyingNavShowProd> createState() => _BuyingNavShowProdState();
+  State<SellingNavShowProd> createState() => _SellingNavShowProdState();
 }
 
-class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
+class _SellingNavShowProdState extends State<SellingNavShowProd> {
   List<ProductModel> productModels = [];
   List<ProductLot> productLots = [];
   List<ProductModel_stProperty> stPropertys = [];
   List<ProductModel_ndProperty> ndPropertys = [];
-  ProductModel? selectedValue;
+  ProductModel? modelSelectedValue;
+  ProductLot? lotSelectedValue;
+  final df = new DateFormat('dd-MM-yyyy');
   String? value;
   final prodAmountController = TextEditingController();
   final prodRequestController = TextEditingController();
@@ -44,8 +45,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
   void initState() {
     super.initState();
     refreshProducts();
-
-    setState(() {});
     prodAmountController.addListener(() => setState(() {}));
     prodRequestController.addListener(() => setState(() {}));
 
@@ -54,7 +53,8 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     );
   }
 
-  final _formKey = GlobalKey<FormState>();
+  final _formKeyProdModel = GlobalKey<FormState>();
+  final _formKeyProdLot = GlobalKey<FormState>();
   final _formKeyAmount = GlobalKey<FormState>();
 
   Future refreshProducts() async {
@@ -64,12 +64,12 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     setState(() {});
   }
 
-  int ctotal = 0;
+  int ptotal = 0;
   void _calculateTotal(model, int amount) {
     if (model != null) {
-      ctotal = model.cost * amount;
+      ptotal = model.price * amount;
     } else {
-      ctotal = 0;
+      ptotal = 0;
     }
   }
 
@@ -169,7 +169,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                         color: Colors.grey),
                   ),
                   Text(
-                    "คงเหลือสินค้าทั้งหมด ${NumberFormat("#,###").format(widget.productTotalAmount)} ชิ้น",
+                    "คงเหลือสินค้าทั้งหมด ${NumberFormat("#,###").format(widget.product.prodId)} ชิ้น",
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.normal,
@@ -181,7 +181,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                 ]),
                 // Drop Down แบบสินค้า
                 Form(
-                  key: _formKey,
+                  key: _formKeyProdModel,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -193,17 +193,20 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                               return 'โปรดเลือกรูปแบบสินค้า';
                             }
                           },
-                          onChanged: (value) {
-                            selectedValue = value as ProductModel;
+                          onChanged: (value) async {
+                            modelSelectedValue = value as ProductModel;
                             if (prodAmountController.text.isNotEmpty) {
                               int amount = int.parse(prodAmountController.text);
-                              _calculateTotal(selectedValue, amount);
+                              _calculateTotal(modelSelectedValue, amount);
                             }
+                            productLots = await DatabaseManager.instance
+                                .readAllProductLotsByModelID(
+                                    value.prodModelId!);
 
                             setState(() {});
                           },
-                          onSaved: (value) {
-                            selectedValue = value as ProductModel;
+                          onSaved: (value) async {
+                            modelSelectedValue = value as ProductModel;
 
                             setState(() {});
                           },
@@ -281,7 +284,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                         'ต้นทุน ${NumberFormat("#,###.##").format(item.cost)}',
                                                         style: const TextStyle(
                                                             color: Colors.grey,
-                                                            fontSize: 12)),
+                                                            fontSize: 11)),
                                                     Text(
                                                         ' ราคา ${NumberFormat("#,###.##").format(item.price)}',
                                                         style: const TextStyle(
@@ -290,38 +293,146 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                   ],
                                                 ),
                                                 Spacer(),
+                                                CircleAvatar(
+                                                  backgroundColor:
+                                                      Color.fromRGBO(
+                                                          30, 30, 49, 1.0),
+                                                  radius: 10,
+                                                  child: Text(
+                                                      '${NumberFormat("#,###.##").format(item.prodModelId)}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Drop Down ล็อตสินค้า
+                SizedBox(
+                  height: 10,
+                ),
+                Form(
+                  key: _formKeyProdLot,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: DropdownButtonFormField2(
+                          validator: (value) {
+                            if (value == null) {
+                              return 'โปรดเลือกล็อตสินค้า';
+                            }
+                          },
+                          onChanged: (value) {
+                            lotSelectedValue = value as ProductLot;
+                            if (prodAmountController.text.isNotEmpty) {
+                              int amount = int.parse(prodAmountController.text);
+                              _calculateTotal(lotSelectedValue, amount);
+                            }
+
+                            setState(() {});
+                          },
+                          onSaved: (value) {
+                            lotSelectedValue = value as ProductLot;
+
+                            setState(() {});
+                          },
+                          dropdownMaxHeight: 200,
+                          itemHeight: 80,
+                          buttonDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.transparent,
+                            ),
+                            color: Color.fromRGBO(66, 64, 87, 1.0),
+                          ),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          isExpanded: true,
+                          hint: Text(
+                            productLots.isEmpty
+                                ? 'ไม่มีล็อตสินค้า'
+                                : 'โปรดเลือกล็อตสินค้า',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.white,
+                          ),
+                          iconSize: 30,
+                          buttonHeight: 80,
+                          buttonPadding:
+                              const EdgeInsets.only(left: 20, right: 10),
+                          dropdownDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.transparent,
+                            ),
+                            color: const Color.fromRGBO(56, 54, 76, 1.0),
+                          ),
+                          items: productLots
+                              .map((item) => DropdownMenuItem<ProductLot>(
+                                    value: item,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 5),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Container(
+                                          height: 100,
+                                          color:
+                                              Color.fromRGBO(66, 64, 87, 1.0),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  'ล็อตที่ ${item.prodLotId} วันที่ ${df.format(item.orderedTime!)}',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Spacer(),
                                                 Container(
                                                   decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .background,
+                                                      color: Color.fromRGBO(
+                                                          30, 30, 49, 1.0),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10)),
                                                   child: Padding(
                                                     padding:
                                                         const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Row(
-                                                      children: [
-                                                        Text('คงเหลือ ',
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.white,
-                                                            )),
-                                                        Text(
-                                                            '{NumberFormat("#,###.##").format(amountOfProd)}',
-                                                            style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
-                                                      ],
-                                                    ),
+                                                            3.0),
+                                                    child: Text(
+                                                        'คงเหลือ ${NumberFormat("#,###.##").format(item.remainAmount)}',
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
                                                   ),
                                                 ),
                                               ],
@@ -367,7 +478,22 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                   prodAmountController.text != '') {
                                 int amount =
                                     int.parse(prodAmountController.text);
-                                _calculateTotal(selectedValue, amount);
+                                int remainLot = int.parse(
+                                    lotSelectedValue!.remainAmount.toString());
+                                if (amount > remainLot) {
+                                  prodAmountController.clear();
+                                  ptotal = 0;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.redAccent,
+                                      behavior: SnackBarBehavior.floating,
+                                      content: Text("สินค้าคงเหลือไม่เพียงพอ"),
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                } else {
+                                  _calculateTotal(modelSelectedValue, amount);
+                                }
                               }
 
                               setState(() {});
@@ -395,7 +521,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                   ? IconButton(
                                       onPressed: () {
                                         prodAmountController.clear();
-                                        ctotal = 0;
+                                        ptotal = 0;
                                       },
                                       icon: const Icon(
                                         Icons.close_sharp,
@@ -412,7 +538,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Text(
-                    "ค่าใช้จ่าย ${NumberFormat("#,###,###.##").format(ctotal)}",
+                    "ค่าใช้จ่าย ${NumberFormat("#,###,###.##").format(ptotal)}",
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
@@ -437,10 +563,10 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                             ),
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate() &&
+                            onPressed: () async {
+                              if (_formKeyProdModel.currentState!.validate() &&
                                   _formKeyAmount.currentState!.validate()) {
-                                _formKey.currentState!.save();
+                                _formKeyProdModel.currentState!.save();
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(SnackBar(
                                   backgroundColor:
@@ -483,13 +609,29 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                   ),
                                   duration: Duration(seconds: 5),
                                 ));
-                                final puritem = PurchasingItemsModel(
+                                final puritem = SellingItemModel(
                                     amount:
                                         int.parse(prodAmountController.text),
                                     prodId: widget.product.prodId!,
-                                    prodModelId: selectedValue?.prodModelId,
-                                    total: ctotal);
+                                    prodModelId:
+                                        modelSelectedValue?.prodModelId,
+                                    prodLotId: lotSelectedValue?.prodLotId,
+                                    total: ptotal);
                                 widget.update(puritem);
+                                final updateAmountSelectedProductLot =
+                                    ProductLot(
+                                        prodLotId: lotSelectedValue?.prodLotId,
+                                        amount: lotSelectedValue?.amount,
+                                        orderedTime:
+                                            lotSelectedValue?.orderedTime,
+                                        prodModelId:
+                                            lotSelectedValue?.prodModelId,
+                                        remainAmount:
+                                            lotSelectedValue!.remainAmount -
+                                                int.parse(
+                                                    prodAmountController.text));
+                                await DatabaseManager.instance.updateProductLot(
+                                    updateAmountSelectedProductLot);
                                 Navigator.pop(context);
                               }
                             },

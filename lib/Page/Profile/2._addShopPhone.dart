@@ -43,12 +43,7 @@ class _AddShopPhonePageState extends State<AddShopPhonePage> {
         _validate = true;
       } else {
         _validate = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("ถูกต้อง"),
-            duration: Duration(seconds: 1),
-          ),
-        );
+
         Navigator.push(
           context,
           MaterialPageRoute(

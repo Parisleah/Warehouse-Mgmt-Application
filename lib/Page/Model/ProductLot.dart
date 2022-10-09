@@ -17,15 +17,15 @@ class ProductLotFields {
 
 class ProductLot {
   final int? prodLotId;
-  final DateTime orderedTime;
-  final int amount;
+  final DateTime? orderedTime;
+  final int? amount;
   final int remainAmount;
   final int? prodModelId;
 
   ProductLot({
     this.prodLotId,
-    required this.orderedTime,
-    required this.amount,
+    this.orderedTime,
+    this.amount,
     required this.remainAmount,
     this.prodModelId,
   });
@@ -53,7 +53,7 @@ class ProductLot {
       );
   Map<String, Object?> toJson() => {
         ProductLotFields.prodLotId: prodLotId,
-        ProductLotFields.orderedTime: orderedTime.toIso8601String(),
+        ProductLotFields.orderedTime: orderedTime?.toIso8601String(),
         ProductLotFields.amount: amount,
         ProductLotFields.remainAmount: remainAmount,
         ProductLotFields.prodModelId: prodModelId,

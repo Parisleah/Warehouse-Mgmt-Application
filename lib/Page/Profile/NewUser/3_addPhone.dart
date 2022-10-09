@@ -35,12 +35,14 @@ class _AddPhonePageState extends State<AddPhonePage> {
         _validate = true;
       } else {
         _validate = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("ถูกต้อง"),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     backgroundColor: Theme.of(context).backgroundColor,
+        //     behavior: SnackBarBehavior.floating,
+        //     content: Text("ถูกต้อง"),
+        //     duration: Duration(seconds: 1),
+        //   ),
+        // );
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -56,6 +58,11 @@ class _AddPhonePageState extends State<AddPhonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(

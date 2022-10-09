@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/db/database.dart';
 
+import '../../Model/Shop.dart';
+
 class BuyingNavCreateDealer extends StatefulWidget {
-  const BuyingNavCreateDealer({Key? key}) : super(key: key);
+  final Shop shop;
+  const BuyingNavCreateDealer({required this.shop,
+    Key? key}) : super(key: key);
 
   @override
   State<BuyingNavCreateDealer> createState() => _BuyingNavCreateDealerState();
@@ -280,7 +284,8 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                                   final dealer = DealerModel(
                                       dName: nameController.text,
                                       dAddress: addressController.text,
-                                      dPhone: phoneController.text);
+                                      dPhone: phoneController.text,
+                                      shopId: widget.shop.shopid);
                                   await DatabaseManager.instance
                                       .createDealer(dealer);
 

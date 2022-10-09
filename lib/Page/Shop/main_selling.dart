@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Component/SearchBox.dart';
 // Component
 import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+import 'package:warehouse_mnmt/Page/Model/Customer.dart';
+import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
+import 'package:warehouse_mnmt/Page/Model/Selling.dart';
 
+import '../../db/database.dart';
 import '../Component/SearchBoxController.dart';
+import '../Model/Shop.dart';
 import 'Selling/nav_add.dart';
 
 class SellingPage extends StatefulWidget {
-  const SellingPage({Key? key}) : super(key: key);
+  final Shop shop;
+  const SellingPage({required this.shop, Key? key}) : super(key: key);
 
   @override
   State<SellingPage> createState() => _SellingPageState();
@@ -15,7 +22,29 @@ class SellingPage extends StatefulWidget {
 
 class _SellingPageState extends State<SellingPage> {
   bool isTapSelect = true;
+  List<SellingModel> selllings = [];
+  List<CustomerModel> customers = [];
+  List<CustomerAddressModel> addresses = [];
+  @override
+  void initState() {
+    super.initState();
+    refreshSellings();
+  }
 
+  Future refreshSellings() async {
+    selllings =
+        await DatabaseManager.instance.readAllSellings(widget.shop.shopid!);
+    customers = await DatabaseManager.instance
+        .readAllCustomerInShop(widget.shop.shopid!);
+    setState(() {});
+  }
+
+  Future refreshCustomerAddresses(int cusId) async {
+    addresses = await DatabaseManager.instance.readCustomerAllAddress(cusId);
+    setState(() {});
+  }
+
+  final df = new DateFormat('dd-MM-yyyy hh:mm a');
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -34,11 +63,14 @@ class _SellingPageState extends State<SellingPage> {
             ),
             actions: [
               IconButton(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                       context,
                       new MaterialPageRoute(
-                          builder: (context) => SellingNavAdd()));
+                          builder: (context) => SellingNavAdd(
+                                shop: widget.shop,
+                              )));
+                  refreshSellings();
                 },
                 icon: const Icon(
                   Icons.add,
@@ -115,77 +147,272 @@ class _SellingPageState extends State<SellingPage> {
             ]),
           ),
         ),
-        body: Container(
-          decoration: BoxDecoration(gradient: scafBG_dark_Color),
-          alignment: Alignment.center,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 200,
-                ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.end,
-                //   children: [
-                //     Container(
-                //       width: 280,
-                //       decoration: BoxDecoration(
-                //           color: Color.fromRGBO(35, 30, 60, 1.0),
-                //           borderRadius: BorderRadius.circular(20)),
-                //       child: Padding(
-                //         padding: const EdgeInsets.all(2.0),
-                //         child: Row(
-                //             mainAxisAlignment: MainAxisAlignment.start,
-                //             children: [
-                //               Padding(
-                //                 padding: const EdgeInsets.all(2.0),
-                //                 child: ElevatedButton(
-                //                   child: Text("?"),
-                //                   onPressed: () {},
-                //                 ),
-                //               ),
-                //             ]),
-                //       ),
-                //     ),
-                //     Spacer(),
-                //     ElevatedButton(
-                //       style: !isTapSelect == true
-                //           ? ElevatedButton.styleFrom(
-                //               primary: Theme.of(context).colorScheme.background)
-                //           : ElevatedButton.styleFrom(primary: Colors.red),
-                //       child: Row(children: [
-                //         Icon(Icons.select_all),
-                //         SizedBox(
-                //           width: 5,
-                //         ),
-                //         !isTapSelect == true ? Text("ยกเลิก") : Text("เลือก")
-                //       ]),
-                //       onPressed: () {
-                //         setState(() {
-                //           isTapSelect = !isTapSelect;
-                //         });
-                //       },
-                //     )
-                //   ],
-                // ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Expanded(
-                  child: Container(
+        body: SingleChildScrollView(
+          child: Container(
+            decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 200,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
+                      // color: Theme.of(context).colorScheme.background,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Center(
-                        child: Text(
-                      "(พื้นที่วาง Widget)",
-                      style: TextStyle(color: Colors.grey, fontSize: 30),
-                    )),
+                    child: Column(
+                      children: [
+                        selllings.isEmpty
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  // color:
+                                  //     Theme.of(context).colorScheme.background,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                height:
+                                    MediaQuery.of(context).size.height * 0.65,
+                                child: Center(
+                                    child: Text(
+                                  '(ไม่มีการขายสินค้า)',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 25),
+                                )),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Container(
+                                  height: 480.0,
+                                  width: 440.0,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    // color: Color.fromRGBO(37, 35, 53, 1.0),
+                                  ),
+                                  child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: selllings.length,
+                                      itemBuilder: (context, index) {
+                                        final selling = selllings[index];
+                                        var _customerText;
+                                        var _phoneText;
+                                        var _addressText;
+
+                                        for (var customer in customers) {
+                                          if (customer.cusId ==
+                                              selling.customerId) {
+                                            _customerText = customer.cName;
+                                          }
+                                        }
+                                        for (var address in addresses) {
+                                          if (address.cAddreId ==
+                                              selling.cAddreId) {
+                                            _phoneText = address.cPhone;
+                                            _addressText = address.cAddress;
+                                          }
+                                        }
+
+                                        return Dismissible(
+                                          key: UniqueKey(),
+                                          direction:
+                                              DismissDirection.endToStart,
+                                          resizeDuration: Duration(seconds: 1),
+                                          background: Container(
+                                            margin: EdgeInsets.only(
+                                                left: 0,
+                                                top: 10,
+                                                right: 10,
+                                                bottom: 10),
+                                            decoration: BoxDecoration(
+                                                color: Colors.redAccent,
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.delete_forever,
+                                                  color: Colors.white,
+                                                ),
+                                                SizedBox(
+                                                  width: 20,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          onDismissed: (direction) async {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              backgroundColor: Colors.redAccent,
+                                              content: Container(
+                                                  child: Row(
+                                                children: [
+                                                  Text(
+                                                      "ลบรายการสั่งซื้อ {_customer.cName}"),
+                                                  Text(
+                                                      ' ยอด ${NumberFormat("#,###.##").format(selling.total)}',
+                                                      style: const TextStyle(
+                                                          color: Colors.grey,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12)),
+                                                ],
+                                              )),
+                                              duration: Duration(seconds: 5),
+                                            ));
+                                            // await DatabaseManager.instance
+                                            //     .deletePurchasing(
+                                            //         purchasing.purId!);
+                                            // refreshPurchasings();
+                                            // setState(() {});
+                                          },
+                                          child: TextButton(
+                                            onPressed: () {
+                                              // Navigator.of(context).push(
+                                              //     MaterialPageRoute(
+                                              //         builder: (context) =>
+                                              //             buyingNavEdit(
+                                              //                 dealer: dealer)));
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 0.0,
+                                                  horizontal: 0.0),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: Container(
+                                                  height: 100,
+                                                  width: 400,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                        width: 90,
+                                                        height: 90,
+                                                        child: Icon(
+                                                          Icons.person,
+                                                          color: Colors.white,
+                                                          size: 40,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 10),
+                                                      Expanded(
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: <Widget>[
+                                                            Text(
+                                                              '${_customerText}',
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .phone_in_talk,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 14,
+                                                                ),
+                                                                Text(
+                                                                  ' ${_phoneText}',
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .grey),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            Text(
+                                                              ' ${_addressText}',
+                                                              style: const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .grey),
+                                                            ),
+                                                            Center(
+                                                              child: Text(
+                                                                  '${df.format(selling.orderedDate)}',
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      fontSize:
+                                                                          12)),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(15.0),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            selling.isDelivered ==
+                                                                    true
+                                                                ? Icon(
+                                                                    Icons
+                                                                        .check_circle,
+                                                                    color: Colors
+                                                                        .greenAccent,
+                                                                  )
+                                                                : Icon(
+                                                                    Icons
+                                                                        .circle_outlined,
+                                                                    color: Colors
+                                                                        .greenAccent,
+                                                                  ),
+                                                            Text(
+                                                              '${NumberFormat("#,###.##").format(selling.total)} ฿',
+                                                              style: TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: Colors
+                                                                      .greenAccent,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                              ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

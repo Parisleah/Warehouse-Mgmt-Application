@@ -5,6 +5,7 @@ class PurchasingFields {
     purId,
     orderedDate,
     dealerId,
+    shipping,
     shippingCost,
     amount,
     total,
@@ -15,6 +16,7 @@ class PurchasingFields {
   static final String purId = '_purId';
   static final String orderedDate = 'orderedDate';
   static final String dealerId = 'dealerId';
+  static final String shipping = 'shipping';
   static final String shippingCost = 'shippingCost';
   static final String amount = 'amount';
   static final String total = 'total';
@@ -26,6 +28,7 @@ class PurchasingModel {
   final int? purId;
   final DateTime orderedDate;
   final int dealerId;
+  final String? shipping;
   final int shippingCost;
   final int amount;
   final int total;
@@ -36,6 +39,7 @@ class PurchasingModel {
       {this.purId,
       required this.orderedDate,
       required this.dealerId,
+      this.shipping,
       required this.shippingCost,
       required this.amount,
       required this.total,
@@ -45,6 +49,7 @@ class PurchasingModel {
     int? pruId,
     DateTime? orderedDate,
     int? dealerId,
+    String? shipping,
     int? shippingCost,
     int? amount,
     int? total,
@@ -55,6 +60,7 @@ class PurchasingModel {
           purId: pruId ?? this.purId,
           orderedDate: orderedDate ?? this.orderedDate,
           dealerId: dealerId ?? this.dealerId,
+          shipping: shipping ?? this.shipping,
           shippingCost: shippingCost ?? this.shippingCost,
           amount: amount ?? this.amount,
           total: total ?? this.total,
@@ -65,6 +71,7 @@ class PurchasingModel {
         orderedDate:
             DateTime.parse(json[PurchasingFields.orderedDate] as String),
         dealerId: json[PurchasingFields.dealerId] as int,
+        shipping: json[PurchasingFields.shipping] as String,
         shippingCost: json[PurchasingFields.shippingCost] as int,
         amount: json[PurchasingFields.amount] as int,
         total: json[PurchasingFields.total] as int,
@@ -75,6 +82,7 @@ class PurchasingModel {
         PurchasingFields.purId: purId,
         PurchasingFields.orderedDate: orderedDate.toIso8601String(),
         PurchasingFields.dealerId: dealerId,
+        PurchasingFields.shipping: shipping,
         PurchasingFields.shippingCost: shippingCost,
         PurchasingFields.amount: amount,
         PurchasingFields.total: total,

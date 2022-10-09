@@ -1,54 +1,46 @@
 import 'dart:io';
-
-import 'package:flutter/services.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
+
+// Model
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Shop/Selling/nav_showProduct.dart';
 
 import '../../../db/database.dart';
 import '../../Model/ProductCategory.dart';
 import '../../Model/ProductModel.dart';
+import '../../Model/Selling_item.dart';
 import '../../Model/Shop.dart';
-import 'nav_showProduct.dart';
 
-class BuyiingNavChooseProduct extends StatefulWidget {
+class SellingNavChooseProduct extends StatefulWidget {
   final Shop shop;
-  final ValueChanged<PurchasingItemsModel> update;
-  const BuyiingNavChooseProduct(
-      {required this.shop, required this.update, Key? key})
+  final ValueChanged<SellingItemModel> update;
+  SellingNavChooseProduct({Key? key, required this.shop, required this.update})
       : super(key: key);
 
   @override
-  State<BuyiingNavChooseProduct> createState() =>
-      _BuyiingNavChooseProductState();
+  State<SellingNavChooseProduct> createState() =>
+      _SellingNavChooseProductState();
 }
 
-class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
-  //  Visible -----------
-  // ตะกร้า
-  bool inCartIsVisible = false;
+class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
+  final searchController = TextEditingController();
 
-  // สินค้าหมด
-  bool outOfStockIsVisible = false;
-  //  Visible -----------
-  bool _validate = false;
   List<Product> products = [];
-
   List<ProductCategory> productCategorys = [];
   List<ProductModel> productModels = [];
   List<ProductLot> productLots = [];
-  TextEditingController searchController = TextEditingController();
-  @override
+  List<SellingItemModel> sellingItems = [];
+  bool inCartIsVisible = false;
+  bool outOfStockIsVisible = false;
   void initState() {
     super.initState();
-    refreshProducts();
-
-    setState(() {});
     searchController.addListener(() => setState(() {}));
+    refreshProducts();
   }
 
   Future refreshProducts() async {
@@ -61,8 +53,13 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
     setState(() {});
   }
 
-  addProductInCart(PurchasingItemsModel purchasing) {
-    widget.update(purchasing);
+  Future refreshProductLots() async {
+    productLots = await DatabaseManager.instance.readAllProductLots();
+    setState(() {});
+  }
+
+  addProductInCart(SellingItemModel sellingItems) {
+    widget.update(sellingItems);
   }
 
   @override
@@ -72,17 +69,18 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(160),
         child: AppBar(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
           title: Column(
             children: const [
               Text(
-                "เลือกสินค้า",
+                'เลือกสินค้า',
                 style: TextStyle(fontSize: 25),
               )
             ],
           ),
           centerTitle: true,
+          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
           flexibleSpace: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Baseline(
@@ -154,7 +152,6 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
               ),
             ),
           ),
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
         ),
       ),
       body: SingleChildScrollView(
@@ -206,16 +203,14 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                 category = prCategory;
                               }
                             }
-                            var _amountOfProd = 0;
 
                             var cost = [];
                             var price = [];
-
+                            var _amountOfProd = 0;
                             for (var prModel in productModels) {
                               if (prModel.prodId == product.prodId) {
                                 cost.add(prModel.cost);
                                 price.add(prModel.price);
-
                                 for (var lot in productLots) {
                                   if (prModel.prodModelId == lot.prodModelId) {
                                     _amountOfProd += lot.amount!;
@@ -223,6 +218,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                 }
                               }
                             }
+
                             var amountOfProd = _amountOfProd;
                             var _minCost = 0;
                             var _maxCost = 0;
@@ -244,12 +240,27 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                               _maxPrice = maxprice;
                             }
                             return TextButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => BuyingNavShowProd(
-                                        update: addProductInCart,
-                                        productTotalAmount: amountOfProd,
-                                        product: product)));
+                              onPressed: () async {
+                                amountOfProd == 0
+                                    ? ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor:
+                                              Theme.of(context).backgroundColor,
+                                          behavior: SnackBarBehavior.floating,
+                                          content: Text("สินค้าหมด"),
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      )
+                                    : await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SellingNavShowProd(
+                                                    update: addProductInCart,
+                                                    product: product)));
+                                refreshProductLots();
+
+                                setState(() {});
                               },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
@@ -288,9 +299,6 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                                             FontWeight.bold,
                                                         color: Colors.white),
                                                   ),
-                                                  SizedBox(
-                                                    width: 5,
-                                                  ),
                                                 ],
                                               ),
                                               Container(
@@ -328,6 +336,46 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                             ],
                                           ),
                                         ),
+                                        amountOfProd == 0
+                                            ? Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.numbers_outlined,
+                                                    color: Colors.white,
+                                                  ),
+                                                  Text('สินค้าหมด ',
+                                                      style: const TextStyle(
+                                                        fontSize: 15,
+                                                        color: Colors.white,
+                                                      )),
+                                                ],
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(2.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                          '${NumberFormat("#,###.##").format(amountOfProd)}',
+                                                          style: const TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
                                         Padding(
                                           padding: const EdgeInsets.all(5.0),
                                           child: Container(
@@ -338,33 +386,6 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.end,
                                               children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            2.0),
-                                                    child: Row(
-                                                      children: [
-                                                        Text(
-                                                            '${NumberFormat("#,###.##").format(amountOfProd)}',
-                                                            style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
                                                 if (inCartIsVisible)
                                                   // ตะกร้า 1 -------------------------
                                                   ClipRRect(

@@ -203,6 +203,13 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
             padding: const EdgeInsets.all(20.0),
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: const Text(
+                  "รูปร้านค้า",
+                  style: TextStyle(color: Colors.white, fontSize: 22),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -227,9 +234,14 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Container(
                     decoration: BoxDecoration(
                         color: Theme.of(context).backgroundColor,
@@ -255,13 +267,6 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                     ),
                   ),
                 ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: const Text(
-                  "รูปโปรไฟล์",
-                  style: TextStyle(color: Colors.white, fontSize: 22),
-                ),
               ),
               const SizedBox(
                 height: 10,
