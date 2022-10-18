@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
-import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Product/nav_add.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/nav_add.dart';
 import 'package:warehouse_mnmt/db/database.dart';
@@ -297,7 +297,7 @@ class _ProductPageState extends State<ProductPage> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: (MediaQuery.of(context).size.height),
+          height: (MediaQuery.of(context).size.height * 1.05),
           decoration: BoxDecoration(gradient: scafBG_dark_Color),
           alignment: Alignment.center,
           child: Padding(
@@ -371,7 +371,8 @@ class _ProductPageState extends State<ProductPage> {
                                               for (var lot in productLots) {
                                                 if (prModel.prodModelId ==
                                                     lot.prodModelId) {
-                                                  _amountOfProd += lot.amount!;
+                                                  _amountOfProd +=
+                                                      lot.remainAmount!;
                                                 }
                                               }
                                             }

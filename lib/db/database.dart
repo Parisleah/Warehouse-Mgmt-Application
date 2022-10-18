@@ -27,7 +27,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main32.db');
+    _database = await _initDB('main33.db');
     return _database!;
   }
 
@@ -523,6 +523,20 @@ ${DealerFields.shopId} $integerType
   // Product lot
 
   // Purchasing
+  // Future<List<PurchasingModel>> readAllPurchasingCosts(int shopId) async {
+  //   final db = await instance.database;
+  //   final orderBy = '${PurchasingFields.purId} DESC';
+  //   final result =
+  //       await db.rawQuery("SELECT total, orderedDate FROM purchasing");
+
+  //   if (result != null) {
+  //     print('Puchasing -> ${result}');
+  //   } else {
+  //     print('Puchasing = Null');
+  //   }
+  //   return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  // }
+
   Future<List<PurchasingModel>> readAllPurchasings(int shopId) async {
     final db = await instance.database;
     final orderBy = '${PurchasingFields.purId} DESC';
@@ -531,7 +545,16 @@ ${DealerFields.shopId} $integerType
         where: '${PurchasingFields.shopId} = ?',
         whereArgs: [shopId],
         orderBy: orderBy);
-    print(result);
+    print('All Purchasing -> ${result}');
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
+
+  Future<List<PurchasingModel>> readAllPurchasingsByDealerName(
+      int shopId, name) async {
+    final db = await instance.database;
+    final result = await db.rawQuery(
+        "SELECT * FROM purchasing INNER JOIN dealer ON dealer._dealerId == purchasing.dealerId WHERE dealer.dName LIKE '${name}%' OR dealer.dPhone LIKE '${name}%'");
+
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
@@ -554,6 +577,26 @@ ${DealerFields.shopId} $integerType
   }
 
   // PurchasingItems
+  Future<List<PurchasingItemsModel>> readAllPurchasingitems() async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingItemsFields.purItemsId} ASC';
+    final result = await db.query(tablePurchasingItems, orderBy: orderBy);
+    return result.map((json) => PurchasingItemsModel.fromJson(json)).toList();
+  }
+
+  Future<List<PurchasingItemsModel>> readAllPurchasingItemsWherePurID(
+      int id) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingItemsFields.purId} DESC';
+    final result = await db.query(tablePurchasingItems,
+        columns: PurchasingItemsFields.values,
+        where: '${PurchasingItemsFields.purId} = ?',
+        whereArgs: [id],
+        orderBy: orderBy);
+
+    return result.map((json) => PurchasingItemsModel.fromJson(json)).toList();
+  }
+
   Future<PurchasingItemsModel> createPurchasingItem(
       PurchasingItemsModel purItem) async {
     final db = await instance.database;
@@ -581,7 +624,7 @@ ${DealerFields.shopId} $integerType
     final db = await instance.database;
     final orderBy = '${DealerFields.dealerId} DESC';
     final result = await db.query(tableDealer, orderBy: orderBy);
-    print(result);
+
     return result.map((json) => DealerModel.fromJson(json)).toList();
   }
 
@@ -604,7 +647,7 @@ ${DealerFields.shopId} $integerType
   }
   // Dealers
 
-  // Purchasing (1.1-1.4)
+  // Selling (1.1-1.4)
   // 1.1 Selling
   Future<List<SellingModel>> readAllSellings(int shopId) async {
     final db = await instance.database;
@@ -614,7 +657,7 @@ ${DealerFields.shopId} $integerType
         where: '${SellingFields.shopId} = ?',
         whereArgs: [shopId],
         orderBy: orderBy);
-    print(result);
+
     return result.map((json) => SellingModel.fromJson(json)).toList();
   }
 
@@ -635,15 +678,26 @@ ${DealerFields.shopId} $integerType
     return db.delete(tableSelling,
         where: '${SellingFields.selId} = ?', whereArgs: [selId]);
   }
+
   // 1.1 Selling
-  
+  Future<List<SellingItemModel>> readAllSellingItemsWhereSellID(int id) async {
+    final db = await instance.database;
+    final orderBy = '${SellingItemFields.selId} DESC';
+    final result = await db.query(tableSellingItem,
+        columns: SellingItemFields.values,
+        where: '${SellingItemFields.selId} = ?',
+        whereArgs: [id],
+        orderBy: orderBy);
+
+    return result.map((json) => SellingItemModel.fromJson(json)).toList();
+  }
 
   // 1.2 Selling Items
   Future<List<SellingItemModel>> readAllSellingItems() async {
     final db = await instance.database;
     final orderBy = '${SellingItemFields.selItemId} DESC';
     final result = await db.query(tableSellingItem, orderBy: orderBy);
-    print(result);
+
     return result.map((json) => SellingItemModel.fromJson(json)).toList();
   }
 
@@ -665,7 +719,7 @@ ${DealerFields.shopId} $integerType
     final db = await instance.database;
     final orderBy = '${CustomerFields.cusId} DESC';
     final result = await db.query(tableCustomer, orderBy: orderBy);
-    print(result);
+
     return result.map((json) => CustomerModel.fromJson(json)).toList();
   }
 
@@ -677,7 +731,7 @@ ${DealerFields.shopId} $integerType
         where: '${CustomerFields.shopId} = ?',
         orderBy: orderBy,
         whereArgs: [shopId]);
-    print(result);
+
     return result.map((json) => CustomerModel.fromJson(json)).toList();
   }
 
@@ -702,6 +756,14 @@ ${DealerFields.shopId} $integerType
   // 1.3 Customer
 
   // 1.4 Customer Address
+  Future<List<CustomerAddressModel>> readAllCustomerAddresses() async {
+    final db = await instance.database;
+    final orderBy = '${CustomerAddressFields.cusId} DESC';
+    final result = await db.query(tableCustomerAddress, orderBy: orderBy);
+
+    return result.map((json) => CustomerAddressModel.fromJson(json)).toList();
+  }
+
   Future<List<CustomerAddressModel>> readCustomerAllAddress(int cusId) async {
     final db = await instance.database;
     final orderBy = '${CustomerAddressFields.cusId} DESC';
@@ -710,7 +772,7 @@ ${DealerFields.shopId} $integerType
         where: '${CustomerAddressFields.cusId} = ?',
         whereArgs: [cusId],
         orderBy: orderBy);
-    print(result);
+
     return result.map((json) => CustomerAddressModel.fromJson(json)).toList();
   }
 

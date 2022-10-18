@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_file.dart';
 import 'package:intl/intl.dart';
-import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_add.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit.dart';
 
 import '../../db/database.dart';
 import '../Component/SearchBox.dart';
@@ -20,7 +23,7 @@ class BuyingPage extends StatefulWidget {
 }
 
 class _BuyingPageState extends State<BuyingPage> {
-  TextEditingController searchProductController = TextEditingController();
+  TextEditingController searchDealerController = new TextEditingController();
   List<PurchasingModel> purchasings = [];
   List<DealerModel> dealers = [];
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
@@ -29,13 +32,20 @@ class _BuyingPageState extends State<BuyingPage> {
     super.initState();
     refreshPurchasings();
 
-    searchProductController.addListener(() => setState(() {}));
+    searchDealerController.addListener(() => setState(() {}));
   }
 
   Future refreshPurchasings() async {
     purchasings =
         await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
     dealers = await DatabaseManager.instance.readAllDealers();
+
+    setState(() {});
+  }
+
+  Future searchDealerByName() async {
+    purchasings = await DatabaseManager.instance.readAllPurchasingsByDealerName(
+        widget.shop.shopid!, searchDealerController.text);
 
     setState(() {});
   }
@@ -79,7 +89,65 @@ class _BuyingPageState extends State<BuyingPage> {
               child: Baseline(
                   baseline: 110,
                   baselineType: TextBaseline.alphabetic,
-                  child: SearchBox("ชื่อร้าน หรือ เบอร์โทรศัพท์ร้าน")),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                          keyboardType: TextInputType.text,
+                          onChanged: (text) {
+                            searchDealerByName();
+                            setState(() {});
+                          },
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(100),
+                          ],
+                          controller: searchDealerController,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
+                          decoration: InputDecoration(
+                            // labelText: title,
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.background,
+                            border: const OutlineInputBorder(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
+                                    bottomLeft: Radius.circular(20),
+                                    bottomRight: Radius.circular(20)),
+                                borderSide: BorderSide.none),
+
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20.0),
+                              ),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.surface,
+                              ),
+                            ),
+                            hintText: 'ชื่อตัวแทนจำหน่าย หรือ เบอร์โทรศัพท์',
+                            hintStyle: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
+                            prefixIcon:
+                                const Icon(Icons.search, color: Colors.white),
+                            suffixIcon: searchDealerController.text.isEmpty
+                                ? Container(
+                                    width: 0,
+                                  )
+                                : IconButton(
+                                    onPressed: () {
+                                      searchDealerController.clear();
+                                      refreshPurchasings();
+                                    },
+                                    icon: const Icon(
+                                      Icons.close_sharp,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          )),
+                      SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  )),
             ),
             bottom: TabBar(tabs: [
               Tab(
@@ -184,207 +252,219 @@ class _BuyingPageState extends State<BuyingPage> {
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Container(
                                   height: 480.0,
-                                  width: 440.0,
+                                  width: 400.0,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(15),
                                     // color: Color.fromRGBO(37, 35, 53, 1.0),
                                   ),
-                                  child: ListView.builder(
-                                      padding: EdgeInsets.zero,
-                                      itemCount: purchasings.length,
-                                      itemBuilder: (context, index) {
-                                        final purchasing = purchasings[index];
-                                        var _dealer;
+                                  child: RefreshIndicator(
+                                    onRefresh: refreshPurchasings,
+                                    child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: purchasings.length,
+                                        itemBuilder: (context, index) {
+                                          final purchasing = purchasings[index];
+                                          var _dealer;
 
-                                        for (var dealer in dealers) {
-                                          if (dealer.dealerId ==
-                                              purchasing.dealerId) {
-                                            _dealer = dealer;
+                                          for (var dealer in dealers) {
+                                            if (dealer.dealerId ==
+                                                purchasing.dealerId) {
+                                              _dealer = dealer;
+                                            }
                                           }
-                                        }
-                                        return Dismissible(
-                                          key: UniqueKey(),
-                                          direction:
-                                              DismissDirection.endToStart,
-                                          resizeDuration: Duration(seconds: 1),
-                                          background: Container(
-                                            margin: EdgeInsets.only(
-                                                left: 0,
-                                                top: 10,
-                                                right: 10,
-                                                bottom: 10),
-                                            decoration: BoxDecoration(
-                                                color: Colors.redAccent,
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.delete_forever,
-                                                  color: Colors.white,
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          onDismissed: (direction) async {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              backgroundColor: Colors.redAccent,
-                                              content: Container(
-                                                  child: Row(
-                                                children: [
-                                                  Text(
-                                                      "ลบรายการสั่งซื้อ ${_dealer.cName}"),
-                                                  Text(
-                                                      ' ยอด ${NumberFormat("#,###.##").format(purchasing.total)}',
-                                                      style: const TextStyle(
-                                                          color: Colors.grey,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 12)),
+                                          return Dismissible(
+                                            key: UniqueKey(),
+                                            direction:
+                                                DismissDirection.endToStart,
+                                            resizeDuration:
+                                                Duration(seconds: 1),
+                                            background: Container(
+                                              margin: EdgeInsets.only(
+                                                  left: 0,
+                                                  top: 10,
+                                                  right: 10,
+                                                  bottom: 10),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.redAccent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.delete_forever,
+                                                    color: Colors.white,
+                                                  ),
+                                                  SizedBox(
+                                                    width: 20,
+                                                  ),
                                                 ],
-                                              )),
-                                              duration: Duration(seconds: 5),
-                                            ));
-                                            await DatabaseManager.instance
-                                                .deletePurchasing(
-                                                    purchasing.purId!);
-                                            refreshPurchasings();
-                                            setState(() {});
-                                          },
-                                          child: TextButton(
-                                            onPressed: () {
-                                              // Navigator.of(context).push(
-                                              //     MaterialPageRoute(
-                                              //         builder: (context) =>
-                                              //             buyingNavEdit(
-                                              //                 dealer: dealer)));
+                                              ),
+                                            ),
+                                            onDismissed: (direction) async {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                                content: Container(
+                                                    child: Row(
+                                                  children: [
+                                                    Text(
+                                                        "ลบรายการสั่งซื้อ ${_dealer.dName}"),
+                                                    Text(
+                                                        ' ยอด ${NumberFormat("#,###.##").format(purchasing.total)}',
+                                                        style: const TextStyle(
+                                                            color: Colors.grey,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 12)),
+                                                  ],
+                                                )),
+                                                duration: Duration(seconds: 5),
+                                              ));
+                                              await DatabaseManager.instance
+                                                  .deletePurchasing(
+                                                      purchasing.purId!);
+                                              refreshPurchasings();
+                                              setState(() {});
                                             },
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 0.0,
-                                                  horizontal: 0.0),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: Container(
-                                                  height: 80,
-                                                  width: 400,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Container(
-                                                        width: 80,
-                                                        height: 80,
-                                                        child: Icon(
-                                                          Icons.person,
-                                                          color: Colors.white,
-                                                          size: 40,
+                                            child: TextButton(
+                                              onPressed: () async {
+                                                await Navigator.push(
+                                                    context,
+                                                    new MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            BuyingNavEdit(
+                                                              shop: widget.shop,
+                                                              purchasing:
+                                                                  purchasing,
+                                                            )));
+                                                refreshPurchasings();
+                                              },
+                                              child: Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 0.0,
+                                                    horizontal: 0.0),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  child: Container(
+                                                    height: 80,
+                                                    width: 400,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Container(
+                                                          width: 80,
+                                                          height: 80,
+                                                          child: Icon(
+                                                            Icons.person,
+                                                            color: Colors.white,
+                                                            size: 40,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      SizedBox(width: 10),
-                                                      Expanded(
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: <Widget>[
-                                                            Text(
-                                                              '${_dealer.dName}',
-                                                              style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .phone_in_talk,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  size: 14,
-                                                                ),
-                                                                Text(
-                                                                  ' ${_dealer.dPhone}',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                          .grey),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Center(
-                                                              child: Text(
-                                                                  '${df.format(purchasing.orderedDate)}',
-                                                                  style: const TextStyle(
-                                                                      color: Colors
-                                                                          .grey,
-                                                                      fontSize:
-                                                                          12)),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(15.0),
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            purchasing.isReceive ==
-                                                                    true
-                                                                ? Icon(
-                                                                    Icons
-                                                                        .check_circle,
+                                                        SizedBox(width: 10),
+                                                        Expanded(
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: <Widget>[
+                                                              Text(
+                                                                '${_dealer.dName}',
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
                                                                     color: Colors
-                                                                        .greenAccent,
-                                                                  )
-                                                                : Icon(
+                                                                        .white),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Icon(
                                                                     Icons
-                                                                        .circle_outlined,
+                                                                        .phone_in_talk,
                                                                     color: Colors
-                                                                        .greenAccent,
+                                                                        .white,
+                                                                    size: 14,
                                                                   ),
-                                                            Text(
-                                                              '${NumberFormat("#,###.##").format(purchasing.total)} ฿',
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors
-                                                                      .greenAccent,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                          ],
+                                                                  Text(
+                                                                    ' ${_dealer.dPhone}',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .grey),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Center(
+                                                                child: Text(
+                                                                    '${df.format(purchasing.orderedDate)}',
+                                                                    style: const TextStyle(
+                                                                        color: Colors
+                                                                            .grey,
+                                                                        fontSize:
+                                                                            12)),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(15.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              purchasing.isReceive ==
+                                                                      true
+                                                                  ? Icon(
+                                                                      Icons
+                                                                          .check_circle,
+                                                                      color: Colors
+                                                                          .greenAccent,
+                                                                    )
+                                                                  : Icon(
+                                                                      Icons
+                                                                          .circle_outlined,
+                                                                      color: Colors
+                                                                          .greenAccent,
+                                                                    ),
+                                                              Text(
+                                                                '${NumberFormat("#,###.##").format(purchasing.total)} ฿',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    color: Colors
+                                                                        .greenAccent,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }),
+                                          );
+                                        }),
+                                  ),
                                 ),
                               ),
                       ],

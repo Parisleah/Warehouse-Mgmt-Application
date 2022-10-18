@@ -213,7 +213,7 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                                 price.add(prModel.price);
                                 for (var lot in productLots) {
                                   if (prModel.prodModelId == lot.prodModelId) {
-                                    _amountOfProd += lot.amount!;
+                                    _amountOfProd += lot.remainAmount!;
                                   }
                                 }
                               }
@@ -258,6 +258,7 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                                                 SellingNavShowProd(
                                                     update: addProductInCart,
                                                     product: product)));
+                                refreshProducts();
                                 refreshProductLots();
 
                                 setState(() {});
@@ -460,27 +461,6 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                                                       ),
                                                     ),
                                                   ),
-                                                // + เพิ่มสินค้า  -------------------------
-
-                                                // สินค้าหมด Tag -------------------------------------
-                                                // ClipRRect(
-                                                //   borderRadius:
-                                                //       BorderRadius.circular(5),
-                                                //   child: Container(
-                                                //     height: 15,
-                                                //     width: 50,
-                                                //     color: Colors.redAccent,
-                                                //     child: Center(
-                                                //       child: const Text(
-                                                //         "สินค้าหมด",
-                                                //         style: TextStyle(
-                                                //             fontSize: 10,
-                                                //             color: Colors.white),
-                                                //       ),
-                                                //     ),
-                                                //   ),
-                                                // )
-                                                // สินค้าหมด Tag -------------------------------------
                                               ],
                                             ),
                                           ),

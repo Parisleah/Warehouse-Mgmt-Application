@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // Theme
-import 'package:warehouse_mnmt/Page/Component/theme/theme.dart';
+
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Profile/NewUser/2_addName.dart';
 import 'package:warehouse_mnmt/Page/Shop/main_selling.dart';

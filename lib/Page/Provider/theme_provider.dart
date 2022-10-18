@@ -11,12 +11,6 @@ class ThemeProvider extends ChangeNotifier {
 }
 
 const scafBG_light_Color = LinearGradient(
-  stops: [
-    0.1,
-    0.4,
-    0.6,
-    0.9,
-  ],
   colors: [
     Color.fromARGB(255, 255, 255, 255),
     Color.fromARGB(255, 255, 255, 255),
@@ -25,13 +19,15 @@ const scafBG_light_Color = LinearGradient(
   end: Alignment.bottomCenter,
 );
 
+// Old Scaf
+// Color.fromRGBO(29, 29, 65, 1.0),
+// Color.fromRGBO(31, 31, 31, 1.0),
+
+// New
+// Color.fromRGBO(76, 58, 151, 1.0),
+//     Color.fromARGB(255, 47, 41, 81),
+
 const scafBG_dark_Color = LinearGradient(
-  stops: [
-    0.1,
-    0.4,
-    0.6,
-    0.9,
-  ],
   colors: [
     Color.fromRGBO(29, 29, 65, 1.0),
     Color.fromRGBO(31, 31, 31, 1.0),
@@ -39,6 +35,7 @@ const scafBG_dark_Color = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
 );
+
 const dark_primary_accent_color = Color.fromARGB(255, 141, 106, 225);
 
 const light_primary_accent_color = Color.fromARGB(255, 72, 179, 127);
@@ -100,26 +97,26 @@ class MyThemes {
                 offset: Offset(0, 3))
           ],
           borderRadius: BorderRadius.circular(15),
-          color: const Color.fromRGBO(56, 48, 77, 1.0)),
+          color: dark_primary_accent_color),
       indicatorSize: TabBarIndicatorSize.tab,
     ),
 
     // BottomAppBar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       unselectedItemColor: Colors.white,
-      selectedItemColor: const Color.fromRGBO(56, 48, 77, 1.0),
+      selectedItemColor: dark_primary_accent_color,
       backgroundColor: Color.fromARGB(255, 16, 16, 16),
       type: BottomNavigationBarType.fixed,
     ),
     switchTheme: SwitchThemeData(
       thumbColor: MaterialStateProperty.all(dark_primary_accent_color),
-      trackColor: MaterialStateProperty.all(Color.fromARGB(255, 104, 76, 171)),
+      trackColor: MaterialStateProperty.all(dark_primary_accent_color),
     ),
     // ElevatedButton
     elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-      backgroundColor: MaterialStateProperty.all<Color>(
-          const Color.fromRGBO(56, 48, 77, 1.0)),
+      backgroundColor:
+          MaterialStateProperty.all<Color>(dark_primary_accent_color),
       shape: MaterialStateProperty.all<OutlinedBorder>(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0))),
       // padding: MaterialStateProperty.all<EdgeInsetsGeometry>(

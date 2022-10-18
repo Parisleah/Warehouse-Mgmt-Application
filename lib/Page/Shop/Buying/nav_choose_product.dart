@@ -218,7 +218,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
 
                                 for (var lot in productLots) {
                                   if (prModel.prodModelId == lot.prodModelId) {
-                                    _amountOfProd += lot.amount!;
+                                    _amountOfProd += lot.remainAmount!;
                                   }
                                 }
                               }

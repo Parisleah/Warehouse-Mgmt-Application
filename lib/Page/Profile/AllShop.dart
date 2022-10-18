@@ -579,13 +579,6 @@ class _AllShopPageState extends State<AllShopPage> {
                                                                         children: <
                                                                             Widget>[
                                                                           Text(
-                                                                            '${shop.shopid}',
-                                                                            style: const TextStyle(
-                                                                                fontWeight: FontWeight.bold,
-                                                                                fontSize: 18,
-                                                                                color: Colors.greenAccent),
-                                                                          ),
-                                                                          Text(
                                                                             'ร้าน ${shop.name}',
                                                                             style: const TextStyle(
                                                                                 fontWeight: FontWeight.bold,

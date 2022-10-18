@@ -60,7 +60,7 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
   Future refreshProducts() async {
     productModels = await DatabaseManager.instance
         .readAllProductModelsInProduct(widget.product.prodId!);
-
+    productLots = await DatabaseManager.instance.readAllProductLots();
     setState(() {});
   }
 
@@ -71,6 +71,16 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
     } else {
       ptotal = 0;
     }
+  }
+
+  _getLotRemainAmount(prodModelId) {
+    var remainAmount = 0;
+    for (var lot in productLots) {
+      if (lot.prodModelId == prodModelId) {
+        remainAmount += lot.remainAmount;
+      }
+    }
+    return remainAmount;
   }
 
   @override
@@ -293,18 +303,51 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                   ],
                                                 ),
                                                 Spacer(),
-                                                CircleAvatar(
-                                                  backgroundColor:
-                                                      Color.fromRGBO(
-                                                          30, 30, 49, 1.0),
-                                                  radius: 10,
-                                                  child: Text(
-                                                      '${NumberFormat("#,###.##").format(item.prodModelId)}',
-                                                      style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      color: _getLotRemainAmount(item
+                                                                  .prodModelId) ==
+                                                              0
+                                                          ? Colors.redAccent
+                                                          : Theme.of(context)
+                                                              .colorScheme
+                                                              .background,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            5.0),
+                                                    child: Row(
+                                                      children: [
+                                                        _getLotRemainAmount(item
+                                                                    .prodModelId) ==
+                                                                0
+                                                            ? Container()
+                                                            : Text('คงเหลือ ',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .white,
+                                                                )),
+                                                        Text(
+                                                            _getLotRemainAmount(item
+                                                                        .prodModelId) ==
+                                                                    0
+                                                                ? 'สินค้าหมด'
+                                                                : '${NumberFormat("#,###.##").format(_getLotRemainAmount(item.prodModelId))}',
+                                                            style: const TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold)),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -478,6 +521,9 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                   prodAmountController.text != '') {
                                 int amount =
                                     int.parse(prodAmountController.text);
+               
+            
+               
                                 int remainLot = int.parse(
                                     lotSelectedValue!.remainAmount.toString());
                                 if (amount > remainLot) {

@@ -19,14 +19,14 @@ class MoneyBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(
-        width: 440,
+        width: 120,
         height: size,
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: secondaryColor,
+                color: Theme.of(context).colorScheme.primary,
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: Offset(0, 4))
@@ -47,8 +47,8 @@ class MoneyBox extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: [
-                  this.mainIcon,
-                  Spacer(),
+                  // this.mainIcon,
+                  // Spacer(),
                   // this.trendIcon,
                   // Text(
                   //   '${NumberFormat("#,###,###.##").format(amount / 7)} ฿',
@@ -60,14 +60,14 @@ class MoneyBox extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 15,
                     color: Color.fromARGB(255, 255, 255, 255),
                     fontWeight: FontWeight.bold),
               ),
               Center(
                 child: Text(
                   '${NumberFormat("#,###,###.##").format(amount)} ฿',
-                  style: TextStyle(fontSize: 30, color: amountFontColor),
+                  style: TextStyle(fontSize: 15, color: amountFontColor),
                   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
                 ),
               )

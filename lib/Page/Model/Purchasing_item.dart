@@ -20,7 +20,7 @@ class PurchasingItemsFields {
 
 class PurchasingItemsModel {
   final int? purItemsId;
-  
+
   final int? prodId;
   final int? prodModelId;
   final int amount;
@@ -55,7 +55,7 @@ class PurchasingItemsModel {
   static PurchasingItemsModel fromJson(Map<String, Object?> json) =>
       PurchasingItemsModel(
         purItemsId: json[PurchasingItemsFields.purItemsId] as int?,
-       prodId: json[PurchasingItemsFields.prodId] as int,
+        prodId: json[PurchasingItemsFields.prodId] as int,
         prodModelId: json[PurchasingItemsFields.prodModelId] as int,
         amount: json[PurchasingItemsFields.amount] as int,
         total: json[PurchasingItemsFields.total] as int,
@@ -63,7 +63,7 @@ class PurchasingItemsModel {
       );
   Map<String, Object?> toJson() => {
         PurchasingItemsFields.purItemsId: purItemsId,
-       PurchasingItemsFields.prodId: prodId,
+        PurchasingItemsFields.prodId: prodId,
         PurchasingItemsFields.prodModelId: prodModelId,
         PurchasingItemsFields.amount: amount,
         PurchasingItemsFields.total: total,

@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
+import 'package:warehouse_mnmt/Page/Profile/ChangePin/1_PhoneVerify.dart';
 
 import '../../db/database.dart';
 import '../Model/Profile.dart';
@@ -186,12 +187,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           "ชื่อ",
                           style: TextStyle(color: Colors.white),
                         ),
-                        Spacer(),
-                        Text(
-                          '${widget.profile.id}',
-                          style: TextStyle(
-                              color: Colors.greenAccent, fontSize: 30),
-                        ),
                       ],
                     ),
                     SizedBox(
@@ -366,7 +361,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               Text(
                                 profile!.phone.replaceAllMapped(
                                     RegExp(r'(\d{3})(\d{3})(\d+)'),
-                                    (Match m) => "${m[1]}-${m[2]}-${m[3]}"),
+                                    (Match m) => "${m[1]}-${m[2]}-XXXX"),
                                 style: TextStyle(
                                     color: Color.fromARGB(255, 136, 136, 136),
                                     fontSize: 14),
@@ -399,7 +394,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               elevation: 0,
                               fixedSize: const Size(350, 80),
                               primary: Colors.transparent),
-                          onPressed: () {},
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => VerifyPhonePage(
+                                          profile: widget.profile,
+                                        )));
+                            setState(() {});
+                          },
                           child: Container(
                             width: 350,
                             height: 80,
@@ -416,71 +419,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 ),
                               ),
                               SizedBox(width: 10),
-                              isHidePin == true
-                                  ? Row(
-                                      children: [
-                                        Icon(
-                                          Icons.circle,
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136),
-                                          size: 10,
-                                        ),
-                                        SizedBox(width: 3),
-                                        Icon(
-                                          Icons.circle,
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136),
-                                          size: 10,
-                                        ),
-                                        SizedBox(width: 3),
-                                        Icon(
-                                          Icons.circle,
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136),
-                                          size: 10,
-                                        ),
-                                        SizedBox(width: 3),
-                                        Icon(
-                                          Icons.circle,
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136),
-                                          size: 10,
-                                        ),
-                                        SizedBox(width: 3),
-                                        Icon(
-                                          Icons.circle,
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136),
-                                          size: 10,
-                                        ),
-                                        SizedBox(width: 3),
-                                        Icon(
-                                          Icons.circle,
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136),
-                                          size: 10,
-                                        ),
-                                      ],
-                                    )
-                                  // ${profile!.pin[0]} ${profile!.pin[1]} ${profile!.pin[2]} ${profile!.pin[3]} ${profile!.pin[4]} ${profile!.pin[5]}
-                                  : Text(
-                                      profile!.pin,
-                                      style: TextStyle(
-                                          color: Color.fromARGB(
-                                              255, 136, 136, 136)),
-                                    ),
-                              Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isHidePin = !isHidePin;
-                                      });
-                                    },
-                                    child: isHidePin == true
-                                        ? Icon(Icons.remove_red_eye_outlined)
-                                        : Icon(Icons.remove_red_eye_rounded)),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color.fromARGB(255, 136, 136, 136),
+                                    size: 10,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color.fromARGB(255, 136, 136, 136),
+                                    size: 10,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color.fromARGB(255, 136, 136, 136),
+                                    size: 10,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color.fromARGB(255, 136, 136, 136),
+                                    size: 10,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color.fromARGB(255, 136, 136, 136),
+                                    size: 10,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(
+                                    Icons.circle,
+                                    color: Color.fromARGB(255, 136, 136, 136),
+                                    size: 10,
+                                  ),
+                                ],
                               )
                             ]),
                           ),

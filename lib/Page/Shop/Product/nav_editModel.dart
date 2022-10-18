@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
@@ -23,8 +24,17 @@ class _ProductEditModelState extends State<ProductEditModel> {
   final nameController = TextEditingController();
   final addressController = TextEditingController();
   final phoneController = TextEditingController();
+
+  // Model Edit
+  TextEditingController propertyName = TextEditingController();
+  TextEditingController stProperty = TextEditingController();
+  TextEditingController ndPropertty = TextEditingController();
+  TextEditingController costController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+
   List<ProductModel> productModels = [];
   List<ProductLot> productLots = [];
+  bool _validate = false;
   final df = new DateFormat('dd-MM-yyyy');
   Future refreshProductModels() async {
     productModels = await DatabaseManager.instance.readAllProductModels();
@@ -79,7 +89,6 @@ class _ProductEditModelState extends State<ProductEditModel> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
           decoration: const BoxDecoration(
@@ -93,32 +102,85 @@ class _ProductEditModelState extends State<ProductEditModel> {
           )),
           child: Column(children: [
             SizedBox(height: 80),
-            Text(
-              widget.model.prodModelname,
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            Wrap(
+              alignment: WrapAlignment.center,
+              runSpacing: 10,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${widget.model.prodModelname.split(',')[0]}',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+                CustomTextField.textField(
+                  context,
+                  '${widget.model.stProperty}',
+                  _validate,
+                  length: 30,
+                  textController: stProperty,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${widget.model.prodModelname.split(',')[1]}',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+                CustomTextField.textField(
+                  context,
+                  '${widget.model.ndProperty}',
+                  _validate,
+                  length: 30,
+                  textController: ndPropertty,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ต้นทุน',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+                CustomTextField.textField(
+                  context,
+                  '${widget.model.cost}',
+                  _validate,
+                  length: 20,
+                  textController: costController,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ราคาขาย',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+                CustomTextField.textField(
+                  context,
+                  '${widget.model.price}',
+                  _validate,
+                  length: 20,
+                  textController: priceController,
+                ),
+              ],
             ),
-            Text(
-              '${widget.model.stProperty}',
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Text(
-              '${widget.model.ndProperty}',
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Text(
-              "ต้นทุน ${NumberFormat("#,###,###.##").format(widget.model.cost)}",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Text(
-              "ขาย ${NumberFormat("#,###,###.##").format(widget.model.price)}",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            const SizedBox(
+              height: 10,
             ),
             productLots.isEmpty
                 ? Container(
                     height: (MediaQuery.of(context).size.height * 0.5),
                     child: Center(
                       child: Text(
-                        'สินค้าหมด',
+                        'ไม่มีล็อต',
                         style: TextStyle(color: Colors.grey, fontSize: 25),
                       ),
                     ),
@@ -260,17 +322,17 @@ class _ProductEditModelState extends State<ProductEditModel> {
                                         ],
                                       ),
                                       Spacer(),
-                                      lot.amount == 0
+                                      lot.remainAmount == 0
                                           ? Row(
                                               children: [
                                                 Icon(
                                                   Icons.numbers_outlined,
-                                                  color: Colors.white,
+                                                  color: Colors.greenAccent,
                                                 ),
-                                                Text('สินค้าหมด ',
+                                                Text('ขายสินค้าหมดแล้ว',
                                                     style: const TextStyle(
                                                       fontSize: 15,
-                                                      color: Colors.white,
+                                                      color: Colors.greenAccent,
                                                     )),
                                               ],
                                             )
@@ -312,6 +374,9 @@ class _ProductEditModelState extends State<ProductEditModel> {
                           );
                         }),
                   ),
+            const SizedBox(
+              height: 10,
+            ),
 
             // ยกเลิก Button
             productLots.isEmpty
@@ -338,7 +403,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                             ElevatedButton(
                               onPressed: () {},
                               child: Text(
-                                "??????",
+                                "บันทึก",
                                 style: TextStyle(fontSize: 17),
                               ),
                             )

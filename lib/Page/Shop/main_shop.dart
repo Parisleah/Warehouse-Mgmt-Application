@@ -72,389 +72,6 @@ class _ShopPageState extends State<ShopPage> {
       await DatabaseManager.instance.updateShop(shop);
     }
 
-    dialogEditShop(shop) async {
-      await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return StatefulBuilder(builder: (context, DialogSetState) {
-              return Dialog(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(30.0)), //this right here
-                child: SizedBox(
-                  height: 400,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                                // color: Theme.of(context).colorScheme.background,
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                                Text(
-                                  'แก้ไขร้านค้า',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 25,
-                                    // fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: 200,
-                            width: 200,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Stack(
-                              children: [
-                                if (_image != null)
-                                  Center(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Image.file(
-                                        _image!,
-                                        width: 180,
-                                        height: 180,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  Center(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Image.file(
-                                        File(widget.shop.image),
-                                        width: 180,
-                                        height: 180,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                Positioned(
-                                  top: 0.0,
-                                  right: 0.0,
-                                  child: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.7),
-                                              spreadRadius: 0,
-                                              blurRadius: 5,
-                                              offset: Offset(0, 4))
-                                        ],
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255),
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(
-                                            Icons.add_photo_alternate_outlined,
-                                            size: 25,
-                                            color: Color.fromARGB(
-                                                255, 94, 94, 94)),
-                                        onPressed: () async {
-                                          await getImage(isChange);
-                                          DialogSetState(() {
-                                            isChange = !isChange;
-                                          });
-                                          if (_image!.path != null) {}
-                                        },
-                                      )),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .background
-                                      .withOpacity(0.9),
-                                  borderRadius: BorderRadius.circular(15)),
-                              width: 400,
-                              height: 80,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: TextFormField(
-                                    textAlign: TextAlign.start,
-                                    keyboardType: TextInputType.text,
-                                    // maxLength: length,
-                                    inputFormatters: [
-                                      LengthLimitingTextInputFormatter(30),
-                                    ],
-                                    controller: shopNameController,
-                                    //-----------------------------------------------------
-                                    onFieldSubmitted: (context) {
-                                      DialogSetState(() {
-                                        isChange = true;
-                                        print(isChange);
-                                      });
-                                    },
-                                    style: const TextStyle(color: Colors.white),
-                                    cursorColor: Theme.of(context)
-                                        .colorScheme
-                                        .background,
-                                    decoration: InputDecoration(
-                                      errorText:
-                                          _validate ? 'โปรดระบุ' : null, //
-                                      contentPadding: EdgeInsets.only(
-                                          top: 25,
-                                          bottom: 10,
-                                          left: 10,
-                                          right: 10),
-                                      // labelText: title,
-                                      filled: true,
-                                      labelStyle:
-                                          TextStyle(color: Colors.white),
-                                      counterStyle:
-                                          TextStyle(color: Colors.white),
-                                      // fillColor: Theme.of(context).colorScheme.background,
-                                      focusColor:
-                                          Color.fromARGB(255, 255, 0, 0),
-                                      hoverColor: Colors.white,
-
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(10.0),
-                                        ),
-                                        borderSide: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15.0),
-                                        borderSide: const BorderSide(
-                                          color: Colors.transparent,
-                                        ),
-                                      ),
-                                      disabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15.0),
-                                        borderSide: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                        ),
-                                      ),
-                                      hintText: shop.name,
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      prefixIcon: const Icon(Icons.person_pin,
-                                          color: Colors.white),
-                                      suffixIcon:
-                                          shopNameController.text.isEmpty
-                                              ? Container(
-                                                  width: 0,
-                                                )
-                                              : IconButton(
-                                                  onPressed: () {
-                                                    shopNameController.clear();
-                                                    if (shopPhoneController
-                                                            .text.isNotEmpty ||
-                                                        _image != null) {
-                                                      DialogSetState(() {
-                                                        isChange = true;
-                                                      });
-                                                    } else {
-                                                      DialogSetState(() {
-                                                        isChange = false;
-                                                      });
-                                                    }
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.close_sharp,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                    )),
-                              )),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .background
-                                      .withOpacity(0.9),
-                                  borderRadius: BorderRadius.circular(15)),
-                              width: 400,
-                              height: 80,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: TextFormField(
-                                    textAlign: TextAlign.start,
-                                    keyboardType: TextInputType.number,
-                                    // maxLength: 10,
-                                    inputFormatters: [
-                                      LengthLimitingTextInputFormatter(10),
-                                    ],
-                                    controller: shopPhoneController,
-                                    //-----------------------------------------------------
-                                    onFieldSubmitted: (context) {
-                                      DialogSetState(() {
-                                        isChange = true;
-                                      });
-                                    },
-                                    style: const TextStyle(color: Colors.white),
-                                    cursorColor: Theme.of(context)
-                                        .colorScheme
-                                        .background,
-                                    decoration: InputDecoration(
-                                      errorText:
-                                          _validate ? 'โปรดระบุ' : null, //
-                                      contentPadding: EdgeInsets.only(
-                                          top: 25,
-                                          bottom: 10,
-                                          left: 10,
-                                          right: 10),
-                                      // labelText: title,
-                                      filled: true,
-                                      labelStyle:
-                                          TextStyle(color: Colors.white),
-                                      counterStyle:
-                                          TextStyle(color: Colors.white),
-                                      // fillColor: Theme.of(context).colorScheme.background,
-                                      focusColor:
-                                          Color.fromARGB(255, 255, 0, 0),
-                                      hoverColor: Colors.white,
-
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(10.0),
-                                        ),
-                                        borderSide: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15.0),
-                                        borderSide: const BorderSide(
-                                          color: Colors.transparent,
-                                        ),
-                                      ),
-                                      disabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15.0),
-                                        borderSide: BorderSide(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                        ),
-                                      ),
-                                      hintText: shop.phone,
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      prefixIcon: const Icon(
-                                          Icons.phone_in_talk,
-                                          color: Colors.white),
-                                      suffixIcon:
-                                          shopPhoneController.text.isEmpty
-                                              ? Container(
-                                                  width: 0,
-                                                )
-                                              : IconButton(
-                                                  onPressed: () {
-                                                    shopPhoneController.clear();
-                                                    if (shopNameController
-                                                            .text.isNotEmpty ||
-                                                        _image != null) {
-                                                      DialogSetState(() {
-                                                        isChange = true;
-                                                      });
-                                                    } else {
-                                                      DialogSetState(() {
-                                                        isChange = false;
-                                                      });
-                                                    }
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.close_sharp,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                    )),
-                              )),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              isChange == true
-                                  ? ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          fixedSize: const Size(80, 40)),
-                                      onPressed: () {
-                                        updateShop();
-                                        shopNameController.clear();
-                                        shopPhoneController.clear();
-                                        Navigator.pop(context);
-                                        DialogSetState(() {
-                                          refreshShop();
-                                          isChange = false;
-                                        });
-                                      },
-                                      child: Text('ยืนยัน'))
-                                  : Container(
-                                      width: 0,
-                                    ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: Colors.redAccent,
-                                      fixedSize: const Size(80, 40)),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text('ยกเลิก')),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            });
-          });
-    }
-
     ThemeProvider themeProvider;
     return DefaultTabController(
       length: 5,
@@ -465,42 +82,650 @@ class _ShopPageState extends State<ShopPage> {
           child: AppBar(
             automaticallyImplyLeading: false,
             actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ChangeThemeButtonWidget(),
-                  Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.7),
-                              spreadRadius: 0,
-                              blurRadius: 5,
-                              offset: Offset(0, 4))
-                        ],
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.edit,
-                            size: 25,
-                            color: Theme.of(context).colorScheme.background),
-                        onPressed: () => dialogEditShop(shop),
-                      )),
-                  const SizedBox(
-                    width: 10,
-                  )
+              PopupMenuButton<int>(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20.0),
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    onTap: () {
+                      Future.delayed(
+                        const Duration(seconds: 0),
+                        () => showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return StatefulBuilder(
+                                  builder: (context, DialogSetState) {
+                                return Dialog(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.background,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0)), //this right here
+                                  child: SizedBox(
+                                    height: 400,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                  // color: Theme.of(context).colorScheme.background,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15)),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: const [
+                                                  Icon(
+                                                    Icons.edit,
+                                                    color: Colors.white,
+                                                    size: 30,
+                                                  ),
+                                                  Text(
+                                                    'แก้ไขร้านค้า',
+                                                    style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 255, 255, 255),
+                                                      fontSize: 25,
+                                                      // fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Container(
+                                              height: 200,
+                                              width: 200,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20)),
+                                              child: Stack(
+                                                children: [
+                                                  if (_image != null)
+                                                    Center(
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                        child: Image.file(
+                                                          _image!,
+                                                          width: 180,
+                                                          height: 180,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  else
+                                                    Center(
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                        child: Image.file(
+                                                          File(widget
+                                                              .shop.image),
+                                                          width: 180,
+                                                          height: 180,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  Positioned(
+                                                    top: 0.0,
+                                                    right: 0.0,
+                                                    child: Container(
+                                                        width: 40,
+                                                        height: 40,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        0.7),
+                                                                spreadRadius: 0,
+                                                                blurRadius: 5,
+                                                                offset: Offset(
+                                                                    0, 4))
+                                                          ],
+                                                          color: Color.fromARGB(
+                                                              255,
+                                                              255,
+                                                              255,
+                                                              255),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(30),
+                                                        ),
+                                                        child: IconButton(
+                                                          icon: const Icon(
+                                                              Icons
+                                                                  .add_photo_alternate_outlined,
+                                                              size: 25,
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      94,
+                                                                      94,
+                                                                      94)),
+                                                          onPressed: () async {
+                                                            await getImage(
+                                                                isChange);
+                                                            DialogSetState(() {
+                                                              isChange =
+                                                                  !isChange;
+                                                            });
+                                                            if (_image!.path !=
+                                                                null) {}
+                                                          },
+                                                        )),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Container(
+                                                padding:
+                                                    const EdgeInsets.all(5),
+                                                decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .background
+                                                        .withOpacity(0.9),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                width: 400,
+                                                height: 80,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: TextFormField(
+                                                      textAlign:
+                                                          TextAlign.start,
+                                                      keyboardType:
+                                                          TextInputType.text,
+                                                      // maxLength: length,
+                                                      inputFormatters: [
+                                                        LengthLimitingTextInputFormatter(
+                                                            30),
+                                                      ],
+                                                      controller:
+                                                          shopNameController,
+                                                      //-----------------------------------------------------
+                                                      onFieldSubmitted:
+                                                          (context) {
+                                                        DialogSetState(() {
+                                                          isChange = true;
+                                                          print(isChange);
+                                                        });
+                                                      },
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                      cursorColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .background,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        errorText: _validate
+                                                            ? 'โปรดระบุ'
+                                                            : null, //
+                                                        contentPadding:
+                                                            EdgeInsets.only(
+                                                                top: 25,
+                                                                bottom: 10,
+                                                                left: 10,
+                                                                right: 10),
+                                                        // labelText: title,
+                                                        filled: true,
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                        counterStyle: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                        // fillColor: Theme.of(context).colorScheme.background,
+                                                        focusColor:
+                                                            Color.fromARGB(
+                                                                255, 255, 0, 0),
+                                                        hoverColor:
+                                                            Colors.white,
+
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                            Radius.circular(
+                                                                10.0),
+                                                          ),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .surface,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15.0),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                          ),
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15.0),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .surface,
+                                                          ),
+                                                        ),
+                                                        hintText:
+                                                            widget.shop.name,
+                                                        hintStyle:
+                                                            const TextStyle(
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontSize: 14),
+                                                        prefixIcon: const Icon(
+                                                            Icons.person_pin,
+                                                            color:
+                                                                Colors.white),
+                                                        suffixIcon:
+                                                            shopNameController
+                                                                    .text
+                                                                    .isEmpty
+                                                                ? Container(
+                                                                    width: 0,
+                                                                  )
+                                                                : IconButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      shopNameController
+                                                                          .clear();
+                                                                      if (shopPhoneController
+                                                                              .text
+                                                                              .isNotEmpty ||
+                                                                          _image !=
+                                                                              null) {
+                                                                        DialogSetState(
+                                                                            () {
+                                                                          isChange =
+                                                                              true;
+                                                                        });
+                                                                      } else {
+                                                                        DialogSetState(
+                                                                            () {
+                                                                          isChange =
+                                                                              false;
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                    icon:
+                                                                        const Icon(
+                                                                      Icons
+                                                                          .close_sharp,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                  ),
+                                                      )),
+                                                )),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Container(
+                                                padding:
+                                                    const EdgeInsets.all(5),
+                                                decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .background
+                                                        .withOpacity(0.9),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                width: 400,
+                                                height: 80,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: TextFormField(
+                                                      textAlign:
+                                                          TextAlign.start,
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      // maxLength: 10,
+                                                      inputFormatters: [
+                                                        LengthLimitingTextInputFormatter(
+                                                            10),
+                                                      ],
+                                                      controller:
+                                                          shopPhoneController,
+                                                      //-----------------------------------------------------
+                                                      onFieldSubmitted:
+                                                          (context) {
+                                                        DialogSetState(() {
+                                                          isChange = true;
+                                                        });
+                                                      },
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                      cursorColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .background,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        errorText: _validate
+                                                            ? 'โปรดระบุ'
+                                                            : null, //
+                                                        contentPadding:
+                                                            EdgeInsets.only(
+                                                                top: 25,
+                                                                bottom: 10,
+                                                                left: 10,
+                                                                right: 10),
+                                                        // labelText: title,
+                                                        filled: true,
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                        counterStyle: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                        // fillColor: Theme.of(context).colorScheme.background,
+                                                        focusColor:
+                                                            Color.fromARGB(
+                                                                255, 255, 0, 0),
+                                                        hoverColor:
+                                                            Colors.white,
+
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                            Radius.circular(
+                                                                10.0),
+                                                          ),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .surface,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15.0),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                          ),
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15.0),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .surface,
+                                                          ),
+                                                        ),
+                                                        hintText:
+                                                            widget.shop.phone,
+                                                        hintStyle:
+                                                            const TextStyle(
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontSize: 14),
+                                                        prefixIcon: const Icon(
+                                                            Icons.phone_in_talk,
+                                                            color:
+                                                                Colors.white),
+                                                        suffixIcon:
+                                                            shopPhoneController
+                                                                    .text
+                                                                    .isEmpty
+                                                                ? Container(
+                                                                    width: 0,
+                                                                  )
+                                                                : IconButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      shopPhoneController
+                                                                          .clear();
+                                                                      if (shopNameController
+                                                                              .text
+                                                                              .isNotEmpty ||
+                                                                          _image !=
+                                                                              null) {
+                                                                        DialogSetState(
+                                                                            () {
+                                                                          isChange =
+                                                                              true;
+                                                                        });
+                                                                      } else {
+                                                                        DialogSetState(
+                                                                            () {
+                                                                          isChange =
+                                                                              false;
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                    icon:
+                                                                        const Icon(
+                                                                      Icons
+                                                                          .close_sharp,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                  ),
+                                                      )),
+                                                )),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                isChange == true
+                                                    ? ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                                fixedSize:
+                                                                    const Size(
+                                                                        80,
+                                                                        40)),
+                                                        onPressed: () {
+                                                          updateShop();
+                                                          shopNameController
+                                                              .clear();
+                                                          shopPhoneController
+                                                              .clear();
+                                                          Navigator.pop(
+                                                              context);
+                                                          DialogSetState(() {
+                                                            refreshShop();
+                                                            isChange = false;
+                                                          });
+                                                        },
+                                                        child: Text('ยืนยัน'))
+                                                    : Container(
+                                                        width: 0,
+                                                      ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                            primary: Colors
+                                                                .redAccent,
+                                                            fixedSize:
+                                                                const Size(
+                                                                    80, 40)),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('ยกเลิก')),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                            }),
+                      );
+                    },
+                    value: 1,
+                    // row has two child icon and text
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit),
+                        SizedBox(
+                          // sized box with width 10
+                          width: 10,
+                        ),
+                        Text(
+                          "แก้ไขร้าน",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      Future.delayed(
+                        const Duration(seconds: 0),
+                        () => showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.background,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                            title: Container(
+                              width: 150,
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    'ธีม',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 15),
+                                  ),
+                                  Spacer(),
+                                  IconButton(
+                                      onPressed: (() {
+                                        Navigator.pop(context);
+                                      }),
+                                      icon: Icon(
+                                        Icons.close,
+                                        color: Colors.grey,
+                                      ))
+                                ],
+                              ),
+                            ),
+                            content: Row(children: [
+                              ChangeThemeButtonWidget(),
+                            ]),
+                          ),
+                        ),
+                      );
+                    },
+                    value: 2,
+                    // row has two child icon and text
+                    child: Row(
+                      children: [
+                        Icon(Icons.color_lens),
+                        SizedBox(
+                          // sized box with width 10
+                          width: 10,
+                        ),
+                        Text(
+                          "ธีม",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    value: 2,
+                    // row has two child icon and text
+                    child: Row(
+                      children: [
+                        Icon(Icons.exit_to_app),
+                        SizedBox(
+                          // sized box with width 10
+                          width: 10,
+                        ),
+                        Text(
+                          "ออกจากร้าน",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                  ),
                 ],
+                offset: Offset(0, 80),
+                color: Theme.of(context).colorScheme.onSecondary,
+                elevation: 2,
               ),
             ],
-            title: Text(
+            title: const Text(
               "ร้านของฉัน",
               textAlign: TextAlign.start,
-              // style: _textTheme.headline4?.copyWith(
-              //     color: isDark ? Colors.white : Colors.black,
-              //     fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -554,22 +779,17 @@ class _ShopPageState extends State<ShopPage> {
                         const SizedBox(
                           width: 10,
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).backgroundColor,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(0.0),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(shop!.name,
-                                        style: TextStyle(color: Colors.white)),
-                                  )
-                                ]),
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(shop!.name,
+                                      style: TextStyle(color: Colors.grey)),
+                                )
+                              ]),
                         ),
                       ],
                     ),
@@ -596,26 +816,21 @@ class _ShopPageState extends State<ShopPage> {
                         const SizedBox(
                           width: 10,
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).backgroundColor,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(0.0),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                        shop!.phone.replaceAllMapped(
-                                            RegExp(r'(\d{3})(\d{3})(\d+)'),
-                                            (Match m) =>
-                                                "${m[1]}-${m[2]}-${m[3]}"),
-                                        style: TextStyle(color: Colors.white)),
-                                  )
-                                ]),
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                      shop!.phone.replaceAllMapped(
+                                          RegExp(r'(\d{3})(\d{3})(\d+)'),
+                                          (Match m) =>
+                                              "${m[1]}-${m[2]}-${m[3]}"),
+                                      style: TextStyle(color: Colors.grey)),
+                                )
+                              ]),
                         ),
                       ],
                     ),
@@ -623,18 +838,6 @@ class _ShopPageState extends State<ShopPage> {
                 ),
                 const SizedBox(
                   height: 10,
-                ),
-                ElevatedButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.exit_to_app),
-                      Text("ร้านอื่น ๆ"),
-                    ],
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
                 ),
               ],
             ),

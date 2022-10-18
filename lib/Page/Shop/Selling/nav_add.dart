@@ -276,11 +276,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                         children: [
                           Row(
                             children: [
-                              Text('${_customer.cusId}',
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white)),
                               Text(_customer.cName,
                                   style: TextStyle(
                                       fontSize: 17,
@@ -415,8 +410,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                 var prodModel;
                                                 for (var prod in products) {
                                                   if (prod.prodId ==
-                                                      selling.prodModelId) {
-                                                    prodImg = prod.prodImage;
+                                                      selling.prodId) {
+                                                    prodImg = prod.prodImage!;
                                                     prodName = prod.prodName;
                                                   }
                                                 }
@@ -559,7 +554,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                 height: 90,
                                                                 child:
                                                                     Image.file(
-                                                                  File(prodImg),
+                                                                  File(
+                                                                      prodImg!),
                                                                   fit: BoxFit
                                                                       .cover,
                                                                 ),
@@ -1115,6 +1111,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
 
                             for (var cart in carts) {
                               final item = SellingItemModel(
+                                  prodId: cart.prodId,
                                   prodModelId: cart.prodModelId,
                                   prodLotId: cart.prodLotId,
                                   amount: cart.amount,

@@ -68,8 +68,12 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   bool isDialogChooseFst = false;
   bool isDelete_ndProp = false;
   File? _image;
-  String stPropName = 'สี';
-  String ndPropName = 'ขนาด';
+  late String stPropName = productModels[0].stProperty == null
+      ? 'สี'
+      : productModels[0].prodModelname.split(',')[0];
+  late String ndPropName = productModels[0].ndProperty == null
+      ? 'ขนาด'
+      : productModels[0].prodModelname.split(',')[1];
   var productCategory = ProductCategory(prodCategName: 'เลือกประเภทสินค้า');
   List<ProductCategory> productCategorys = [];
   List<ProductModel_stProperty> stPropsList = [];
@@ -864,25 +868,25 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                     SizedBox(
                                       width: 10,
                                     ),
-                                    IconButton(
-                                        onPressed: () async {
-                                          DialogSetState(
-                                            () {
-                                              isDialogChooseFst = true;
-                                            },
-                                          );
-                                          await _showEdit_PropName_Dialog(
-                                              productModel_stPropNameController);
-                                          DialogSetState(
-                                            () {
-                                              isDialogChooseFst = false;
-                                            },
-                                          );
-                                        },
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          color: Colors.white,
-                                        ))
+                                    // IconButton(
+                                    //     onPressed: () async {
+                                    //       DialogSetState(
+                                    //         () {
+                                    //           isDialogChooseFst = true;
+                                    //         },
+                                    //       );
+                                    //       await _showEdit_PropName_Dialog(
+                                    //           productModel_stPropNameController);
+                                    //       DialogSetState(
+                                    //         () {
+                                    //           isDialogChooseFst = false;
+                                    //         },
+                                    //       );
+                                    //     },
+                                    //     icon: const Icon(
+                                    //       Icons.edit,
+                                    //       color: Colors.white,
+                                    //     ))
                                   ],
                                 ),
                                 Row(
@@ -1065,28 +1069,8 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                         ),
 
                         // ขนาด
-                        isDelete_ndProp == true
-                            ? ElevatedButton(
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.add_rounded,
-                                        size: 25,
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255)),
-                                    Text(
-                                      'เพิ่มอีกรูปแบบ',
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                                onPressed: () {
-                                  DialogSetState(
-                                    () {
-                                      isDelete_ndProp = false;
-                                    },
-                                  );
-                                },
-                              )
+                        productModels[0].ndProperty == null
+                            ? Container()
                             : Stack(children: [
                                 const SizedBox(
                                   height: 20,
@@ -1115,21 +1099,21 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                             const SizedBox(
                                               width: 20,
                                             ),
-                                            IconButton(
-                                                onPressed: () async {
-                                                  DialogSetState(
-                                                    () {
-                                                      isDialogChooseFst ==
-                                                          false;
-                                                    },
-                                                  );
-                                                  await _showEdit_PropName_Dialog(
-                                                      productModel_ndPropNameController);
-                                                },
-                                                icon: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.white,
-                                                ))
+                                            // IconButton(
+                                            //     onPressed: () async {
+                                            //       DialogSetState(
+                                            //         () {
+                                            //           isDialogChooseFst ==
+                                            //               false;
+                                            //         },
+                                            //       );
+                                            //       await _showEdit_PropName_Dialog(
+                                            //           productModel_ndPropNameController);
+                                            //     },
+                                            //     icon: const Icon(
+                                            //       Icons.edit,
+                                            //       color: Colors.white,
+                                            //     ))
                                           ],
                                         ),
                                         Row(
@@ -1320,39 +1304,6 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                       ],
                                     ),
                                   ),
-                                ),
-                                Positioned(
-                                  top: 0.0,
-                                  right: 0,
-                                  child: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.7),
-                                              spreadRadius: 0,
-                                              blurRadius: 5,
-                                              offset: Offset(0, 4))
-                                        ],
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.close,
-                                            size: 25,
-                                            color: Color.fromARGB(
-                                                255, 255, 255, 255)),
-                                        onPressed: () {
-                                          DialogSetState(
-                                            () {
-                                              ndPropsList.clear();
-                                              isDelete_ndProp = true;
-                                            },
-                                          );
-                                        },
-                                      )),
                                 ),
                               ]),
                         SizedBox(
@@ -1621,6 +1572,77 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: AppBar(
+            actions: [
+              PopupMenuButton<int>(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20.0),
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  // popupmenu item 2
+                  PopupMenuItem(
+                    onTap: () {
+                      Future.delayed(
+                        const Duration(seconds: 0),
+                        () => showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                            title: const Text(
+                              'ต้องการลบสินค้า ?',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    primary: Colors.redAccent),
+                                child: const Text('ยกเลิก'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              ElevatedButton(
+                                child: const Text('ยืนยัน'),
+                                onPressed: () async {
+                                  await DatabaseManager.instance
+                                      .deleteProduct(widget.product.prodId!);
+
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    value: 2,
+                    // row has two child icon and text
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete),
+                        SizedBox(
+                          // sized box with width 10
+                          width: 10,
+                        ),
+                        Text(
+                          "ลบสินค้า",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+                offset: Offset(0, 80),
+                color: Theme.of(context).colorScheme.onSecondary,
+                elevation: 2,
+              ),
+            ],
             title: const Text(
               "แก้ไขสินค้า",
               textAlign: TextAlign.start,
@@ -1857,7 +1879,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                       for (var lot in productLots) {
                                         if (productModel.prodModelId ==
                                             lot.prodModelId) {
-                                          _amountOfProd += lot.amount!;
+                                          _amountOfProd += lot.remainAmount!;
                                         }
                                       }
                                       var amountOfProd = _amountOfProd;
@@ -1910,7 +1932,9 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                 context,
                                                 new MaterialPageRoute(
                                                     builder: (context) =>
-                                                        ProductEditModel(model: productModel,)));
+                                                        ProductEditModel(
+                                                          model: productModel,
+                                                        )));
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(5.0),
