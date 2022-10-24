@@ -136,12 +136,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 for (var selling in carts) {
                   for (var lot in lots) {
                     if (lot.prodLotId == selling.prodLotId) {
-                      final updateAmountDeletedProductLot = ProductLot(
-                          prodLotId: selling!.prodLotId,
-                          amount: selling!.amount,
-                          orderedTime: lot.orderedTime,
-                          prodModelId: selling!.prodModelId,
+                      final updateAmountDeletedProductLot = lot.copy(
                           remainAmount: selling!.amount + lot.remainAmount);
+                     
                       await DatabaseManager.instance
                           .updateProductLot(updateAmountDeletedProductLot);
                     }
@@ -477,18 +474,12 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                     for (var lot in lots) {
                                                       if (lot.prodLotId ==
                                                           selling.prodLotId) {
-                                                        final updateAmountDeletedProductLot = ProductLot(
-                                                            prodLotId: selling
-                                                                ?.prodLotId,
-                                                            amount:
-                                                                selling?.amount,
-                                                            orderedTime:
-                                                                lot.orderedTime,
-                                                            prodModelId: selling
-                                                                ?.prodModelId,
-                                                            remainAmount: selling!
-                                                                    .amount +
-                                                                lot.remainAmount);
+                                                        final updateAmountDeletedProductLot =
+                                                            lot.copy(
+                                                                remainAmount: selling!
+                                                                        .amount +
+                                                                    lot.remainAmount);
+
                                                         await DatabaseManager
                                                             .instance
                                                             .updateProductLot(
@@ -1060,13 +1051,10 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                               for (var lot in lots) {
                                 if (lot.prodLotId == selling.prodLotId) {
                                   final updateAmountDeletedProductLot =
-                                      ProductLot(
-                                          prodLotId: selling!.prodLotId,
-                                          amount: selling!.amount,
-                                          orderedTime: lot.orderedTime,
-                                          prodModelId: selling!.prodModelId,
+                                      lot.copy(
                                           remainAmount: selling!.amount +
                                               lot.remainAmount);
+
                                   await DatabaseManager.instance
                                       .updateProductLot(
                                           updateAmountDeletedProductLot);

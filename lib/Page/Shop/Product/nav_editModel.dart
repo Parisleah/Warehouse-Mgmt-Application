@@ -20,22 +20,24 @@ class ProductEditModel extends StatefulWidget {
 }
 
 class _ProductEditModelState extends State<ProductEditModel> {
-  // Text Field
-  final nameController = TextEditingController();
-  final addressController = TextEditingController();
-  final phoneController = TextEditingController();
-
   // Model Edit
-  TextEditingController propertyName = TextEditingController();
+  TextEditingController editPropertyName = TextEditingController();
+
   TextEditingController stProperty = TextEditingController();
   TextEditingController ndPropertty = TextEditingController();
-  TextEditingController costController = TextEditingController();
-  TextEditingController priceController = TextEditingController();
+  late TextEditingController costController =
+      TextEditingController(text: '${widget.model.cost}');
+  late TextEditingController priceController =
+      TextEditingController(text: '${widget.model.price}');
 
   List<ProductModel> productModels = [];
   List<ProductLot> productLots = [];
   bool _validate = false;
+  bool isDialogChooseFst = false;
+  late String stPropName = '${widget.model.prodModelname.split(',')[0]}';
+  late String ndPropName = '${widget.model.prodModelname.split(',')[1]}';
   final df = new DateFormat('dd-MM-yyyy');
+
   Future refreshProductModels() async {
     productModels = await DatabaseManager.instance.readAllProductModels();
     setState(() {});
@@ -52,9 +54,6 @@ class _ProductEditModelState extends State<ProductEditModel> {
   void initState() {
     super.initState();
     refreshProductLot();
-    nameController.addListener(() => setState(() {}));
-    addressController.addListener(() => setState(() {}));
-    phoneController.addListener(() => setState(() {}));
   }
 
   // Text Field
@@ -64,6 +63,55 @@ class _ProductEditModelState extends State<ProductEditModel> {
         backgroundColor: Colors.redAccent,
         content: Text("${title} ว่าง"),
         duration: Duration(seconds: 3)));
+  }
+
+  Future<void> dialogEdit_PropName(TextEditingController controller) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, Edit_st_PropDialogSetState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: const Text(
+              'แก้ไข',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  CustomTextField.textField(
+                    context,
+                    isDialogChooseFst == true ? stPropName : ndPropName,
+                    _validate,
+                    length: 30,
+                    textController: controller,
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text('ยืนยัน'),
+                onPressed: () {
+                  Edit_st_PropDialogSetState(() {
+                    if (controller.text.isEmpty) {
+                    } else {
+                      isDialogChooseFst == true
+                          ? stPropName = controller.text
+                          : ndPropName = controller.text;
+                    }
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   @override
@@ -110,9 +158,28 @@ class _ProductEditModelState extends State<ProductEditModel> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      '${widget.model.prodModelname.split(',')[0]}',
+                      stPropName,
                       style: TextStyle(color: Colors.white),
-                    )
+                    ),
+                    IconButton(
+                        onPressed: () async {
+                          setState(
+                            () {
+                              isDialogChooseFst = true;
+                            },
+                          );
+                          await dialogEdit_PropName(editPropertyName);
+                          setState(
+                            () {
+                              isDialogChooseFst = false;
+                            },
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ))
                   ],
                 ),
                 CustomTextField.textField(
@@ -126,9 +193,18 @@ class _ProductEditModelState extends State<ProductEditModel> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      '${widget.model.prodModelname.split(',')[1]}',
+                      ndPropName,
                       style: TextStyle(color: Colors.white),
-                    )
+                    ),
+                    IconButton(
+                        onPressed: () async {
+                          await dialogEdit_PropName(editPropertyName);
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ))
                   ],
                 ),
                 CustomTextField.textField(
@@ -150,6 +226,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                 CustomTextField.textField(
                   context,
                   '${widget.model.cost}',
+                  isNumber: true,
                   _validate,
                   length: 20,
                   textController: costController,
@@ -166,6 +243,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                 CustomTextField.textField(
                   context,
                   '${widget.model.price}',
+                  isNumber: true,
                   _validate,
                   length: 20,
                   textController: priceController,
@@ -202,17 +280,16 @@ class _ProductEditModelState extends State<ProductEditModel> {
                           return Dismissible(
                             key: UniqueKey(),
                             onDismissed: (direction) async {
-                              // await DatabaseManager.instance
-                              //     .deleteProduct(product.prodId!);
-                              // showAlertDeleteProductModel(
-                              //     productModel);
-                              refreshProductModels();
+                              await DatabaseManager.instance
+                                  .deleteProductLot(lot.prodLotId!);
+
+                              refreshProductLot();
                               setState(() {});
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 behavior: SnackBarBehavior.floating,
                                 backgroundColor: Colors.redAccent,
-                                content: Text("ลบสินค้า???????"),
+                                content: Text("ลบล็อต"),
                                 duration: Duration(seconds: 2),
                               ));
                             },
@@ -307,18 +384,24 @@ class _ProductEditModelState extends State<ProductEditModel> {
                                             ],
                                           ),
                                           Text(
-                                            'เพิ่ม ${NumberFormat("#,###,###.##").format(lot.amount)} ชิ้น',
+                                            'เพิ่ม ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!))} ชิ้น',
                                             style:
                                                 TextStyle(color: Colors.grey),
                                           ),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          Text(
-                                            'ขายแล้ว ${NumberFormat("#,###,###.##").format(lot.amount! - lot.remainAmount)} ชิ้น',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
+                                          lot.isReceived
+                                              ? Text(
+                                                  'ขายแล้ว ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!) - lot.remainAmount)} ชิ้น',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                )
+                                              : Text(
+                                                  'ขายแล้ว 0 ชิ้น',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
                                         ],
                                       ),
                                       Spacer(),
@@ -327,12 +410,14 @@ class _ProductEditModelState extends State<ProductEditModel> {
                                               children: [
                                                 Icon(
                                                   Icons.numbers_outlined,
-                                                  color: Colors.greenAccent,
+                                                  color: Theme.of(context)
+                                                      .backgroundColor,
                                                 ),
-                                                Text('ขายสินค้าหมดแล้ว',
-                                                    style: const TextStyle(
+                                                Text('สินค้าหมด',
+                                                    style: TextStyle(
                                                       fontSize: 15,
-                                                      color: Colors.greenAccent,
+                                                      color: Theme.of(context)
+                                                          .backgroundColor,
                                                     )),
                                               ],
                                             )

@@ -27,7 +27,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main33.db');
+    _database = await _initDB('main38.db');
     return _database!;
   }
 
@@ -122,8 +122,10 @@ class DatabaseManager {
   CREATE TABLE IF NOT EXISTS $tableProductLot (
   ${ProductLotFields.prodLotId} $idType,
   ${ProductLotFields.orderedTime} $textType,
-  ${ProductLotFields.amount} $integerType,
+  ${ProductLotFields.amount} $textType,
   ${ProductLotFields.remainAmount} $integerType,
+  ${ProductLotFields.purId} $integerType,
+  ${ProductLotFields.isReceived} $boolType,
   ${ProductLotFields.prodModelId} $integerType
       );""";
   // Product
@@ -498,6 +500,17 @@ ${DealerFields.shopId} $integerType
         columns: ProductLotFields.values,
         where: '${ProductLotFields.prodModelId} = ?',
         whereArgs: [prodModelID],
+        orderBy: orderBy);
+    return result.map((json) => ProductLot.fromJson(json)).toList();
+  }
+
+  Future<List<ProductLot>> readAllProductLotsBypurID(int purID) async {
+    final db = await instance.database;
+    final orderBy = '${ProductLotFields.prodLotId} DESC';
+    final result = await db.query(tableProductLot,
+        columns: ProductLotFields.values,
+        where: '${ProductLotFields.purId} = ?',
+        whereArgs: [purID],
         orderBy: orderBy);
     return result.map((json) => ProductLot.fromJson(json)).toList();
   }

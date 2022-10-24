@@ -495,18 +495,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                 if (lot.prodLotId ==
                                                     selling.prodLotId) {
                                                   final updateAmountDeletedProductLot =
-                                                      ProductLot(
-                                                          prodLotId: selling
-                                                              ?.prodLotId,
-                                                          amount:
-                                                              selling?.amount,
-                                                          orderedTime:
-                                                              lot.orderedTime,
-                                                          prodModelId: selling
-                                                              ?.prodModelId,
-                                                          remainAmount: selling!
+                                                      lot.copy(remainAmount: selling!
                                                                   .amount +
                                                               lot.remainAmount);
+                                              
                                                   await DatabaseManager.instance
                                                       .updateProductLot(
                                                           updateAmountDeletedProductLot);
@@ -1018,13 +1010,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                               for (var lot in lots) {
                                 if (lot.prodLotId == selling.prodLotId) {
                                   final updateAmountDeletedProductLot =
-                                      ProductLot(
-                                          prodLotId: selling!.prodLotId,
-                                          amount: selling!.amount,
-                                          orderedTime: lot.orderedTime,
-                                          prodModelId: selling!.prodModelId,
+                                      lot.copy(
                                           remainAmount: selling!.amount +
                                               lot.remainAmount);
+
                                   await DatabaseManager.instance
                                       .updateProductLot(
                                           updateAmountDeletedProductLot);

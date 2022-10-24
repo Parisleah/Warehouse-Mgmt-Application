@@ -521,9 +521,7 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                   prodAmountController.text != '') {
                                 int amount =
                                     int.parse(prodAmountController.text);
-               
-            
-               
+
                                 int remainLot = int.parse(
                                     lotSelectedValue!.remainAmount.toString());
                                 if (amount > remainLot) {
@@ -664,20 +662,20 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                     prodLotId: lotSelectedValue?.prodLotId,
                                     total: ptotal);
                                 widget.update(puritem);
-                                final updateAmountSelectedProductLot =
-                                    ProductLot(
-                                        prodLotId: lotSelectedValue?.prodLotId,
-                                        amount: lotSelectedValue?.amount,
-                                        orderedTime:
-                                            lotSelectedValue?.orderedTime,
-                                        prodModelId:
-                                            lotSelectedValue?.prodModelId,
-                                        remainAmount:
-                                            lotSelectedValue!.remainAmount -
-                                                int.parse(
-                                                    prodAmountController.text));
-                                await DatabaseManager.instance.updateProductLot(
-                                    updateAmountSelectedProductLot);
+                                // final updateAmountSelectedProductLot = ProductLot(
+
+                                //         prodLotId: lotSelectedValue?.prodLotId,
+                                //         amount: lotSelectedValue?.amount,
+                                //         orderedTime:
+                                //             lotSelectedValue?.orderedTime,
+                                //         prodModelId:
+                                //             lotSelectedValue?.prodModelId,
+                                //         remainAmount:
+                                //             lotSelectedValue!.remainAmount -
+                                //                 int.parse(
+                                //                     prodAmountController.text));
+                                // await DatabaseManager.instance.updateProductLot(
+                                //     updateAmountSelectedProductLot);
                                 Navigator.pop(context);
                               }
                             },

@@ -77,16 +77,17 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   var productCategory = ProductCategory(prodCategName: 'เลือกประเภทสินค้า');
   List<ProductCategory> productCategorys = [];
   List<ProductModel_stProperty> stPropsList = [];
+  List<ProductModel_ndProperty> ndPropsList = [];
   List<ProductLot> productLots = [];
 
   Future refreshProductModels() async {
     productModels = await DatabaseManager.instance
         .readAllProductModelsInProduct(widget.product.prodId!);
     productLots = await DatabaseManager.instance.readAllProductLots();
+// stPropsList = await DatabaseManager.instance.readAll1stProperty();
+// ndPropsList = await DatabaseManager.instance.readAll2ndProperty();
     setState(() {});
   }
-
-  List<ProductModel_ndProperty> ndPropsList = [];
 
   bool isFoundNullCost = false;
   bool isFoundNullPrice = false;
@@ -1927,7 +1928,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
                                         child: GestureDetector(
-                                          onTap: () {
+                                          onTap: () async {
                                             Navigator.push(
                                                 context,
                                                 new MaterialPageRoute(
@@ -1935,6 +1936,10 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                         ProductEditModel(
                                                           model: productModel,
                                                         )));
+                                            await refreshProductModels();
+                                            setState(() {
+                                              
+                                            });
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(5.0),

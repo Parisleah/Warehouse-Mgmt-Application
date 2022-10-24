@@ -221,8 +221,11 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                         child: Text(_dealer.dName,
                             style: TextStyle(fontSize: 15, color: Colors.grey)),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Icon(Icons.arrow_forward_ios, color: Colors.white),
+                      const SizedBox(
+                        width: 10,
+                      )
                     ]),
                   ),
                 ),
@@ -570,7 +573,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Text(
-                                'รายการสั่งซื้อทั้งหมด ',
+                                'ทั้งหมด ',
                                 style: const TextStyle(color: Colors.white),
                               ),
                               Container(
@@ -898,8 +901,11 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                   total: cart.total);
                               final productLot = ProductLot(
                                   orderedTime: date,
-                                  amount: isReceived == true ? cart.amount : 0,
-                                  remainAmount: isReceived == true ? amount : 0,
+                                  amount: '${cart.amount}',
+                                  remainAmount:
+                                      isReceived == true ? cart.amount : 0,
+                                  purId: createdPur.purId,
+                                  isReceived: isReceived,
                                   prodModelId: cart.prodModelId);
                               await DatabaseManager.instance
                                   .createPurchasingItem(item);

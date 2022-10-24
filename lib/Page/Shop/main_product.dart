@@ -32,7 +32,7 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void initState() {
     super.initState();
-    refreshProducts();
+    refreshPage();
     refreshProductCategorys();
 
     setState(() {});
@@ -45,7 +45,7 @@ class _ProductPageState extends State<ProductPage> {
   List<ProductLot> productLots = [];
 
   bool _validate = false;
-  Future refreshProducts() async {
+  Future refreshPage() async {
     productModels = await DatabaseManager.instance.readAllProductModels();
     productCategorys = await DatabaseManager.instance
         .readAllProductCategorys(widget.shop.shopid!);
@@ -147,7 +147,7 @@ class _ProductPageState extends State<ProductPage> {
                               : IconButton(
                                   onPressed: () {
                                     searchProductController.clear();
-                                    refreshProducts();
+                                    refreshPage();
                                   },
                                   icon: const Icon(
                                     Icons.close_sharp,
@@ -285,7 +285,7 @@ class _ProductPageState extends State<ProductPage> {
                         builder: (context) => ProductNavAdd(
                               shop: widget.shop,
                             )));
-                refreshProducts();
+                refreshPage();
               },
               icon: const Icon(
                 Icons.add,
@@ -319,7 +319,7 @@ class _ProductPageState extends State<ProductPage> {
                         products.isEmpty
                             ? GestureDetector(
                                 onVerticalDragStart: (detail) {
-                                  refreshProducts();
+                                  refreshPage();
                                 },
                                 child: Container(
                                   height:
@@ -342,7 +342,7 @@ class _ProductPageState extends State<ProductPage> {
                                     // color: Color.fromRGBO(37, 35, 53, 1.0),
                                   ),
                                   child: RefreshIndicator(
-                                    onRefresh: refreshProducts,
+                                    onRefresh: refreshPage,
                                     child: ListView.builder(
                                         padding: EdgeInsets.zero,
                                         itemCount: products.length,
@@ -410,7 +410,7 @@ class _ProductPageState extends State<ProductPage> {
                                               await DatabaseManager.instance
                                                   .deleteProduct(
                                                       product.prodId!);
-                                              refreshProducts();
+                                              refreshPage();
                                               setState(() {});
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(SnackBar(
@@ -453,9 +453,9 @@ class _ProductPageState extends State<ProductPage> {
                                             resizeDuration:
                                                 Duration(seconds: 1),
                                             child: TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).push(
-                                                    MaterialPageRoute(
+                                              onPressed: () async {
+                                                await Navigator.of(context)
+                                                    .push(MaterialPageRoute(
                                                         builder: (context) =>
                                                             ProductNavEdit(
                                                               product: product,
@@ -463,6 +463,10 @@ class _ProductPageState extends State<ProductPage> {
                                                                   category,
                                                               shop: widget.shop,
                                                             )));
+                                                refreshPage();
+                                                setState(() {
+                                                  
+                                                });
                                               },
                                               child: Container(
                                                 // decoration: BoxDecoration(

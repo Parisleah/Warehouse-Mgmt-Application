@@ -247,6 +247,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => BuyingNavShowProd(
+                                      prodCategory: category,
                                         update: addProductInCart,
                                         productTotalAmount: amountOfProd,
                                         product: product)));

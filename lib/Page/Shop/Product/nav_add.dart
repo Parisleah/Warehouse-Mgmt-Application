@@ -1827,7 +1827,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                       for (var lot in productLots) {
                                         if (productModel.prodModelId ==
                                             lot.prodModelId) {
-                                          _amountOfProd += lot.amount!;
+                                          _amountOfProd +=int.parse(lot.amount!);
                                         }
                                       }
                                       var amountOfProd = _amountOfProd;

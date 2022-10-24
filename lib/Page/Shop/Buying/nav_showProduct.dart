@@ -7,11 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
-import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
+
 import 'package:warehouse_mnmt/Page/Component/SearchBox.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
@@ -23,10 +22,12 @@ import '../../Model/ProductModel_stProperty.dart';
 
 class BuyingNavShowProd extends StatefulWidget {
   final Product product;
+  final ProductCategory prodCategory;
   final int? productTotalAmount;
   final ValueChanged<PurchasingItemsModel> update;
   BuyingNavShowProd({
     Key? key,
+    required this.prodCategory,
     this.productTotalAmount,
     required this.update,
     required this.product,
@@ -34,16 +35,27 @@ class BuyingNavShowProd extends StatefulWidget {
   @override
   State<BuyingNavShowProd> createState() => _BuyingNavShowProdState();
 }
+
 // New
 
 List<ProductModel> selectedItems = [];
+List<TextEditingController> amountControllers = [];
+
 final List<String> items = [
   'Item1',
   'Item2',
   'Item3',
   'Item4',
+  'Item5',
+  'Item6',
+  'Item7',
+  'Item8',
+  'Item9',
+  'Item10',
+  'Item11',
+  'Item12',
 ];
-List<TextEditingController> amountControllers = [];
+
 // New
 
 class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
@@ -52,24 +64,20 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
   List<ProductModel_stProperty> stPropertys = [];
   List<ProductModel_ndProperty> ndPropertys = [];
   ProductModel? selectedValue;
-
+  var allTotal = 0;
+  var allTotalAmount = 0;
   String? value;
   bool isReceived = false;
   final prodAmountController = TextEditingController();
   bool _validate = false;
-  // Text Field
+
   void initState() {
     super.initState();
     refreshProducts();
-    prodAmountController.addListener(() => setState(() {}));
-    for (var controller in amountControllers) {
-      controller.addListener(() => setState(() {}));
-    }
     setState(() {});
   }
 
   final _formKey = GlobalKey<FormState>();
-  final _formKeyAmount = GlobalKey<FormState>();
 
   Future refreshProducts() async {
     productModels = await DatabaseManager.instance
@@ -77,6 +85,35 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     productLots = await DatabaseManager.instance.readAllProductLots();
 
     setState(() {});
+  }
+
+  _calculateTotal(int oldAllTotal) {
+    var oldAllTotal = 0;
+
+    for (var controller in amountControllers) {
+      for (var item in selectedItems) {
+        if (controller.text != null && controller.text != '') {
+          oldAllTotal += item.cost * int.parse(controller.text);
+        }
+        break;
+      }
+    }
+
+    allTotal = oldAllTotal;
+    setState(() {});
+    return allTotal;
+  }
+
+  _calculateTotalAmount(int allTotalAmount) {
+    var oldAllTotalAmount = 0;
+    for (var controller in amountControllers) {
+      if (controller.text != null && controller.text != '') {
+        oldAllTotalAmount += int.parse(controller.text);
+      }
+    }
+    allTotalAmount = oldAllTotalAmount;
+    setState(() {});
+    return allTotalAmount;
   }
 
   _getLotRemainAmount(prodModelId) {
@@ -87,15 +124,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
       }
     }
     return remainAmount;
-  }
-
-  int ctotal = 0;
-  void _calculateTotal(model, int amount) {
-    if (model != null) {
-      ctotal = model.cost * amount;
-    } else {
-      ctotal = 0;
-    }
   }
 
   @override
@@ -132,6 +160,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
       ),
       body: SingleChildScrollView(
         child: Container(
+            // height: (MediaQuery.of(context).size.height),
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10),
             decoration: const BoxDecoration(
@@ -174,18 +203,18 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Column(children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(10),
                     child: Container(
-                      color: Color.fromARGB(255, 33, 36, 34),
+                      color: Theme.of(context).colorScheme.secondary,
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Text(
-                          widget.product.prodName,
+                          widget.prodCategory.prodCategName,
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.normal,
@@ -212,13 +241,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                     height: 10,
                   ),
                 ]),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Text(
-                    "Drop Down V.1",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ),
+
                 Form(
                   key: _formKey,
                   child: Column(
@@ -235,11 +258,11 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                             },
                             onChanged: (value) {
                               selectedValue = value as ProductModel;
-                              if (prodAmountController.text.isNotEmpty) {
-                                int amount =
-                                    int.parse(prodAmountController.text);
-                                _calculateTotal(selectedValue, amount);
-                              }
+                              // if (prodAmountController.text.isNotEmpty) {
+                              //   int amount =
+                              //       int.parse(prodAmountController.text);
+                              //   _calculateTotal(selectedValue, amount);
+                              // }
 
                               setState(() {});
                             },
@@ -294,19 +317,22 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                           builder: (context, menuSetState) {
                                         final _isSelected =
                                             selectedItems.contains(item);
+                                        final found = selectedItems
+                                            .indexWhere((e) => e == item);
 
                                         return InkWell(
                                           onTap: () {
-                                            _isSelected
-                                                ? selectedItems.remove(item)
-                                                : selectedItems.add(item);
+                                            if (_isSelected == false) {
+                                              selectedItems.add(item);
+                                              amountControllers
+                                                  .add(TextEditingController());
+                                            } else {
+                                              selectedItems.remove(item);
+                                              amountControllers.removeAt(found);
+                                            }
 
-                                            _isSelected
-                                                ? amountControllers.remove(
-                                                    TextEditingController())
-                                                : amountControllers.add(
-                                                    TextEditingController(
-                                                        text: '1'));
+                                            print(
+                                                'Controller Length : ${amountControllers.length}');
 
                                             setState(() {});
 
@@ -378,17 +404,18 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                       12)),
                                                         ],
                                                       ),
-                                                      Spacer(),
+                                                      const Spacer(),
+                                                      Text('คงเหลือ ',
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.white,
+                                                          )),
                                                       Container(
                                                         decoration: BoxDecoration(
-                                                            color: _getLotRemainAmount(item
-                                                                        .prodModelId) ==
-                                                                    0
-                                                                ? Colors
-                                                                    .redAccent
-                                                                : Theme.of(
-                                                                        context)
-                                                                    .backgroundColor,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .backgroundColor,
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
@@ -397,37 +424,15 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                           padding:
                                                               const EdgeInsets
                                                                   .all(5.0),
-                                                          child: Row(
-                                                            children: [
-                                                              _getLotRemainAmount(item
-                                                                          .prodModelId) ==
-                                                                      0
-                                                                  ? Container()
-                                                                  : Text(
-                                                                      'คงเหลือ ',
-                                                                      style:
-                                                                          const TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      )),
-                                                              Text(
-                                                                  _getLotRemainAmount(item
-                                                                              .prodModelId) ==
-                                                                          0
-                                                                      ? 'สินค้าหมด'
-                                                                      : '${NumberFormat("#,###.##").format(_getLotRemainAmount(item.prodModelId))}',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold)),
-                                                            ],
-                                                          ),
+                                                          child: Text(
+                                                              '${NumberFormat("#,###.##").format(_getLotRemainAmount(item.prodModelId))}',
+                                                              style: const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)),
                                                         ),
                                                       ),
                                                     ],
@@ -524,192 +529,211 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                 const SizedBox(
                   height: 10,
                 ),
-                // List View SelectedItems
+                // List View กำหนดจำนวน
                 selectedItems.isEmpty
                     ? Container()
                     : Container(
-                        padding: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            color: const Color.fromRGBO(56, 48, 77, 1.0),
+                            // color: const Color.fromRGBO(56, 48, 77, 1.0),
                             borderRadius: BorderRadius.circular(15)),
                         width: 350,
-                        height: selectedItems.length > 1
-                            ? selectedItems.length * 90
-                            : 200,
-                        child: ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            padding: const EdgeInsets.all(8),
-                            itemCount: selectedItems.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final indItem = selectedItems[index];
-                              final _isSelected =
-                                  selectedItems.contains(indItem);
-                              var amount;
-                              if (amountControllers[index].text.isEmpty ||
-                                  amountControllers[index].text == null) {
-                                amountControllers[index].text = '0';
-                                amount = 0;
-                              } else {
-                                amount =
-                                    int.parse(amountControllers[index].text);
-                              }
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "กำหนดจำนวน",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                  // color: const Color.fromRGBO(56, 48, 77, 1.0),
+                                  borderRadius: BorderRadius.circular(15)),
+                              width: 350,
+                              height: selectedItems.length > 1
+                                  ? selectedItems.length * 90
+                                  : 200,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.vertical,
+                                  padding: const EdgeInsets.all(8),
+                                  itemCount: selectedItems.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    final indItem = selectedItems[index];
+                                    final _isSelected =
+                                        selectedItems.contains(indItem);
+                                    final found = selectedItems
+                                        .indexWhere((e) => e == indItem);
 
-                              // int.parse(TextEditingController().text);
-                              var totalPrice = indItem.cost * amount;
-                              return InkWell(
-                                onTap: () {
-                                  _isSelected
-                                      ? selectedItems.remove(indItem)
-                                      : selectedItems.add(indItem);
+                                    var amount = 0;
+                                    amount = int.parse(
+                                        amountControllers[index].text.isEmpty
+                                            ? '0'
+                                            : amountControllers[index].text);
 
-                                  _isSelected
-                                      ? amountControllers
-                                          .remove(TextEditingController())
-                                      : amountControllers.add(
-                                          TextEditingController(text: '1'));
+                                    var subTotal = indItem.cost * amount;
 
-                                  setState(() {});
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(3),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Container(
-                                      height: 80,
-                                      color: Color.fromRGBO(66, 64, 87, 1.0),
+                                    return InkWell(
+                                      onTap: () {
+                                        if (_isSelected == false) {
+                                          selectedItems.add(indItem);
+                                          amountControllers
+                                              .add(TextEditingController());
+                                        } else {
+                                          selectedItems.remove(indItem);
+                                          amountControllers.removeAt(found);
+                                        }
+                                        print(
+                                            'Controller Length : ${amountControllers.length}');
+
+                                        setState(() {});
+                                      },
                                       child: Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(width: 10),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    _isSelected
-                                                        ? Icon(
-                                                            Icons
-                                                                .check_box_rounded,
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .backgroundColor,
-                                                          )
-                                                        : Icon(
-                                                            Icons
-                                                                .check_box_outline_blank,
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .backgroundColor,
-                                                          ),
-                                                    Text(
-                                                      '${indItem.stProperty} ${(indItem.ndProperty)}',
-                                                      style: TextStyle(
-                                                          fontSize: 11,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    Text(
-                                                        ' (${NumberFormat("#,###.##").format(totalPrice)})',
-                                                        style: const TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 12)),
-                                                  ],
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                    'ต้นทุน ${NumberFormat("#,###.##").format(indItem.cost)}',
-                                                    style: const TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 12)),
-                                                Text(
-                                                    ' ราคา ${NumberFormat("#,###.##").format(indItem.price)}',
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12)),
-                                              ],
-                                            ),
-                                            Spacer(),
-                                            Container(
-                                              width: 120,
-                                              child: TextField(
-                                                  onChanged: ((value) {
-                                                    totalPrice =
-                                                        indItem.cost * amount;
-                                                    setState(() {});
-                                                  }),
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  controller:
-                                                      amountControllers[index],
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Color.fromARGB(
-                                                        255, 46, 44, 62),
-                                                    border: const OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                                topLeft: Radius
-                                                                    .circular(
-                                                                        20),
-                                                                topRight: Radius
-                                                                    .circular(
-                                                                        20),
-                                                                bottomLeft: Radius
-                                                                    .circular(
-                                                                        20),
-                                                                bottomRight: Radius
-                                                                    .circular(
-                                                                        20)),
-                                                        borderSide:
-                                                            BorderSide.none),
-                                                    hintText: 'จำนวน',
-                                                    hintStyle: const TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 14),
-                                                    suffixIcon:
-                                                        amountControllers[index]
-                                                                .text
-                                                                .isEmpty
-                                                            ? IconButton(
-                                                                onPressed: () {
-                                                                  amountControllers[
-                                                                          index]
-                                                                      .clear();
-                                                                  amountControllers[
-                                                                          index]
-                                                                      .text = '1';
-                                                                  setState(
-                                                                      () {});
-                                                                },
-                                                                icon:
-                                                                    const Icon(
+                                        padding: const EdgeInsets.all(3),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: Container(
+                                            height: 80,
+                                            color:
+                                                Color.fromRGBO(66, 64, 87, 1.0),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  const SizedBox(width: 10),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          _isSelected
+                                                              ? Icon(
                                                                   Icons
-                                                                      .close_sharp,
-                                                                  size: 10,
+                                                                      .check_box_rounded,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .backgroundColor,
+                                                                )
+                                                              : Icon(
+                                                                  Icons
+                                                                      .check_box_outline_blank,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .backgroundColor,
+                                                                ),
+                                                          Text(
+                                                            '${indItem.stProperty} ${(indItem.ndProperty)}',
+                                                            style: TextStyle(
+                                                                fontSize: 11,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          Text(
+                                                              ' (${NumberFormat("#,###.##").format(subTotal)})',
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize:
+                                                                      12)),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Text(
+                                                          'ต้นทุน ${NumberFormat("#,###.##").format(indItem.cost)}',
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize:
+                                                                      12)),
+                                                      Text(
+                                                          ' ราคา ${NumberFormat("#,###.##").format(indItem.price)}',
+                                                          style:
+                                                              const TextStyle(
                                                                   color: Colors
                                                                       .white,
-                                                                ),
-                                                              )
-                                                            : null,
-                                                  )),
-                                            )
-                                          ],
+                                                                  fontSize:
+                                                                      12)),
+                                                    ],
+                                                  ),
+                                                  const Spacer(),
+                                                  Container(
+                                                    width: 150,
+                                                    child: TextField(
+                                                        onChanged: ((value) {
+                                                          subTotal =
+                                                              indItem.cost *
+                                                                  amount;
+
+                                                          setState(() {});
+                                                        }),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        controller:
+                                                            amountControllers[
+                                                                index],
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                        decoration:
+                                                            InputDecoration(
+                                                          filled: true,
+                                                          fillColor:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  46,
+                                                                  44,
+                                                                  62),
+                                                          border: const OutlineInputBorder(
+                                                              borderRadius: BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          20),
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          20),
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          20),
+                                                                  bottomRight: Radius
+                                                                      .circular(
+                                                                          20)),
+                                                              borderSide:
+                                                                  BorderSide
+                                                                      .none),
+                                                          hintText: 'จำนวน',
+                                                          hintStyle:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize: 14),
+                                                        )),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
+                                    );
+                                  }),
+                            ),
+                          ],
+                        ),
                       ),
 
                 const SizedBox(
@@ -720,21 +744,111 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                      color: const Color.fromRGBO(56, 48, 77, 1.0),
+                      // color: const Color.fromRGBO(56, 48, 77, 1.0),
                       borderRadius: BorderRadius.circular(15)),
                   width: 350,
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "ค่าใช้จ่าย",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
+                        "สรุปรายการ",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
-                      Spacer(),
-                      Text(
-                        "${NumberFormat("#,###,###.##").format(ctotal)}",
-                        style: TextStyle(color: Colors.grey, fontSize: 15),
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            // color: Color.fromARGB(255, 45, 37, 63),
+                            borderRadius: BorderRadius.circular(15)),
+                        width: 350,
+                        height: selectedItems.isEmpty ? 50 : 150,
+                        child: selectedItems.isEmpty
+                            ? Expanded(
+                                child: Center(
+                                    child: Text(
+                                'โปรดเลือกแบบสินค้า',
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 20),
+                              )))
+                            : ListView.builder(
+                                scrollDirection: Axis.vertical,
+                                padding: const EdgeInsets.all(8),
+                                itemCount: selectedItems.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final indItem = selectedItems[index];
+                                  final _isSelected =
+                                      selectedItems.contains(indItem);
+                                  var amount = 0;
+                                  amount = int.parse(
+                                      amountControllers[index].text.isEmpty
+                                          ? '0'
+                                          : amountControllers[index].text);
+
+                                  var totalPrice = indItem.cost * amount;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(width: 10),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '${NumberFormat("#,###.##").format(index + 1)}. ${indItem.stProperty} ${(indItem.ndProperty)}',
+                                                  style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Text(
+                                                    ' ต้นทุน (${NumberFormat("#,###.##").format(indItem.cost)}) x ${NumberFormat("#,###.##").format(amount)}',
+                                                    style: const TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 12)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                            ' ราคา ${NumberFormat("#,###.##").format(totalPrice)}',
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12)),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "รวมทั้งหมด",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                            Text(
+                              " (จำนวน ${NumberFormat("#,###,###.##").format(_calculateTotalAmount(allTotalAmount))} ชิ้น)",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 15),
+                            ),
+                            Spacer(),
+                            Text(
+                              "${NumberFormat("#,###,###.##").format(_calculateTotal(allTotal))}",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 15),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -761,58 +875,23 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              if (_formKey.currentState!.validate() &&
-                                  _formKeyAmount.currentState!.validate()) {
+                              if (_formKey.currentState!.validate()) {
                                 _formKey.currentState!.save();
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).backgroundColor,
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.shopping_cart_outlined,
-                                        color: Colors.white,
-                                      ),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(30),
-                                        child: Container(
-                                          width: 20,
-                                          height: 20,
-                                          child: Image.file(
-                                            File(widget.product.prodImage!),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .backgroundColor,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3.0),
-                                          child: Text(
-                                            "+${prodAmountController.text}",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                      Text(" ${widget.product.prodName} "),
-                                    ],
-                                  ),
-                                  duration: Duration(seconds: 5),
-                                ));
-                                final puritem = PurchasingItemsModel(
-                                    amount:
-                                        int.parse(prodAmountController.text),
-                                    prodId: widget.product.prodId!,
-                                    prodModelId: selectedValue?.prodModelId,
-                                    total: ctotal);
-                                widget.update(puritem);
+
+                                for (var i = 0; i < selectedItems.length; i++) {
+                                  final puritem = PurchasingItemsModel(
+                                      amount:
+                                          int.parse(amountControllers[i].text),
+                                      prodId: widget.product.prodId!,
+                                      prodModelId: selectedItems[i].prodModelId,
+                                      total:
+                                          int.parse(amountControllers[i].text) *
+                                              selectedItems[i].cost);
+                                  widget.update(puritem);
+                                }
+
+                                selectedItems.clear();
+                                amountControllers.clear();
                                 Navigator.pop(context);
                               }
                             },

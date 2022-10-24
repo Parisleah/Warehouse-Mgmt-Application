@@ -20,7 +20,6 @@ class PurchasingItemsFields {
 
 class PurchasingItemsModel {
   final int? purItemsId;
-
   final int? prodId;
   final int? prodModelId;
   final int amount;

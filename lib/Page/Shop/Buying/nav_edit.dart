@@ -30,6 +30,7 @@ class BuyingNavEdit extends StatefulWidget {
 class _BuyingNavEditState extends State<BuyingNavEdit> {
   List<PurchasingItemsModel> purchasingItems = [];
   List<Product> products = [];
+  List<ProductLot> productLots = [];
   List<ProductModel> models = [];
   List<DealerModel> dealers = [];
 
@@ -56,7 +57,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
   Future refreshPage() async {
     products =
         await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
-
+    productLots = await DatabaseManager.instance.readAllProductLots();
     models = await DatabaseManager.instance.readAllProductModels();
     dealers = await DatabaseManager.instance.readAllDealers();
 
@@ -334,7 +335,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Container(
-                      height: purchasingItems.length > 3 ? 230 : 90,
+                      height: purchasingItems.length >= 2 ? 230 : 90,
                       width: 440.0,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
@@ -752,13 +753,15 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                           // Product Lot
                           if (isReceived) {
                             for (var item in purchasingItems) {
-                              final productLot = ProductLot(
-                                  orderedTime: date,
-                                  amount: isReceived == true ? item.amount : 0,
-                                  remainAmount: isReceived == true ? amount : 0,
-                                  prodModelId: item.prodModelId);
-                              await DatabaseManager.instance
-                                  .updateProductLot(productLot);
+                              for (var lot in productLots) {
+                                if (item.purId == lot.purId) {
+                                  final updatedLot = lot.copy(
+                                      isReceived: isReceived,
+                                      remainAmount: int.parse('${lot.amount}'));
+                                  await DatabaseManager.instance
+                                      .updateProductLot(updatedLot);
+                                }
+                              }
                             }
 
                             final updatedPurchasing =
@@ -778,6 +781,22 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                               duration: Duration(seconds: 5),
                             ));
                             Navigator.pop(context);
+                          } else {
+                            // for (var item in purchasingItems) {
+                            //   final productLot = ProductLot(
+                            //       purId: item.purId,
+                            //       orderedTime: date,
+                            //       amount: '${item.amount}',
+                            //       remainAmount: int.parse('${item.amount}'),
+                            //       prodModelId: item.prodModelId);
+                            //   await DatabaseManager.instance
+                            //       .updateProductLot(productLot);
+                            // }
+                            final updatedPurchasing =
+                                widget.purchasing!.copy(isReceive: isReceived);
+
+                            await DatabaseManager.instance
+                                .updatePurchasing(updatedPurchasing);
                           }
                         },
                         child: Text(
