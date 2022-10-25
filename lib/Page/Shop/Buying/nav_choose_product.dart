@@ -61,7 +61,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
     setState(() {});
   }
 
-  addProductInCart(PurchasingItemsModel purchasing) {
+  addPurchasingItem(PurchasingItemsModel purchasing) {
     widget.update(purchasing);
   }
 
@@ -248,7 +248,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => BuyingNavShowProd(
                                       prodCategory: category,
-                                        update: addProductInCart,
+                                        update: addPurchasingItem,
                                         productTotalAmount: amountOfProd,
                                         product: product)));
                               },

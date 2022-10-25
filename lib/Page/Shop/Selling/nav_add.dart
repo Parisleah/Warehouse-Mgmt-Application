@@ -51,7 +51,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   List<ProductModel> models = [];
   List<ProductLot> lots = [];
   List<SellingItemModel> carts = [];
-  _addProductInCart(SellingItemModel product) {
+
+  _addSellingItem(SellingItemModel product) {
     carts.add(product);
   }
 
@@ -138,7 +139,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     if (lot.prodLotId == selling.prodLotId) {
                       final updateAmountDeletedProductLot = lot.copy(
                           remainAmount: selling!.amount + lot.remainAmount);
-                     
+
                       await DatabaseManager.instance
                           .updateProductLot(updateAmountDeletedProductLot);
                     }
@@ -352,8 +353,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                             new MaterialPageRoute(
                                 builder: (context) => SellingNavChooseProduct(
                                       shop: widget.shop,
-                                      update: _addProductInCart,
+                                      update: _addSellingItem,
                                     )));
+
                         _calculate(totalPrice, amount, shippingCost,
                             noShippingPrice, vat7percent, noVatPrice);
                         setState(() {});
@@ -895,7 +897,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   child: Row(children: [
                     Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: const Text("ราคาสุทธิ",
+                      child: const Text("ราคารวมสุทธิ",
                           style: TextStyle(fontSize: 15, color: Colors.white)),
                     ),
                     if (products.length != 0)

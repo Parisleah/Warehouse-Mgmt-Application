@@ -272,6 +272,9 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                     )));
                         _calculate(
                             totalPrice, amount, shippingCost, noShippingPrice);
+                            setState(() {
+                              
+                            });
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

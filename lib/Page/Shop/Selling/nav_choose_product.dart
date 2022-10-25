@@ -58,7 +58,7 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
     setState(() {});
   }
 
-  addProductInCart(SellingItemModel sellingItems) {
+  addSellingItem(SellingItemModel sellingItems) {
     widget.update(sellingItems);
   }
 
@@ -259,7 +259,7 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                                                     prodCategory: category,
                                                     productTotalAmount:
                                                         amountOfProd,
-                                                    update: addProductInCart,
+                                                    update: addSellingItem,
                                                     product: product)));
                                 refreshProducts();
                                 refreshProductLots();

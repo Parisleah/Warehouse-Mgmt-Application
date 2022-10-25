@@ -32,6 +32,10 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   ThemeMode themeMode = ThemeMode.light;
   bool get isDark => themeMode == ThemeMode.dark;
+  List<Color> gradientColors = [
+    const Color(0xff23b6e6),
+    const Color(0xff02d39a)
+  ];
 
   List<Color> purchasingGradientColors = [
     Color.fromARGB(255, 141, 106, 225),
@@ -476,24 +480,23 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 fontWeight: FontWeight.bold);
                                           },
                                           getTitles: (value) {
-                                            
-                                              switch (value.toInt()) {
-                                                case 1:
-                                                  return '1';
-                                                case 5:
-                                                  return '5';
-                                                case 10:
-                                                  return '10';
-                                                case 15:
-                                                  return '15';
-                                                case 20:
-                                                  return '20';
-                                                case 25:
-                                                  return '25';
-                                                case 30:
-                                                  return '30';
-                                              }
-                                            
+                                            switch (value.toInt()) {
+                                              case 1:
+                                                return '1';
+                                              case 5:
+                                                return '5';
+                                              case 10:
+                                                return '10';
+                                              case 15:
+                                                return '15';
+                                              case 20:
+                                                return '20';
+                                              case 25:
+                                                return '25';
+                                              case 30:
+                                                return '30';
+                                            }
+
                                             return '';
                                           },
                                           margin: 10),
@@ -576,6 +579,112 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  Container(
+                    width: 400,
+                    height: 300,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 38),
+                      child: Center(
+                        child: SizedBox(
+                          width: 400,
+                          height: 300,
+                          child: LineChart(LineChartData(
+                              borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                      color: Colors.white, width: 2)),
+                              gridData: FlGridData(
+                                show: true,
+                                getDrawingHorizontalLine: (value) {
+                                  return FlLine(
+                                      color: Color.fromARGB(255, 93, 93, 93),
+                                      strokeWidth: 1);
+                                },
+                                drawVerticalLine: false,
+                                getDrawingVerticalLine: (value) {
+                                  return FlLine(
+                                      color: Colors.white, strokeWidth: 1);
+                                },
+                              ),
+                              titlesData: FlTitlesData(
+                                show: true,
+                                bottomTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 35,
+                                    getTextStyles: (context, value) {
+                                      return const TextStyle(
+                                          color: Color(0xff68737d),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold);
+                                    },
+                                    getTitles: (value) {
+                                      switch (value.toInt()) {
+                                        case 0:
+                                          return 'Sep 19';
+                                        case 4:
+                                          return 'Oct 10';
+                                        case 8:
+                                          return 'Nov 16';
+                                      }
+                                      return '';
+                                    },
+                                    margin: 8),
+                                rightTitles: SideTitles(),
+                                topTitles: SideTitles(),
+                                leftTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 35,
+                                  getTextStyles: (context, value) {
+                                    return const TextStyle(
+                                        color: Color(0xff68737d),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold);
+                                  },
+                                  getTitles: (value) {
+                                    switch (value.toInt()) {
+                                      case 0:
+                                        return '0';
+                                      case 2:
+                                        return '50';
+                                      case 4:
+                                        return '100';
+                                      case 6:
+                                        return '150';
+                                    }
+                                    return '';
+                                  },
+                                  margin: 12,
+                                ),
+                              ),
+                              maxX: 8,
+                              maxY: 8,
+                              minY: 0,
+                              minX: 0,
+                              lineBarsData: [
+                                LineChartBarData(
+                                    spots: [
+                                      const FlSpot(0, 0),
+                                      const FlSpot(5, 5),
+                                      const FlSpot(7, 6),
+                                      const FlSpot(8, 4),
+                                    ],
+                                    isCurved: true,
+                                    colors: [
+                                      Colors.black12,
+                                      Colors.white70,
+                                      Colors.white
+                                    ],
+                                    barWidth: 5,
+                                    belowBarData: BarAreaData(
+                                        show: true,
+                                        colors: gradientColors
+                                            .map((e) => e.withOpacity(0.3))
+                                            .toList()))
+                              ])),
+                        ),
+                      ),
                     ),
                   ),
 

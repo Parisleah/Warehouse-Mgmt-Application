@@ -562,6 +562,15 @@ ${DealerFields.shopId} $integerType
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
+  Future<List<PurchasingModel>> readAllPurchasingisReceived(int shopId) async {
+    final db = await instance.database;
+
+    final result = await db.rawQuery(
+        "SELECT * FROM $tablePurchasing WHERE ${PurchasingFields.isReceive} IS TRUE");
+    print(result);
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
+
   Future<List<PurchasingModel>> readAllPurchasingsByDealerName(
       int shopId, name) async {
     final db = await instance.database;

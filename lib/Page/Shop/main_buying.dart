@@ -53,7 +53,7 @@ class _BuyingPageState extends State<BuyingPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 2,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: PreferredSize(
@@ -149,66 +149,38 @@ class _BuyingPageState extends State<BuyingPage> {
                     ],
                   )),
             ),
-            bottom: TabBar(tabs: [
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
+            bottom: TabBar(
+                onTap: (value) {
+                  setState(() {
+                    if (value == 0) { }
+                  });
+                },
+                tabs: [
+                  Tab(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Color.fromRGBO(56, 54, 76, 1.0),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(" รับสินค้าแล้ว "),
+                      ),
+                    ),
                   ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(" ทั้งหมด "),
+                  Tab(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Color.fromRGBO(56, 54, 76, 1.0),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text("ไม่ได้รับสินค้า"),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text("วันนี้"),
-                  ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                      alignment: Alignment.center, child: Text("สัปดาห ์")),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text("เดือน "),
-                  ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text("ระบุวัน"),
-                  ),
-                ),
-              ),
-            ]),
+                ]),
           ),
         ),
         body: SingleChildScrollView(
