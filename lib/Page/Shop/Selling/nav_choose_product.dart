@@ -256,6 +256,9 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 SellingNavShowProd(
+                                                    prodCategory: category,
+                                                    productTotalAmount:
+                                                        amountOfProd,
                                                     update: addProductInCart,
                                                     product: product)));
                                 refreshProducts();
