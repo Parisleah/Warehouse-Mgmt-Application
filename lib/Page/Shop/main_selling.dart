@@ -33,23 +33,19 @@ class _SellingPageState extends State<SellingPage> {
   void initState() {
     super.initState();
     refreshSellings();
-    refreshCustomerAddresses(widget.shop.shopid!);
+    
   }
 
   Future refreshSellings() async {
     selllings =
         await DatabaseManager.instance.readAllSellings(widget.shop.shopid!);
-
+addresses = await DatabaseManager.instance.readCustomerAllAddress(widget.shop.shopid!);
     customers = await DatabaseManager.instance
         .readAllCustomerInShop(widget.shop.shopid!);
 
     setState(() {});
   }
 
-  Future refreshCustomerAddresses(int shopId) async {
-    addresses = await DatabaseManager.instance.readCustomerAllAddress(shopId);
-    setState(() {});
-  }
 
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
   @override
@@ -214,14 +210,14 @@ class _SellingPageState extends State<SellingPage> {
                                           for (var customer in customers) {
                                             if (customer.cusId ==
                                                 selling.customerId) {
-                                              _customerText = customer.cName;
+                                              _customerText = customer;
                                             }
                                           }
                                           for (var address in addresses) {
                                             if (address.cAddreId ==
                                                 selling.cAddreId) {
-                                              _phoneText = address.cPhone;
-                                              _addressText = address.cAddress;
+                                              _phoneText = address;
+                                              _addressText = address;
                                             }
                                           }
 
@@ -299,15 +295,22 @@ class _SellingPageState extends State<SellingPage> {
                                               setState(() {});
                                             },
                                             child: TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).push(
-                                                    MaterialPageRoute(
+                                              onPressed: () async {
+                                                await Navigator
+                                                        .of(context)
+                                                    .push(MaterialPageRoute(
                                                         builder: (context) =>
                                                             SellingNavEdit(
+                                                                customer:
+                                                                    _customerText,
+                                                                customerAddress:
+                                                                    _addressText,
                                                                 shop:
                                                                     widget.shop,
                                                                 selling:
                                                                     selling)));
+                                                refreshSellings();
+                                                setState(() {});
                                               },
                                               child: Padding(
                                                 padding: EdgeInsets.symmetric(
@@ -344,7 +347,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                     .start,
                                                             children: <Widget>[
                                                               Text(
-                                                                '${_customerText}',
+                                                                _customerText
+                                                                    .cName,
                                                                 style: const TextStyle(
                                                                     fontWeight:
                                                                         FontWeight
@@ -362,7 +366,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                     size: 14,
                                                                   ),
                                                                   Text(
-                                                                    ' ${_phoneText}',
+                                                                    _phoneText
+                                                                        .cPhone,
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,
@@ -372,7 +377,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                ' ${_addressText}',
+                                                                _addressText
+                                                                    .cAddress,
                                                                 style: const TextStyle(
                                                                     fontSize:
                                                                         12,

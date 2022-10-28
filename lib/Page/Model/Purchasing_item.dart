@@ -20,22 +20,22 @@ class PurchasingItemsFields {
 
 class PurchasingItemsModel {
   final int? purItemsId;
-  final int? prodId;
-  final int? prodModelId;
+  final int prodId;
+  final int prodModelId;
   final int amount;
   final int total;
   final int? purId;
 
   PurchasingItemsModel({
     this.purItemsId,
-    this.prodId,
+    required this.prodId,
     required this.prodModelId,
     required this.amount,
     required this.total,
     this.purId,
   });
   PurchasingItemsModel copy({
-    int? pruItemsId,
+    int? purItemsId,
     int? prodId,
     int? prodModelId,
     int? amount,

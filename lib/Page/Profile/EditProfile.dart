@@ -59,8 +59,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     await DatabaseManager.instance.updateProfile(profile);
     print('UPDATE PROFILE NAME -> ${profile.name}');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("เปลี่ยนชื่อ"),
+      SnackBar(
+        backgroundColor: Theme.of(context).backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        content: Text("เปลี่ยนชื่อผู้ใช้"),
         duration: Duration(seconds: 2),
       ),
     );
@@ -184,7 +186,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     Row(
                       children: [
                         const Text(
-                          "ชื่อ",
+                          "ชื่อผู้ใช้",
                           style: TextStyle(color: Colors.white),
                         ),
                       ],
@@ -242,7 +244,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               TextStyle(color: Colors.white),
                                           counterStyle:
                                               TextStyle(color: Colors.white),
-                                          // fillColor: Theme.of(context).colorScheme.background,
+                                          fillColor:
+                                              Color.fromRGBO(56, 48, 77, 1),
                                           focusColor:
                                               Color.fromARGB(255, 255, 0, 0),
                                           hoverColor: Colors.white,
@@ -260,10 +263,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                               Radius.circular(10.0),
                                             ),
                                             borderSide: BorderSide(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surface,
-                                            ),
+                                                color: Colors.transparent),
                                           ),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius:

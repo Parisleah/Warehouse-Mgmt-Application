@@ -169,7 +169,6 @@ class _ProductPageState extends State<ProductPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 child: Container(
                                   height: 50,
-                                  width: 380,
                                   decoration: BoxDecoration(
                                     color: Theme.of(context)
                                         .appBarTheme
@@ -182,10 +181,6 @@ class _ProductPageState extends State<ProductPage> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            // Icon(
-                                            //   Icons.category,
-                                            //   color: Colors.white,
-                                            // ),
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 10),
@@ -219,7 +214,7 @@ class _ProductPageState extends State<ProductPage> {
                                         ),
                                       ),
                                       Container(
-                                        width: 270,
+                                        width: 260,
                                         color: Theme.of(context)
                                             .colorScheme
                                             .background,
@@ -464,9 +459,7 @@ class _ProductPageState extends State<ProductPage> {
                                                               shop: widget.shop,
                                                             )));
                                                 refreshPage();
-                                                setState(() {
-                                                  
-                                                });
+                                                setState(() {});
                                               },
                                               child: Container(
                                                 // decoration: BoxDecoration(

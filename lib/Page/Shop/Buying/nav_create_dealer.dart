@@ -9,8 +9,7 @@ import '../../Model/Shop.dart';
 
 class BuyingNavCreateDealer extends StatefulWidget {
   final Shop shop;
-  const BuyingNavCreateDealer({required this.shop,
-    Key? key}) : super(key: key);
+  const BuyingNavCreateDealer({required this.shop, Key? key}) : super(key: key);
 
   @override
   State<BuyingNavCreateDealer> createState() => _BuyingNavCreateDealerState();
@@ -63,7 +62,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
         child: Container(
           height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
               gradient: LinearGradient(
             colors: [

@@ -266,7 +266,7 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   Future addProfile(pin) async {
-    print("สร้าง ${widget.profileName} Successfully!!");
+    
     final profile = Profile(
         name: widget.profileName,
         phone: widget.profilePhone,

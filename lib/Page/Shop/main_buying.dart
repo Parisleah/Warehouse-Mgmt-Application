@@ -24,6 +24,7 @@ class BuyingPage extends StatefulWidget {
 
 class _BuyingPageState extends State<BuyingPage> {
   TextEditingController searchDealerController = new TextEditingController();
+  List<PurchasingModel> selectedPurchasing = [];
   List<PurchasingModel> purchasings = [];
   List<DealerModel> dealers = [];
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
@@ -50,10 +51,30 @@ class _BuyingPageState extends State<BuyingPage> {
     setState(() {});
   }
 
+  bool isSelectedPurchasing = false;
+  //sellling Page
+
+  List<Widget> buyingIndicators(purchasingItemsLength) {
+    return List<Widget>.generate(purchasingItemsLength, (index) {
+      return Container(
+        margin: EdgeInsets.all(3),
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+            color:
+                // currentIndex == index
+                //     ? Theme.of(context).backgroundColor
+                //     :
+                Colors.black26,
+            shape: BoxShape.circle),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: PreferredSize(
@@ -152,10 +173,22 @@ class _BuyingPageState extends State<BuyingPage> {
             bottom: TabBar(
                 onTap: (value) {
                   setState(() {
-                    if (value == 0) { }
+                    if (value == 0) {}
                   });
                 },
                 tabs: [
+                  Tab(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Color.fromRGBO(56, 54, 76, 1.0),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(" ทั้งหมด "),
+                      ),
+                    ),
+                  ),
                   Tab(
                     child: Container(
                       decoration: BoxDecoration(
@@ -194,9 +227,51 @@ class _BuyingPageState extends State<BuyingPage> {
                   const SizedBox(
                     height: 200,
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  purchasings.isEmpty
+                      ? Container()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            isSelectedPurchasing
+                                ? ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: isSelectedPurchasing
+                                            ? Colors.redAccent
+                                            : Theme.of(context)
+                                                .backgroundColor),
+                                    onPressed: () {
+                                      setState(() {
+                                        isSelectedPurchasing =
+                                            !isSelectedPurchasing;
+                                        selectedPurchasing.clear();
+                                      });
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.select_all_rounded),
+                                        Text('ยกเลิก')
+                                      ],
+                                    ))
+                                : ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: isSelectedPurchasing
+                                            ? Colors.redAccent
+                                            : Theme.of(context)
+                                                .backgroundColor),
+                                    onPressed: () {
+                                      setState(() {
+                                        isSelectedPurchasing =
+                                            !isSelectedPurchasing;
+                                      });
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.select_all_rounded),
+                                        Text('เลือก')
+                                      ],
+                                    ))
+                          ],
+                        ),
                   Container(
                     decoration: BoxDecoration(
                       // color: Theme.of(context).colorScheme.background,
@@ -244,6 +319,9 @@ class _BuyingPageState extends State<BuyingPage> {
                                               _dealer = dealer;
                                             }
                                           }
+                                          final isSelectedItem =
+                                              selectedPurchasing
+                                                  .contains(purchasing);
                                           return Dismissible(
                                             key: UniqueKey(),
                                             direction:
@@ -312,6 +390,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                         builder: (context) =>
                                                             BuyingNavEdit(
                                                               shop: widget.shop,
+                                                              dealer: _dealer,
                                                               purchasing:
                                                                   purchasing,
                                                             )));
@@ -335,11 +414,177 @@ class _BuyingPageState extends State<BuyingPage> {
                                                         Container(
                                                           width: 80,
                                                           height: 80,
-                                                          child: Icon(
-                                                            Icons.person,
-                                                            color: Colors.white,
-                                                            size: 40,
-                                                          ),
+                                                          child: isSelectedPurchasing
+                                                              ? IconButton(
+                                                                  onPressed: () {
+                                                                    if (isSelectedItem ==
+                                                                        false) {
+                                                                      selectedPurchasing
+                                                                          .add(
+                                                                              purchasing);
+                                                                      showModalBottomSheet(
+                                                                          elevation:
+                                                                              0,
+                                                                          backgroundColor: Colors
+                                                                              .transparent,
+                                                                          context:
+                                                                              context,
+                                                                          builder:
+                                                                              (context) {
+                                                                            return Container(
+                                                                              width: 370,
+                                                                              height: 250,
+                                                                              decoration: BoxDecoration(gradient: scafBG_dark_Color, borderRadius: new BorderRadius.only(topLeft: const Radius.circular(30.0), topRight: const Radius.circular(30.0))),
+                                                                              child: Wrap(
+                                                                                children: [
+                                                                                  Padding(
+                                                                                    padding: const EdgeInsets.only(left: 20, right: 20),
+                                                                                    child: Container(
+                                                                                      width: 390,
+                                                                                      height: 90,
+                                                                                      child: Row(
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            'รายการ (${selectedPurchasing.length})',
+                                                                                            style: TextStyle(fontSize: 20),
+                                                                                          ),
+                                                                                          const Spacer(),
+                                                                                          ElevatedButton(
+                                                                                              style: ElevatedButton.styleFrom(primary: Colors.redAccent),
+                                                                                              onPressed: () {},
+                                                                                              child: Icon(
+                                                                                                Icons.delete_rounded,
+                                                                                              )),
+                                                                                          SizedBox(
+                                                                                            width: 10,
+                                                                                          ),
+                                                                                          ElevatedButton(
+                                                                                              onPressed: () {},
+                                                                                              child: Row(
+                                                                                                children: [
+                                                                                                  Text('รับสินค้าแล้ว'),
+                                                                                                  Icon(
+                                                                                                    Icons.check_circle,
+                                                                                                    color: Colors.greenAccent,
+                                                                                                    size: 15,
+                                                                                                  )
+                                                                                                ],
+                                                                                              ))
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Column(
+                                                                                    children: [
+                                                                                      Container(
+                                                                                        width: 390,
+                                                                                        height: 90,
+                                                                                        child: ListView.builder(
+                                                                                            scrollDirection: Axis.horizontal,
+                                                                                            // padding: const EdgeInsets.all(8),
+
+                                                                                            itemCount: selectedPurchasing.length,
+                                                                                            itemBuilder: (BuildContext context, int index) {
+                                                                                              final indItem = selectedPurchasing[index];
+
+                                                                                              // ??????asdsd
+                                                                                              return Padding(
+                                                                                                padding: const EdgeInsets.all(3),
+                                                                                                child: ClipRRect(
+                                                                                                  borderRadius: BorderRadius.circular(10),
+                                                                                                  child: Container(
+                                                                                                    height: 30,
+                                                                                                    color: Theme.of(context).colorScheme.primary,
+                                                                                                    child: Padding(
+                                                                                                      padding: const EdgeInsets.all(10.0),
+                                                                                                      child: Row(
+                                                                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                        children: [
+                                                                                                          IconButton(
+                                                                                                              onPressed: () {
+                                                                                                                selectedPurchasing.remove(indItem);
+                                                                                                                Navigator.pop(context);
+                                                                                                                setState(() {});
+                                                                                                              },
+                                                                                                              icon: Icon(
+                                                                                                                Icons.check_box_rounded,
+                                                                                                                color: Theme.of(context).backgroundColor,
+                                                                                                              )),
+                                                                                                          Column(
+                                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                            children: [
+                                                                                                              Text(
+                                                                                                                '${_dealer.dName}',
+                                                                                                                style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                                              ),
+                                                                                                              Row(
+                                                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                                children: [
+                                                                                                                  indItem.isReceive == true
+                                                                                                                      ? Icon(
+                                                                                                                          Icons.check_circle,
+                                                                                                                          color: Colors.greenAccent,
+                                                                                                                          size: 15,
+                                                                                                                        )
+                                                                                                                      : Icon(
+                                                                                                                          Icons.circle_outlined,
+                                                                                                                          color: Colors.greenAccent,
+                                                                                                                          size: 15,
+                                                                                                                        ),
+                                                                                                                  Text(
+                                                                                                                    '${NumberFormat("#,###.##").format(indItem.total)} ฿',
+                                                                                                                    style: TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                                                                                                                  ),
+                                                                                                                ],
+                                                                                                              ),
+                                                                                                            ],
+                                                                                                          ),
+                                                                                                        ],
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ),
+                                                                                              );
+                                                                                            }),
+                                                                                      ),
+                                                                                      Row(mainAxisAlignment: MainAxisAlignment.center, children: buyingIndicators(selectedPurchasing.length)),
+                                                                                    ],
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            );
+                                                                          });
+                                                                    } else {
+                                                                      selectedPurchasing
+                                                                          .remove(
+                                                                              purchasing);
+                                                                    }
+                                                                    setState(
+                                                                        () {});
+                                                                  },
+                                                                  icon: isSelectedItem
+                                                                      ? Icon(
+                                                                          Icons
+                                                                              .check_box_rounded,
+                                                                          color:
+                                                                              Theme.of(context).backgroundColor,
+                                                                          size:
+                                                                              25,
+                                                                        )
+                                                                      : Icon(
+                                                                          Icons
+                                                                              .check_box_outline_blank_rounded,
+                                                                          color:
+                                                                              Theme.of(context).backgroundColor,
+                                                                          size:
+                                                                              25,
+                                                                        ))
+                                                              : Icon(
+                                                                  Icons.person,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 25,
+                                                                ),
                                                         ),
                                                         SizedBox(width: 10),
                                                         Expanded(

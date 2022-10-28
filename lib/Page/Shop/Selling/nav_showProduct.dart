@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:warehouse_mnmt/Page/Component/ImgCarouselWidget.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
@@ -155,6 +156,7 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
     for (var controller in amountControllers) {
       controller.addListener(() => setState(() {}));
     }
+    _pageController = PageController(viewportFraction: 0.8);
 
     setState(
       () {},
@@ -180,6 +182,25 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
       }
     }
     return remainAmount;
+  }
+
+  //sellling Page
+  int activePage = 1;
+  late PageController _pageController;
+
+  List<Widget> sellingIndicators(sellingItemsLength, currentIndex) {
+    return List<Widget>.generate(sellingItemsLength, (index) {
+      return Container(
+        margin: EdgeInsets.all(3),
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+            color: currentIndex == index
+                ? Theme.of(context).backgroundColor
+                : Colors.black26,
+            shape: BoxShape.circle),
+      );
+    });
   }
 
   @override
@@ -295,7 +316,7 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                   child: Column(
                     children: [
                       Row(
-                        children: [
+                        children: const [
                           Text(
                             "ขั้นตอนที่ 1 : ",
                             style: TextStyle(
@@ -740,9 +761,16 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                           color: Colors.transparent,
                           borderRadius: BorderRadius.circular(22),
                         ),
-                        child: ListView.builder(
+                        child: PageView.builder(
                             scrollDirection: Axis.horizontal,
-                            padding: EdgeInsets.zero,
+                            // padding: EdgeInsets.zero,
+                            pageSnapping: true,
+                            controller: _pageController,
+                            onPageChanged: (page) {
+                              setState(() {
+                                activePage = page;
+                              });
+                            },
                             itemCount: ddModelSelectedItems.length,
                             itemBuilder: (context, index) {
                               final selectedModel = ddModelSelectedItems[index];
@@ -786,8 +814,8 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                       borderRadius: BorderRadius.circular(22),
                                       gradient: LinearGradient(
                                         colors: [
-                                          Color.fromRGBO(29, 29, 65, 1.0),
                                           Theme.of(context).backgroundColor,
+                                          Color.fromRGBO(29, 29, 65, 1.0),
                                         ],
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
@@ -926,8 +954,6 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                           padding: const EdgeInsets.all(5.0),
                                           child: Container(
                                             decoration: BoxDecoration(
-                                              color: Color.fromARGB(
-                                                  255, 40, 39, 55),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -1084,7 +1110,7 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                                       ),
                                                                     ),
                                                         )),
-                                                  )
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -1098,133 +1124,168 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                     ],
                   ),
                 ),
-
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Row(
+                Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Wrap(
-                        spacing: 20,
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                primary: Colors.redAccent),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              "ยกเลิก",
-                              style: TextStyle(fontSize: 17),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (_formKeyProdModel.currentState!.validate()) {
-                                _formKeyProdModel.currentState!.save();
-                                for (var i = 0;
-                                    i < ddModelSelectedItems.length;
-                                    i++) {
-                                  final createdSellingItem = SellingItemModel(
-                                      prodId: widget.product.prodId,
-                                      prodModelId:
-                                          ddModelSelectedItems[i].prodModelId,
-                                      prodLotId:
-                                          ddLotSelectedItems[i].prodLotId,
-                                      amount:
-                                          int.parse(amountControllers[i].text),
-                                      total:
-                                          int.parse(amountControllers[i].text) *
-                                              ddModelSelectedItems[i].price);
-                                  widget.update(createdSellingItem);
-                                  print('Add ->${createdSellingItem.total}');
-                                  final updateAmountSelectedProductLot =
-                                      ddLotSelectedItems[i].copy(
-                                          remainAmount: ddLotSelectedItems[i]
-                                                  .remainAmount -
-                                              int.parse(
-                                                  amountControllers[i].text));
-                                  await DatabaseManager.instance
-                                      .updateProductLot(
-                                          updateAmountSelectedProductLot);
-                                }
-                                var oldTotalAmount = 0;
-                                for (var controller in amountControllers) {
-                                  if (controller.text != null &&
-                                      controller.text != '') {
-                                    oldTotalAmount +=
-                                        int.parse(controller.text);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        backgroundColor:
-                                            Theme.of(context).backgroundColor,
-                                        behavior: SnackBarBehavior.floating,
-                                        content: Text("ระบุจำนวนสินค้า"),
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
-                                }
-
-                                totalAmount = oldTotalAmount;
-
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).backgroundColor,
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.shopping_cart_outlined,
-                                        color: Colors.white,
-                                      ),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(30),
-                                        child: Container(
-                                          width: 20,
-                                          height: 20,
-                                          child: Image.file(
-                                            File(widget.product.prodImage!),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .backgroundColor,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3.0),
-                                          child: Text(
-                                            "+${totalAmount}",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                      Text(" ${widget.product.prodName} "),
-                                    ],
+                    children: sellingIndicators(
+                        ddModelSelectedItems.length, activePage)),
+                ddModelSelectedItems.isEmpty
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Wrap(
+                              spacing: 20,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      primary: Colors.redAccent),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "ยกเลิก",
+                                    style: TextStyle(fontSize: 17),
                                   ),
-                                  duration: Duration(seconds: 5),
-                                ));
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (_formKeyProdModel.currentState!
+                                        .validate()) {
+                                      _formKeyProdModel.currentState!.save();
 
-                                Navigator.pop(context);
-                              }
-                            },
-                            child: Text(
-                              "ยืนยัน",
-                              style: TextStyle(fontSize: 17),
-                            ),
-                          )
-                        ],
+                                      var oldTotalAmount = 0;
+                                      for (var controller
+                                          in amountControllers) {
+                                        if (controller.text != null &&
+                                            controller.text != '') {
+                                          oldTotalAmount +=
+                                              int.parse(controller.text);
+                                          for (var i = 0;
+                                              i < ddModelSelectedItems.length;
+                                              i++) {
+                                            final createdSellingItem =
+                                                SellingItemModel(
+                                                    prodId:
+                                                        widget.product.prodId,
+                                                    prodModelId:
+                                                        ddModelSelectedItems[
+                                                                i]
+                                                            .prodModelId,
+                                                    prodLotId:
+                                                        ddLotSelectedItems[
+                                                                i]
+                                                            .prodLotId!,
+                                                    amount: int
+                                                        .parse(
+                                                            amountControllers[
+                                                                    i]
+                                                                .text),
+                                                    total: int.parse(
+                                                            amountControllers[i]
+                                                                .text) *
+                                                        ddModelSelectedItems[i]
+                                                            .price);
+                                            widget.update(createdSellingItem);
+                                            print(
+                                                'Add ->${createdSellingItem.total}');
+                                            final updateAmountSelectedProductLot =
+                                                ddLotSelectedItems[i].copy(
+                                                    remainAmount:
+                                                        ddLotSelectedItems[i]
+                                                                .remainAmount -
+                                                            int.parse(
+                                                                amountControllers[
+                                                                        i]
+                                                                    .text));
+                                            await DatabaseManager.instance
+                                                .updateProductLot(
+                                                    updateAmountSelectedProductLot);
+
+                                            totalAmount = oldTotalAmount;
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              backgroundColor: Theme.of(context)
+                                                  .backgroundColor,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              content: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons
+                                                        .shopping_cart_outlined,
+                                                    color: Colors.white,
+                                                  ),
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                    child: Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child: Image.file(
+                                                        File(widget.product
+                                                            .prodImage!),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .backgroundColor,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              3.0),
+                                                      child: Text(
+                                                        "+${totalAmount}",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                      " ${widget.product.prodName} "),
+                                                ],
+                                              ),
+                                              duration: Duration(seconds: 5),
+                                            ));
+                                            Navigator.pop(context);
+                                          }
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: Theme.of(context)
+                                                  .backgroundColor,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              content: Text("ระบุจำนวนสินค้า"),
+                                              duration: Duration(seconds: 2),
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    }
+                                  },
+                                  child: Text(
+                                    "ยืนยัน",
+                                    style: TextStyle(fontSize: 17),
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       )
-                    ],
-                  ),
-                )
               ],
             )),
       ),

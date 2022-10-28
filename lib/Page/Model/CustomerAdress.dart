@@ -19,7 +19,7 @@ class CustomerAddressModel {
     this.cAddreId,
     required this.cAddress,
     required this.cPhone,
-     this.cusId,
+    this.cusId,
   });
   CustomerAddressModel copy({
     int? addreId,

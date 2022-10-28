@@ -5,7 +5,7 @@ class PurchasingFields {
     purId,
     orderedDate,
     dealerId,
-    shipping,
+    shippingMedthod,
     shippingCost,
     amount,
     total,
@@ -16,7 +16,7 @@ class PurchasingFields {
   static final String purId = '_purId';
   static final String orderedDate = 'orderedDate';
   static final String dealerId = 'dealerId';
-  static final String shipping = 'shipping';
+  static final String shippingMedthod = 'shippingMedthod';
   static final String shippingCost = 'shippingCost';
   static final String amount = 'amount';
   static final String total = 'total';
@@ -28,7 +28,7 @@ class PurchasingModel {
   final int? purId;
   final DateTime orderedDate;
   final int dealerId;
-  final String? shipping;
+  final String? shippingMedthod;
   final int shippingCost;
   final int amount;
   final int total;
@@ -39,17 +39,17 @@ class PurchasingModel {
       {this.purId,
       required this.orderedDate,
       required this.dealerId,
-      this.shipping,
+      required this.shippingMedthod,
       required this.shippingCost,
       required this.amount,
       required this.total,
       required this.isReceive,
       required this.shopId});
   PurchasingModel copy({
-    int? pruId,
+    int? purId,
     DateTime? orderedDate,
     int? dealerId,
-    String? shipping,
+    String? shippingMedthod,
     int? shippingCost,
     int? amount,
     int? total,
@@ -57,10 +57,10 @@ class PurchasingModel {
     int? shopId,
   }) =>
       PurchasingModel(
-          purId: pruId ?? this.purId,
+          purId: purId ?? this.purId,
           orderedDate: orderedDate ?? this.orderedDate,
           dealerId: dealerId ?? this.dealerId,
-          shipping: shipping ?? this.shipping,
+          shippingMedthod: shippingMedthod ?? this.shippingMedthod,
           shippingCost: shippingCost ?? this.shippingCost,
           amount: amount ?? this.amount,
           total: total ?? this.total,
@@ -71,7 +71,7 @@ class PurchasingModel {
         orderedDate:
             DateTime.parse(json[PurchasingFields.orderedDate] as String),
         dealerId: json[PurchasingFields.dealerId] as int,
-        shipping: json[PurchasingFields.shipping] as String,
+        shippingMedthod: json[PurchasingFields.shippingMedthod] as String,
         shippingCost: json[PurchasingFields.shippingCost] as int,
         amount: json[PurchasingFields.amount] as int,
         total: json[PurchasingFields.total] as int,
@@ -82,7 +82,7 @@ class PurchasingModel {
         PurchasingFields.purId: purId,
         PurchasingFields.orderedDate: orderedDate.toIso8601String(),
         PurchasingFields.dealerId: dealerId,
-        PurchasingFields.shipping: shipping,
+        PurchasingFields.shippingMedthod: shippingMedthod,
         PurchasingFields.shippingCost: shippingCost,
         PurchasingFields.amount: amount,
         PurchasingFields.total: total,

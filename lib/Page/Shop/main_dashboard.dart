@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Component/RaisedGradientButton%20.dart';
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
+import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
 // Component
 
 import 'package:warehouse_mnmt/Page/Model/Selling.dart';
@@ -33,8 +34,8 @@ class _DashboardPageState extends State<DashboardPage> {
   ThemeMode themeMode = ThemeMode.light;
   bool get isDark => themeMode == ThemeMode.dark;
   List<Color> gradientColors = [
-    const Color(0xff23b6e6),
-    const Color(0xff02d39a)
+    Color.fromARGB(255, 160, 119, 255),
+    Color.fromRGBO(29, 29, 65, 1.0),
   ];
 
   List<Color> purchasingGradientColors = [
@@ -66,9 +67,13 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {});
   }
 
+  List<CustomerAddressModel> addresses = [];
+
   Future refreshPage() async {
-    purchasings =
-        await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
+    // purchasings =
+    //     await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
+    addresses = await DatabaseManager.instance
+        .readCustomerAllAddress(widget.shop.shopid!);
     sellings =
         await DatabaseManager.instance.readAllSellings(widget.shop.shopid!);
     customers = await DatabaseManager.instance
@@ -133,6 +138,8 @@ class _DashboardPageState extends State<DashboardPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(130),
           child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             automaticallyImplyLeading: false,
             title: const Text(
               "ภาพรวม",
@@ -170,7 +177,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         )),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   )
                 ],
@@ -215,7 +222,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height * 1.9,
+            height: MediaQuery.of(context).size.height * 2,
             decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
@@ -680,7 +687,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     belowBarData: BarAreaData(
                                         show: true,
                                         colors: gradientColors
-                                            .map((e) => e.withOpacity(0.3))
+                                            .map((e) => e.withOpacity(0.7))
                                             .toList()))
                               ])),
                         ),
@@ -749,15 +756,26 @@ class _DashboardPageState extends State<DashboardPage> {
                         itemBuilder: (context, index) {
                           final selling = sellings[index];
                           var _customerText;
+                          var _phoneText;
+                          var _addressText;
                           for (var customer in customers) {
                             if (customer.cusId == selling.customerId) {
-                              _customerText = customer.cName;
+                              _customerText = customer;
+                            }
+                          }
+
+                          for (var address in addresses) {
+                            if (address.cAddreId == selling.cAddreId) {
+                              _phoneText = address;
+                              _addressText = address;
                             }
                           }
                           return TextButton(
                             onPressed: () {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => SellingNavEdit(
+                                        customerAddress: _addressText,
+                                        customer: _customerText,
                                         shop: widget.shop,
                                         selling: selling,
                                       )));
@@ -792,7 +810,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       color: Colors.white,
                                     ),
                                     Text(
-                                      _customerText,
+                                      _customerText.cName,
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.white),
                                     ),

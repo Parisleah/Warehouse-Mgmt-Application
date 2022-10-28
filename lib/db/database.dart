@@ -27,7 +27,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main38.db');
+    _database = await _initDB('main42.db');
     return _database!;
   }
 
@@ -135,7 +135,7 @@ class DatabaseManager {
   ${PurchasingFields.purId} $idType,
   ${PurchasingFields.orderedDate} $textType,
   ${PurchasingFields.dealerId} $integerType,
-  ${PurchasingFields.shipping} $textType,
+  ${PurchasingFields.shippingMedthod} $textType,
   ${PurchasingFields.shippingCost} $integerType,
   ${PurchasingFields.amount} $integerType,
   ${PurchasingFields.total} $integerType,
@@ -583,7 +583,7 @@ ${DealerFields.shopId} $integerType
   Future<PurchasingModel> createPurchasing(PurchasingModel pur) async {
     final db = await instance.database;
     final id = await db.insert(tablePurchasing, pur.toJson());
-    return pur.copy(pruId: id);
+    return pur.copy(purId: id);
   }
 
   Future<int> updatePurchasing(PurchasingModel pur) async {
@@ -623,7 +623,7 @@ ${DealerFields.shopId} $integerType
       PurchasingItemsModel purItem) async {
     final db = await instance.database;
     final id = await db.insert(tablePurchasingItems, purItem.toJson());
-    return purItem.copy(pruItemsId: id);
+    return purItem.copy(purItemsId: id);
   }
 
   Future<int> updatePurchasingItem(PurchasingItemsModel purItem) async {

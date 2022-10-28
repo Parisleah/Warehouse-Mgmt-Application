@@ -51,6 +51,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   List<ProductModel> models = [];
   List<ProductLot> lots = [];
   List<SellingItemModel> carts = [];
+  List<ProductLot> productLots = [];
 
   _addSellingItem(SellingItemModel product) {
     carts.add(product);
@@ -68,7 +69,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   Future refreshProducts() async {
     products =
         await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
-
+    productLots = await DatabaseManager.instance.readAllProductLots();
     models = await DatabaseManager.instance.readAllProductModels();
     lots = await DatabaseManager.instance.readAllProductLots();
     setState(() {});
@@ -132,19 +133,31 @@ class _SellingNavAddState extends State<SellingNavAdd> {
         child: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
+
+            // Return Back Selling Items Remaining Amount
             onPressed: () async {
               if (carts.isNotEmpty) {
-                for (var selling in carts) {
-                  for (var lot in lots) {
-                    if (lot.prodLotId == selling.prodLotId) {
-                      final updateAmountDeletedProductLot = lot.copy(
-                          remainAmount: selling!.amount + lot.remainAmount);
-
+                // for (var item in carts) {
+                //   for (var lot in productLots) {
+                //     if (item.prodLotId == lot.prodLotId) {
+                //       final updateAmountSelectedProductLot = lot.copy(
+                //           remainAmount: lot.remainAmount + item.amount);
+                //       await DatabaseManager.instance
+                //           .updateProductLot(updateAmountSelectedProductLot);
+                //     }
+                //   }
+                // }
+                for (var i = 0; carts.length > i; i++) {
+                  for (var lot in productLots) {
+                    if (carts[i].prodLotId == lot.prodLotId) {
+                      final updateAmountSelectedProductLot = lot.copy(
+                          remainAmount: lot.remainAmount + carts[i].amount);
                       await DatabaseManager.instance
-                          .updateProductLot(updateAmountDeletedProductLot);
+                          .updateProductLot(updateAmountSelectedProductLot);
                     }
                   }
                 }
+                ;
                 Navigator.pop(context);
               } else {
                 Navigator.pop(context);
@@ -355,9 +368,11 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                       shop: widget.shop,
                                       update: _addSellingItem,
                                     )));
+                        refreshProducts();
 
                         _calculate(totalPrice, amount, shippingCost,
                             noShippingPrice, vat7percent, noVatPrice);
+
                         setState(() {});
                       },
                       child: Row(
@@ -650,15 +665,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                               FontWeight.bold)),
                                                                 ),
                                                               ),
-                                                              const Icon(
-                                                                  Icons
-                                                                      .arrow_forward_ios,
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          205,
-                                                                          205,
-                                                                          205)),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
                                                             ],
                                                           ),
                                                         ),
@@ -838,7 +847,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: const Text("ราคาสินค้ารวม",
+                    child: const Text("ราคาสินค้า",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
@@ -846,7 +855,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     padding: const EdgeInsets.all(20.0),
                     child: Text(
                         //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
-                        '${NumberFormat("#,###.##").format(noShippingPrice)}',
+                        '${NumberFormat("#,###.##").format(noShippingPrice - vat7percent)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -867,7 +876,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: const Text("Vat (7%)",
+                    child: const Text("ภาษี (7%)",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
@@ -875,6 +884,34 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     padding: const EdgeInsets.all(20.0),
                     child: Text(
                         '${NumberFormat("#,###.##").format(vat7percent)}',
+                        textAlign: TextAlign.left,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
+                ]),
+              ),
+              // Container of ภาษี 7 %
+              const SizedBox(
+                height: 10,
+              ),
+              // Container of ภาษี 7 %
+              Container(
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 400,
+                height: 70,
+                child: Row(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: const Text("ราคารวม",
+                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                        '${NumberFormat("#,###.##").format(noShippingPrice)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -1110,12 +1147,30 @@ class _SellingNavAddState extends State<SellingNavAdd> {
 
                               await DatabaseManager.instance
                                   .createSellingItem(item);
+                              if (carts.isNotEmpty) {
+                                if (isDelivered == true) {
+                                } else {
+                                  for (var i = 0; carts.length > i; i++) {
+                                    for (var lot in productLots) {
+                                      if (carts[i].prodLotId == lot.prodLotId) {
+                                        final updateAmountSelectedProductLot =
+                                            lot.copy(
+                                                remainAmount: lot.remainAmount +
+                                                    carts[i].amount);
+                                        await DatabaseManager.instance
+                                            .updateProductLot(
+                                                updateAmountSelectedProductLot);
+                                      }
+                                    }
+                                  }
+                                }
+                              }
                             }
                             Navigator.pop(context);
                           }
                         },
                         child: Text(
-                          "เพิ่ม",
+                          "บันทึก",
                           style: TextStyle(fontSize: 17),
                         ),
                       )

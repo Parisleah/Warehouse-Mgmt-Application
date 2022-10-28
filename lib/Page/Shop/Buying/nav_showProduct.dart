@@ -880,15 +880,67 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
 
                                 for (var i = 0; i < selectedItems.length; i++) {
                                   final puritem = PurchasingItemsModel(
-                                      amount:
-                                          int.parse(amountControllers[i].text),
-                                      prodId: widget.product.prodId!,
-                                      prodModelId: selectedItems[i].prodModelId,
-                                      total:
-                                          int.parse(amountControllers[i].text) *
-                                              selectedItems[i].cost);
+                                    amount:
+                                        int.parse(amountControllers[i].text),
+                                    prodId: widget.product.prodId!,
+                                    prodModelId: selectedItems[i].prodModelId!,
+                                    total:
+                                        int.parse(amountControllers[i].text) *
+                                            selectedItems[i].cost,
+                                  );
                                   widget.update(puritem);
                                 }
+                                // Display Summary Total Amount
+                                var oldTotalAmount = 0;
+                                for (var controller in amountControllers) {
+                                  oldTotalAmount += int.parse(controller.text);
+                                }
+
+                                allTotalAmount = oldTotalAmount;
+
+                                // Success
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  backgroundColor:
+                                      Theme.of(context).backgroundColor,
+                                  behavior: SnackBarBehavior.floating,
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_cart_outlined,
+                                        color: Colors.white,
+                                      ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(30),
+                                        child: Container(
+                                          width: 20,
+                                          height: 20,
+                                          child: Image.file(
+                                            File(widget.product.prodImage!),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .backgroundColor,
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3.0),
+                                          child: Text(
+                                            "+${allTotalAmount}",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(" ${widget.product.prodName} "),
+                                    ],
+                                  ),
+                                  duration: Duration(seconds: 5),
+                                ));
 
                                 selectedItems.clear();
                                 amountControllers.clear();

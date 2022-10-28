@@ -22,8 +22,15 @@ import '../../Model/Shop.dart';
 
 class SellingNavEdit extends StatefulWidget {
   final Shop shop;
+  final CustomerModel customer;
+  final CustomerAddressModel customerAddress;
   final SellingModel selling;
-  const SellingNavEdit({required this.selling, required this.shop, Key? key})
+  const SellingNavEdit(
+      {required this.customer,
+      required this.customerAddress,
+      required this.selling,
+      required this.shop,
+      Key? key})
       : super(key: key);
 
   @override
@@ -31,15 +38,6 @@ class SellingNavEdit extends StatefulWidget {
 }
 
 class _SellingNavEditState extends State<SellingNavEdit> {
-  TextEditingController shipPricController = TextEditingController();
-  TextEditingController specReqController = TextEditingController();
-  CustomerModel _customer = CustomerModel(cName: 'ยังไม่ระบุลูกค้า');
-  CustomerAddressModel _address = CustomerAddressModel(
-    cAddress: 'ที่อยู่',
-    cPhone: 'เบอร์โทร',
-  );
-  String _shipping = 'ระบุการจัดส่ง';
-  DateTime date = DateTime.now();
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
 
   late var shippingCost = widget.selling.shippingCost;
@@ -48,13 +46,14 @@ class _SellingNavEditState extends State<SellingNavEdit> {
   late var amount = widget.selling.amount;
   late double vat7percent = widget.selling.total * 7 / 100;
   double noVatPrice = 0.0;
-  bool isDelivered = false;
+  late bool isDelivered = widget.selling.isDelivered;
   List<Product> products = [];
   List<ProductModel> models = [];
   List<ProductLot> lots = [];
   List<CustomerModel> customers = [];
   List<CustomerAddressModel> addresses = [];
   List<SellingItemModel> sellingItems = [];
+  List<ProductLot> productLots = [];
   _addProductInCart(SellingItemModel product) {
     sellingItems.add(product);
   }
@@ -63,9 +62,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
   void initState() {
     super.initState();
     refreshPage();
-    shipPricController.addListener(() => setState(() {}));
-    shipPricController.addListener(() => setState(() {}));
-    specReqController.addListener(() => setState(() {}));
   }
 
   Future refreshPage() async {
@@ -78,49 +74,8 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     addresses = await DatabaseManager.instance.readAllCustomerAddresses();
     sellingItems = await DatabaseManager.instance
         .readAllSellingItemsWhereSellID(widget.selling.selId!);
+    productLots = await DatabaseManager.instance.readAllProductLots();
     setState(() {});
-  }
-
-  _updateCustomer(CustomerModel customer) {
-    setState(() {
-      _customer = customer;
-    });
-  }
-
-  _updateCustomerAddress(CustomerAddressModel address) {
-    setState(() {
-      _address = address;
-    });
-  }
-
-  _updateShipping(shipping) {
-    setState(() {
-      _shipping = shipping;
-    });
-  }
-
-  _getCustomerName() {
-    for (var customer in customers) {
-      if (customer.cusId == widget.selling.customerId) {
-        return customer.cName;
-      }
-    }
-  }
-
-  _getCustomerPhone() {
-    for (var addresse in addresses) {
-      if (addresse.cAddreId == widget.selling.cAddreId) {
-        return addresse.cPhone;
-      }
-    }
-  }
-
-  _getCustomerAddress() {
-    for (var addresse in addresses) {
-      if (addresse.cAddreId == widget.selling.cAddreId) {
-        return addresse.cAddress;
-      }
-    }
   }
 
   _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice,
@@ -363,17 +318,15 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                       children: [
                         Row(
                           children: [
-                            Text('${_getCustomerName()}',
+                            Text(widget.customer.cName,
                                 style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold,
-                                    color: _customer.cName == 'ยังไม่ระบุลูกค้า'
-                                        ? Colors.grey
-                                        : Colors.white)),
+                                    color: Colors.white)),
                             SizedBox(
                               width: 10,
                             ),
-                            Text('(${_getCustomerPhone()})',
+                            Text(widget.customerAddress!.cPhone,
                                 style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold,
@@ -383,7 +336,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${_getCustomerAddress()}',
+                            Text(widget.customerAddress!.cAddress,
                                 style: TextStyle(
                                     fontSize: 15, color: Colors.grey)),
                           ],
@@ -495,10 +448,11 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                 if (lot.prodLotId ==
                                                     selling.prodLotId) {
                                                   final updateAmountDeletedProductLot =
-                                                      lot.copy(remainAmount: selling!
+                                                      lot.copy(
+                                                          remainAmount: selling!
                                                                   .amount +
                                                               lot.remainAmount);
-                                              
+
                                                   await DatabaseManager.instance
                                                       .updateProductLot(
                                                           updateAmountDeletedProductLot);
@@ -953,9 +907,9 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                       setState(() {
                         isDelivered = !isDelivered;
                         if (isDelivered == false) {
-                          print('ยังไม่ได้รับสินค้า');
+                          print('ยังไม่ได้รับสินค้า (${isDelivered})');
                         } else {
-                          print('ได้รับสินค้าแล้ว');
+                          print('ได้รับสินค้าแล้ว (${isDelivered})');
                         }
                       });
                     },
@@ -1031,43 +985,59 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                     Column(children: [
                       ElevatedButton(
                         onPressed: () async {
-                          if (_customer.cName == 'ยังไม่ระบุลูกค้า') {
-                            _showAlertSnackBar('โปรดระบุลูกค้า');
-                          } else if (sellingItems.isEmpty) {
-                            _showAlertSnackBar(
-                                'โปรดเลือกสินค้าอย่างน้อย 1 รายการ');
-                          } else {
-                            final createSelling = SellingModel(
-                                orderedDate: date,
-                                customerId: _customer.cusId!,
-                                cAddreId: _address.cAddreId!,
-                                shipping: _shipping == null ? '-' : _shipping,
-                                shippingCost: shippingCost,
-                                amount: amount,
-                                total: totalPrice,
-                                speacialReq: specReqController.text.isEmpty ||
-                                        specReqController.text == null
-                                    ? '-'
-                                    : specReqController.text,
-                                isDelivered: isDelivered,
-                                shopId: widget.shop.shopid!);
+                          if (isDelivered == true) {
+                            final updatedSelling =
+                                widget.selling.copy(isDelivered: isDelivered);
 
-                            final createdSelling = await DatabaseManager
-                                .instance
-                                .createSelling(createSelling);
-
-                            for (var cart in sellingItems) {
-                              final item = SellingItemModel(
-                                  prodModelId: cart.prodModelId,
-                                  prodLotId: cart.prodLotId,
-                                  amount: cart.amount,
-                                  total: cart.total,
-                                  selId: createdSelling.selId);
-
-                              await DatabaseManager.instance
-                                  .createSellingItem(item);
+                            await DatabaseManager.instance
+                                .updateSelling(updatedSelling);
+                            for (var i = 0; sellingItems.length > i; i++) {
+                              for (var lot in productLots) {
+                                if (sellingItems[i].prodLotId ==
+                                    lot.prodLotId) {
+                                  print('Before Update ${lot.remainAmount}');
+                                  final updateAmountSelectedProductLot =
+                                      lot.copy(
+                                          remainAmount: lot.remainAmount -
+                                              sellingItems[i].amount);
+                                  await DatabaseManager.instance
+                                      .updateProductLot(
+                                          updateAmountSelectedProductLot);
+                                }
+                              }
                             }
+
+                            // for (var i = 0; sellingItems.length > i; i++) {
+                            //   for (var lot in productLots) {
+                            //     if (sellingItems[i].prodLotId ==
+                            //         lot.prodLotId) {
+                            //       print('Before Update ${lot.remainAmount}');
+                            //       final updateAmountSelectedProductLot =
+                            //           lot.copy(
+                            //               remainAmount: lot.remainAmount -
+                            //                   sellingItems[i].amount);
+                            //       print('After Updated ${lot.remainAmount}');
+                            //       await DatabaseManager.instance
+                            //           .updateProductLot(
+                            //               updateAmountSelectedProductLot);
+                            //     }
+                            //   }
+                            //   final updatedSelling = widget.selling!
+                            //       .copy(isDelivered: isDelivered);
+                            // }
+
                             Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor:
+                                  Theme.of(context).backgroundColor,
+                              behavior: SnackBarBehavior.floating,
+                              content: Row(
+                                children: [
+                                  Text("ปรับปรุงสินค้าคงเหลือแล้ว"),
+                                ],
+                              ),
+                              duration: Duration(seconds: 5),
+                            ));
                           }
                         },
                         child: Text(

@@ -198,38 +198,35 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 height: 10,
               ),
 
-              Row(children: [
-                Container(
-                  width: 370,
-                  height: 70,
-                  decoration: BoxDecoration(
-                      color: Color.fromRGBO(56, 48, 77, 1.0),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: GestureDetector(
-                    onTap: (() {
-                      Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) => BuyingNavChooseDealer(
-                                    shop: widget.shop,
-                                    update: _updateDealer,
-                                  )));
-                    }),
-                    child: Row(children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Text(_dealer.dName,
-                            style: TextStyle(fontSize: 15, color: Colors.grey)),
-                      ),
-                      const Spacer(),
-                      Icon(Icons.arrow_forward_ios, color: Colors.white),
-                      const SizedBox(
-                        width: 10,
-                      )
-                    ]),
-                  ),
+              Container(
+                height: 70,
+                decoration: BoxDecoration(
+                    color: Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                child: GestureDetector(
+                  onTap: (() {
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => BuyingNavChooseDealer(
+                                  shop: widget.shop,
+                                  update: _updateDealer,
+                                )));
+                  }),
+                  child: Row(children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(_dealer.dName,
+                          style: TextStyle(fontSize: 15, color: Colors.grey)),
+                    ),
+                    const Spacer(),
+                    Icon(Icons.arrow_forward_ios, color: Colors.white),
+                    const SizedBox(
+                      width: 10,
+                    )
+                  ]),
                 ),
-              ]),
+              ),
 
               // Container of เลือกลูกค้า
               const SizedBox(
@@ -272,9 +269,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                     )));
                         _calculate(
                             totalPrice, amount, shippingCost, noShippingPrice);
-                            setState(() {
-                              
-                            });
+                        setState(() {});
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -371,9 +366,19 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                                               FontWeight.bold,
                                                           color: Colors.white),
                                                     ),
+                                                    Text(
+                                                        ' x ${NumberFormat("#,###.##").format(purchasing.amount)}',
+                                                        style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12)),
+                                                    Text(
+                                                        '(${NumberFormat("#,###.##").format(purchasing.total)})',
+                                                        style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12)),
                                                   ],
                                                 )),
-                                                duration: Duration(seconds: 5),
+                                                duration: Duration(seconds: 3),
                                               ));
                                               carts.remove(purchasing);
                                               setState(() {});
@@ -510,7 +515,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                  'ราคา ${NumberFormat("#,###.##").format(purchasing.total)}',
+                                                                  'รวม ${NumberFormat("#,###.##").format(purchasing.total)}',
                                                                   style: const TextStyle(
                                                                       color: Colors
                                                                           .grey,
@@ -548,15 +553,9 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                                                             .bold)),
                                                           ),
                                                         ),
-                                                        const Icon(
-                                                            Icons
-                                                                .arrow_forward_ios,
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    205,
-                                                                    205,
-                                                                    205)),
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        )
                                                       ],
                                                     ),
                                                   ),
@@ -593,6 +592,10 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                               Theme.of(context).backgroundColor,
                                           fontWeight: FontWeight.bold)),
                                 ),
+                              ),
+                              Text(
+                                ' รายการ ',
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           ),
@@ -656,13 +659,16 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 height: 70,
                 child: TextField(
                     onChanged: (text) {
-                      _calculate(
-                          totalPrice,
-                          amount,
-                          int.parse(
-                            shipPricController.text,
-                          ),
-                          noShippingPrice);
+                      if (shipPricController.text != null &&
+                          shipPricController.text != '') {
+                        _calculate(
+                            totalPrice,
+                            amount,
+                            int.parse(
+                              shipPricController.text,
+                            ),
+                            noShippingPrice);
+                      }
                     },
                     textAlign: TextAlign.end,
                     // inputFormatters: [DecimalFormatter()],
@@ -881,27 +887,32 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                           } else if (carts.isEmpty || carts.length == 0) {
                             _showAlertSnackBar('รายการสั่งซื้อว่าง');
                           } else {
+                            print(_shipping);
                             // Purchasing
                             final purchased = PurchasingModel(
                                 orderedDate: date,
                                 dealerId: _dealer.dealerId!,
                                 shippingCost: shippingCost,
-                                shipping: _shipping,
+                                shippingMedthod: _shipping,
                                 amount: amount,
                                 total: totalPrice,
                                 isReceive: isReceived,
                                 shopId: widget.shop.shopid!);
                             final createdPur = await DatabaseManager.instance
                                 .createPurchasing(purchased);
+                            print(
+                                'Created Purchasing WHERE ${createdPur.purId}');
                             // items
 
                             for (var cart in carts) {
                               final item = PurchasingItemsModel(
-                                  purId: createdPur.purId,
                                   prodId: cart.prodId,
                                   prodModelId: cart.prodModelId,
                                   amount: cart.amount,
-                                  total: cart.total);
+                                  total: cart.total,
+                                  purId: createdPur.purId!);
+                              await DatabaseManager.instance
+                                  .createPurchasingItem(item);
                               final productLot = ProductLot(
                                   orderedTime: date,
                                   amount: '${cart.amount}',
@@ -910,8 +921,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                   purId: createdPur.purId,
                                   isReceived: isReceived,
                                   prodModelId: cart.prodModelId);
-                              await DatabaseManager.instance
-                                  .createPurchasingItem(item);
+
                               await DatabaseManager.instance
                                   .createProductLot(productLot);
                             }

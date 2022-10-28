@@ -55,8 +55,8 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   void initState() {
     super.initState();
     refreshProductCategorys();
-    refreshProductModels();
-    setState(() {});
+    refreshPage();
+
     print(
         'Welcome to ${widget.shop.name} -> Product Categorys -> ${productCategorys.length}');
     productNameController.addListener(() => setState(() {}));
@@ -80,7 +80,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   List<ProductModel_ndProperty> ndPropsList = [];
   List<ProductLot> productLots = [];
 
-  Future refreshProductModels() async {
+  Future refreshPage() async {
     productModels = await DatabaseManager.instance
         .readAllProductModelsInProduct(widget.product.prodId!);
     productLots = await DatabaseManager.instance.readAllProductLots();
@@ -236,7 +236,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                               // await DatabaseManager.instance
                               //     .deleteShop(shop.shopid!);
                               Navigator.pop(context);
-                              refreshProductModels();
+                              refreshPage();
                             },
                             child: Text('ลบ')),
                         const SizedBox(
@@ -1891,7 +1891,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           //     .deleteProduct(product.prodId!);
                                           showAlertDeleteProductModel(
                                               productModel);
-                                          refreshProductModels();
+                                          refreshPage();
                                           setState(() {});
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
@@ -1936,10 +1936,9 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                         ProductEditModel(
                                                           model: productModel,
                                                         )));
-                                            await refreshProductModels();
-                                            setState(() {
-                                              
-                                            });
+                                            await refreshPage();
+
+                                            setState(() {});
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(5.0),

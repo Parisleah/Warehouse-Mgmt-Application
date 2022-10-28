@@ -83,6 +83,7 @@ class _ShopPageState extends State<ShopPage> {
             automaticallyImplyLeading: false,
             actions: [
               PopupMenuButton<int>(
+                color: Theme.of(context).colorScheme.background,
                 icon: Icon(
                   Icons.more_vert,
                   color: Colors.white,
@@ -719,7 +720,6 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                 ],
                 offset: Offset(0, 80),
-                color: Theme.of(context).colorScheme.onSecondary,
                 elevation: 2,
               ),
             ],

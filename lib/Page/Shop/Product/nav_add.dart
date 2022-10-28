@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:intl/intl.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
@@ -9,6 +10,7 @@ import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_stProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_ndProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_showProduct.dart';
 
 import '../../../db/database.dart';
 import '../../Component/ImagePickerController.dart';
@@ -107,12 +109,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
       // Inserted Get Product ID
       final prodInserted =
           await DatabaseManager.instance.createProduct(product);
-      print(
-          '====================================================================================\n PRODUCT');
-
-      print(
-          'INSERTED Product ID : ${prodInserted.prodId} ${prodInserted.prodName} WHERE SHOP ID = ${prodInserted.shopId}');
-
       productModels.clear();
       var i = 0;
       for (var st in stPropsList) {
@@ -292,6 +288,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     setState(() {});
   }
 
+  // ราคาทั้งหมด
   Future<void> dialogEdit_PropCostPrice(TextEditingController pController,
       TextEditingController cController) async {
     return showDialog<void>(
@@ -321,27 +318,126 @@ class _ProductNavAddState extends State<ProductNavAdd> {
               ],
             ),
             content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  CustomTextField.textField(
-                    context,
-                    'ราคาต้นทุน',
-                    _validate,
-                    length: 30,
-                    isNumber: true,
-                    textController: cController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${stPropName}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        MultiSelectContainer(
+                            textStyles: const MultiSelectTextStyles(
+                                textStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 255, 255, 255))),
+                            prefix: MultiSelectPrefix(
+                              selectedPrefix: const Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                            itemsDecoration: MultiSelectDecorations(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    const Color.fromRGBO(56, 54, 76, 1.0),
+                                    const Color.fromRGBO(56, 54, 76, 1.0),
+                                  ]),
+                                  borderRadius: BorderRadius.circular(20)),
+                              selectedDecoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    Theme.of(context).backgroundColor,
+                                    Theme.of(context).backgroundColor,
+                                  ]),
+                                  borderRadius: BorderRadius.circular(20)),
+                            ),
+                            items: stPropsList
+                                .map((item) => MultiSelectCard(
+                                    value: '${item.pmstPropName}',
+                                    label: '${item.pmstPropName}'))
+                                .toList(),
+                            onChange: (allSelectedItems, selectedItem) {}),
+                      ],
+                    ),
                   ),
-                  SizedBox(
-                    height: 10,
+                  Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${ndPropName}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        MultiSelectContainer(
+                            textStyles: const MultiSelectTextStyles(
+                                textStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 255, 255, 255))),
+                            prefix: MultiSelectPrefix(
+                              selectedPrefix: const Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                            itemsDecoration: MultiSelectDecorations(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    const Color.fromRGBO(56, 54, 76, 1.0),
+                                    const Color.fromRGBO(56, 54, 76, 1.0),
+                                  ]),
+                                  borderRadius: BorderRadius.circular(20)),
+                              selectedDecoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    Theme.of(context).backgroundColor,
+                                    Theme.of(context).backgroundColor,
+                                  ]),
+                                  borderRadius: BorderRadius.circular(20)),
+                            ),
+                            items: ndPropsList
+                                .map((item) => MultiSelectCard(
+                                    value: '${item.pmndPropName}',
+                                    label: '${item.pmndPropName}'))
+                                .toList(),
+                            onChange: (allSelectedItems, selectedItem) {}),
+                      ],
+                    ),
                   ),
-                  CustomTextField.textField(
-                    context,
-                    'ราคาขาย',
-                    _validate,
-                    length: 30,
-                    isNumber: true,
-                    textController: pController,
-                  )
+                  ListBody(
+                    children: <Widget>[
+                      CustomTextField.textField(
+                        context,
+                        'ราคาต้นทุน',
+                        _validate,
+                        length: 30,
+                        isNumber: true,
+                        textController: cController,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      CustomTextField.textField(
+                        context,
+                        'ราคาขาย',
+                        _validate,
+                        length: 30,
+                        isNumber: true,
+                        textController: pController,
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -369,7 +465,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     );
   }
 
-  //_showSet_CostPrice_Product_Dialog
+  //CostPrice_Product_Dialog
   dialogProduct_CostPrice() async {
     await showDialog(
         context: context,
@@ -429,6 +525,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                     Spacer(),
                                     IconButton(
                                         onPressed: () {
+                                          amountControllers.clear();
                                           Navigator.pop(context);
                                         },
                                         icon: Icon(
@@ -498,6 +595,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                             itemBuilder: (context, index) {
                                               final productModelInd =
                                                   productModels[index];
+
                                               return GestureDetector(
                                                 onTap: () {
                                                   Navigator.pop(context);
@@ -536,8 +634,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .colorScheme
-                                                                        .background,
+                                                                        .backgroundColor,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),
@@ -547,13 +644,14 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                               .all(
                                                                           3.0),
                                                                   child: Text(
-                                                                    '${productModelInd.stProperty}',
-                                                                    style: const TextStyle(
+                                                                      '${productModelInd.stProperty}',
+                                                                      style:
+                                                                          TextStyle(
                                                                         fontSize:
                                                                             15,
                                                                         color: Colors
-                                                                            .white),
-                                                                  ),
+                                                                            .white,
+                                                                      )),
                                                                 ),
                                                               ),
                                                               const SizedBox(
@@ -563,8 +661,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .colorScheme
-                                                                        .background,
+                                                                        .backgroundColor,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),
@@ -713,6 +810,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                     primary: Colors.redAccent,
                                     fixedSize: const Size(80, 40)),
                                 onPressed: () {
+                                  amountControllers.clear();
                                   productModels.clear();
                                   editCostControllers.clear();
                                   editPriceControllers.clear();
@@ -865,7 +963,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                           size: 25,
                                         ),
                                         onPressed: () {
+                                          productModels.clear();
                                           Navigator.pop(context);
+                                          setState(() {});
                                         },
                                       ),
                                     ],
@@ -1402,6 +1502,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                 onPressed: () {
                                   productModels.clear();
                                   Navigator.pop(context);
+                                  setState(() {});
                                 },
                                 child: Text('ยกเลิก')),
                             stPropsList.isEmpty
@@ -1827,7 +1928,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                       for (var lot in productLots) {
                                         if (productModel.prodModelId ==
                                             lot.prodModelId) {
-                                          _amountOfProd +=int.parse(lot.amount!);
+                                          _amountOfProd +=
+                                              int.parse(lot.amount!);
                                         }
                                       }
                                       var amountOfProd = _amountOfProd;
