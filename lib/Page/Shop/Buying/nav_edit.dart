@@ -51,6 +51,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
 
   void initState() {
     super.initState();
+    print(widget.purchasing.isReceive);
     refreshPage();
   }
 
@@ -90,23 +91,39 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
               child: Row(
                 children: [
                   const Text(
-                    'ต้องการลบรายการการสั่งซื้อ ?',
+                    'ต้องการลบ ?',
                     style: TextStyle(color: Colors.white),
                   ),
-                ],
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('adasdasd'),
                 ],
               ),
             ),
             actions: <Widget>[
               ElevatedButton(
                 child: const Text('ยืนยัน'),
-                onPressed: () {
+                onPressed: () async {
+                  if (isReceived == true) {
+                    print(widget.purchasing.isReceive);
+                    for (var item in purchasingItems) {
+                      for (var lot in productLots) {
+                        if (item.purId == lot.purId) {
+                          final updatedLot = lot.copy(
+                              remainAmount: lot.remainAmount - item.amount);
+                          await DatabaseManager.instance
+                              .updateProductLot(updatedLot);
+                        }
+                      }
+                      await DatabaseManager.instance
+                          .deletePurchasingItem(item.purItemsId!);
+                    }
+                  } else {
+                    print('else Purchjasing');
+                    for (var item in purchasingItems) {
+                      await DatabaseManager.instance
+                          .deletePurchasingItem(item.purItemsId!);
+                    }
+                  }
+                  await DatabaseManager.instance
+                      .deletePurchasing(widget.purchasing.purId!);
                   Navigator.of(dContext).pop();
                   Navigator.of(context).pop();
                 },
@@ -157,7 +174,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0)),
                           title: const Text(
-                            'ต้องการลบรายการการสั่งซื้อ ?',
+                            'ต้องการลบ ?',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                           actions: <Widget>[
@@ -172,6 +189,28 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                             ElevatedButton(
                               child: const Text('ยืนยัน'),
                               onPressed: () async {
+                                if (isReceived == true) {
+                                  print(widget.purchasing.isReceive);
+                                  for (var item in purchasingItems) {
+                                    for (var lot in productLots) {
+                                      if (item.purId == lot.purId) {
+                                        final updatedLot = lot.copy(
+                                            remainAmount:
+                                                lot.remainAmount - item.amount);
+                                        await DatabaseManager.instance
+                                            .updateProductLot(updatedLot);
+                                      }
+                                    }
+                                    await DatabaseManager.instance
+                                        .deletePurchasingItem(item.purItemsId!);
+                                  }
+                                } else {
+                                  print('else Purchjasing');
+                                  for (var item in purchasingItems) {
+                                    await DatabaseManager.instance
+                                        .deletePurchasingItem(item.purItemsId!);
+                                  }
+                                }
                                 await DatabaseManager.instance
                                     .deletePurchasing(widget.purchasing.purId!);
                                 Navigator.of(context).pop();
@@ -656,36 +695,45 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Center(
-                      child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        isReceived = !isReceived;
-                        if (isReceived == false) {
-                          print('ยังไม่ได้รับสินค้า');
-                        } else {
-                          print('ได้รับสินค้าแล้ว');
-                        }
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: Colors.transparent),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: isReceived
-                            ? Icon(
-                                Icons.check_box,
-                                size: 40.0,
-                                color: Theme.of(context).backgroundColor,
-                              )
-                            : Icon(
-                                Icons.check_box_outline_blank,
-                                size: 40.0,
-                                color: Theme.of(context).backgroundColor,
+                      child: widget.purchasing.isReceive == true
+                          ? Icon(
+                              Icons.check_box,
+                              size: 40.0,
+                              color: Theme.of(context).backgroundColor,
+                            )
+                          : InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isReceived = !isReceived;
+                                  if (isReceived == false) {
+                                    print('ยังไม่ได้รับสินค้า (${isReceived})');
+                                  } else {
+                                    print('ได้รับสินค้าแล้ว ${isReceived})');
+                                  }
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.transparent),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: isReceived
+                                      ? Icon(
+                                          Icons.check_box,
+                                          size: 40.0,
+                                          color:
+                                              Theme.of(context).backgroundColor,
+                                        )
+                                      : Icon(
+                                          Icons.check_box_outline_blank,
+                                          size: 40.0,
+                                          color:
+                                              Theme.of(context).backgroundColor,
+                                        ),
+                                ),
                               ),
-                      ),
-                    ),
-                  )),
+                            )),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -705,85 +753,89 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(children: [
-                      ElevatedButton(
-                        style:
-                            ElevatedButton.styleFrom(primary: Colors.redAccent),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "ยกเลิกรายการ",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                      )
-                    ]),
-                    Column(children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          // Product Lot
-                          if (isReceived) {
-                            for (var item in purchasingItems) {
-                              for (var lot in productLots) {
-                                if (item.purId == lot.purId) {
-                                  final updatedLot = lot.copy(
-                                      isReceived: isReceived,
-                                      remainAmount: int.parse('${lot.amount}'));
-                                  await DatabaseManager.instance
-                                      .updateProductLot(updatedLot);
-                                }
-                              }
-                            }
-
-                            final updatedPurchasing =
-                                widget.purchasing!.copy(isReceive: isReceived);
-
-                            await DatabaseManager.instance
-                                .updatePurchasing(updatedPurchasing);
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor:
-                                  Theme.of(context).backgroundColor,
-                              behavior: SnackBarBehavior.floating,
-                              content: Row(
-                                children: [
-                                  Text("ปรับปรุงสินค้าคงเหลือแล้ว"),
-                                ],
+              widget.purchasing.isReceive == true
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  primary: Colors.redAccent),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "ยกเลิกรายการ",
+                                style: TextStyle(fontSize: 17),
                               ),
-                              duration: Duration(seconds: 5),
-                            ));
-                            Navigator.pop(context);
-                          } else {
-                            // for (var item in purchasingItems) {
-                            //   final productLot = ProductLot(
-                            //       purId: item.purId,
-                            //       orderedTime: date,
-                            //       amount: '${item.amount}',
-                            //       remainAmount: int.parse('${item.amount}'),
-                            //       prodModelId: item.prodModelId);
-                            //   await DatabaseManager.instance
-                            //       .updateProductLot(productLot);
-                            // }
-                            final updatedPurchasing =
-                                widget.purchasing!.copy(isReceive: isReceived);
+                            )
+                          ]),
+                          Column(children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                // Product Lot
+                                if (isReceived) {
+                                  for (var item in purchasingItems) {
+                                    for (var lot in productLots) {
+                                      if (item.purId == lot.purId) {
+                                        final updatedLot = lot.copy(
+                                            isReceived: isReceived,
+                                            remainAmount:
+                                                int.parse('${lot.amount}'));
+                                        await DatabaseManager.instance
+                                            .updateProductLot(updatedLot);
+                                      }
+                                    }
+                                  }
 
-                            await DatabaseManager.instance
-                                .updatePurchasing(updatedPurchasing);
-                          }
-                        },
-                        child: Text(
-                          "บันทึก",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                      )
-                    ]),
-                  ],
-                ),
-              )
+                                  final updatedPurchasing = widget.purchasing!
+                                      .copy(isReceive: isReceived);
+
+                                  await DatabaseManager.instance
+                                      .updatePurchasing(updatedPurchasing);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).backgroundColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Row(
+                                      children: [
+                                        Text("ปรับปรุงสินค้าคงเหลือแล้ว"),
+                                      ],
+                                    ),
+                                    duration: Duration(seconds: 5),
+                                  ));
+                                  Navigator.pop(context);
+                                } else {
+                                  // for (var item in purchasingItems) {
+                                  //   final productLot = ProductLot(
+                                  //       purId: item.purId,
+                                  //       orderedTime: date,
+                                  //       amount: '${item.amount}',
+                                  //       remainAmount: int.parse('${item.amount}'),
+                                  //       prodModelId: item.prodModelId);
+                                  //   await DatabaseManager.instance
+                                  //       .updateProductLot(productLot);
+                                  // }
+                                  final updatedPurchasing = widget.purchasing!
+                                      .copy(isReceive: isReceived);
+
+                                  await DatabaseManager.instance
+                                      .updatePurchasing(updatedPurchasing);
+                                }
+                              },
+                              child: Text(
+                                "บันทึก",
+                                style: TextStyle(fontSize: 17),
+                              ),
+                            )
+                          ]),
+                        ],
+                      ),
+                    )
             ]),
           ),
         ),

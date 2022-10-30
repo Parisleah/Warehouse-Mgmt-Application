@@ -70,8 +70,8 @@ class _DashboardPageState extends State<DashboardPage> {
   List<CustomerAddressModel> addresses = [];
 
   Future refreshPage() async {
-    // purchasings =
-    //     await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
+    purchasings =
+        await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
     addresses = await DatabaseManager.instance
         .readCustomerAllAddress(widget.shop.shopid!);
     sellings =
@@ -267,7 +267,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            dateFormat.format(date),
+                            ' ${DateFormat.yMMMd().format(DateTime.now())}',
+
                             style: TextStyle(fontSize: 12, color: Colors.white),
                             // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
                           ),
@@ -488,18 +489,10 @@ class _DashboardPageState extends State<DashboardPage> {
                                           },
                                           getTitles: (value) {
                                             switch (value.toInt()) {
-                                              case 1:
+                                              case 0:
                                                 return '1';
-                                              case 5:
+                                              case 1:
                                                 return '5';
-                                              case 10:
-                                                return '10';
-                                              case 15:
-                                                return '15';
-                                              case 20:
-                                                return '20';
-                                              case 25:
-                                                return '25';
                                               case 30:
                                                 return '30';
                                             }
@@ -531,7 +524,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               return '4500';
                                             case 6750:
                                               return '6750';
-                                            case 9000:
+                                            case 3200:
                                               return '9000';
                                           }
                                           return '';
@@ -547,8 +540,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       LineChartBarData(
                                           spots: purchasings
                                               .map((point) => FlSpot(
-                                                  point.orderedDate.day
-                                                      .toDouble(),
+                                                  29.toDouble(),
                                                   point.total.toDouble()))
                                               .toList(),
                                           isCurved: true,
@@ -562,24 +554,24 @@ class _DashboardPageState extends State<DashboardPage> {
                                                   .map(
                                                       (e) => e.withOpacity(0.5))
                                                   .toList())),
-                                      LineChartBarData(
-                                          spots: sellings
-                                              .map((point) => FlSpot(
-                                                  point.orderedDate.day
-                                                      .toDouble(),
-                                                  point.total.toDouble()))
-                                              .toList(),
-                                          isCurved: true,
-                                          colors: [
-                                            Color.fromARGB(255, 164, 118, 255),
-                                          ],
-                                          barWidth: 3,
-                                          belowBarData: BarAreaData(
-                                              show: true,
-                                              colors: purchasingGradientColors
-                                                  .map(
-                                                      (e) => e.withOpacity(0.7))
-                                                  .toList())),
+                                      // LineChartBarData(
+                                      //     spots: sellings
+                                      //         .map((point) => FlSpot(
+                                      //             point.orderedDate.day
+                                      //                 .toDouble(),
+                                      //             point.total.toDouble()))
+                                      //         .toList(),
+                                      //     isCurved: true,
+                                      //     colors: [
+                                      //       Color.fromARGB(255, 164, 118, 255),
+                                      //     ],
+                                      //     barWidth: 3,
+                                      //     belowBarData: BarAreaData(
+                                      //         show: true,
+                                      //         colors: purchasingGradientColors
+                                      //             .map(
+                                      //                 (e) => e.withOpacity(0.7))
+                                      //             .toList())),
                                     ])),
                               ),
                             ),
@@ -588,6 +580,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                   ),
+                  // Doing
                   Container(
                     width: 400,
                     height: 300,
@@ -623,17 +616,23 @@ class _DashboardPageState extends State<DashboardPage> {
                                     getTextStyles: (context, value) {
                                       return const TextStyle(
                                           color: Color(0xff68737d),
-                                          fontSize: 16,
+                                          fontSize: 10,
                                           fontWeight: FontWeight.bold);
                                     },
                                     getTitles: (value) {
+                                      DateTime date = DateTime.now();
+                                      DateFormat.yMMMd().format(date);
                                       switch (value.toInt()) {
                                         case 0:
-                                          return 'Sep 19';
+                                          return '${DateFormat.MMMd().format(date)}';
+                                        case 2:
+                                          return '${DateFormat.MMMd().format(date)}';
                                         case 4:
-                                          return 'Oct 10';
+                                          return '${DateFormat.MMMd().format(date)}';
                                         case 8:
-                                          return 'Nov 16';
+                                          return '${DateFormat.MMMd().format(date)}';
+                                        case 10:
+                                          return '${DateFormat.MMMd().format(date)}';
                                       }
                                       return '';
                                     },
@@ -659,24 +658,26 @@ class _DashboardPageState extends State<DashboardPage> {
                                         return '100';
                                       case 6:
                                         return '150';
+                                      case 8:
+                                        return '200';
+                                      case 10:
+                                        return '250';
                                     }
                                     return '';
                                   },
                                   margin: 12,
                                 ),
                               ),
-                              maxX: 8,
-                              maxY: 8,
+                              maxX: 10,
+                              maxY: 9000,
                               minY: 0,
                               minX: 0,
                               lineBarsData: [
                                 LineChartBarData(
-                                    spots: [
-                                      const FlSpot(0, 0),
-                                      const FlSpot(5, 5),
-                                      const FlSpot(7, 6),
-                                      const FlSpot(8, 4),
-                                    ],
+                                    spots: purchasings
+                                        .map((point) =>
+                                            FlSpot(29, point.total.toDouble()))
+                                        .toList(),
                                     isCurved: true,
                                     colors: [
                                       Colors.black12,

@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -93,7 +94,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     for (var controller in amountControllers) {
       for (var item in selectedItems) {
         if (controller.text != null && controller.text != '') {
-          oldAllTotal += item.cost * int.parse(controller.text);
+          oldAllTotal += item.cost * double.parse(controller.text).toInt();
         }
         break;
       }
@@ -108,7 +109,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
     var oldAllTotalAmount = 0;
     for (var controller in amountControllers) {
       if (controller.text != null && controller.text != '') {
-        oldAllTotalAmount += int.parse(controller.text);
+        oldAllTotalAmount += double.parse(controller.text).toInt();
       }
     }
     allTotalAmount = oldAllTotalAmount;
@@ -568,10 +569,13 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                         .indexWhere((e) => e == indItem);
 
                                     var amount = 0;
-                                    amount = int.parse(
-                                        amountControllers[index].text.isEmpty
-                                            ? '0'
-                                            : amountControllers[index].text);
+                                    amount = double.parse(
+                                            amountControllers[index]
+                                                    .text
+                                                    .isEmpty
+                                                ? '0'
+                                                : amountControllers[index].text)
+                                        .toInt();
 
                                     var subTotal = indItem.cost * amount;
 
@@ -639,13 +643,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                     FontWeight
                                                                         .bold),
                                                           ),
-                                                          Text(
-                                                              ' (${NumberFormat("#,###.##").format(subTotal)})',
-                                                              style: const TextStyle(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontSize:
-                                                                      12)),
                                                         ],
                                                       ),
                                                       const SizedBox(
@@ -670,58 +667,87 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                     ],
                                                   ),
                                                   const Spacer(),
-                                                  Container(
-                                                    width: 150,
-                                                    child: TextField(
-                                                        onChanged: ((value) {
-                                                          subTotal =
-                                                              indItem.cost *
-                                                                  amount;
-
-                                                          setState(() {});
-                                                        }),
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        controller:
-                                                            amountControllers[
-                                                                index],
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                        decoration:
-                                                            InputDecoration(
-                                                          filled: true,
-                                                          fillColor:
-                                                              Color.fromARGB(
-                                                                  255,
-                                                                  46,
-                                                                  44,
-                                                                  62),
-                                                          border: const OutlineInputBorder(
-                                                              borderRadius: BorderRadius.only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                          20),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                          20),
-                                                                  bottomLeft: Radius
-                                                                      .circular(
-                                                                          20),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                          20)),
-                                                              borderSide:
-                                                                  BorderSide
-                                                                      .none),
-                                                          hintText: 'จำนวน',
-                                                          hintStyle:
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Text(
+                                                          ' (${NumberFormat("#,###.##").format(subTotal)})',
+                                                          style:
                                                               const TextStyle(
                                                                   color: Colors
                                                                       .grey,
-                                                                  fontSize: 14),
-                                                        )),
+                                                                  fontSize:
+                                                                      12)),
+                                                      Container(
+                                                        child: SizedBox(
+                                                          width: 150,
+                                                          height: 40,
+                                                          child: TextField(
+                                                              keyboardType: TextInputType
+                                                                  .numberWithOptions(
+                                                                      decimal:
+                                                                          true),
+                                                              inputFormatters: <
+                                                                  TextInputFormatter>[
+                                                                FilteringTextInputFormatter
+                                                                    .allow(RegExp(
+                                                                        r'^\d+\.?\d*')),
+                                                                LengthLimitingTextInputFormatter(
+                                                                    6),
+                                                              ], // Only numbers can be entered
+                                                              onChanged:
+                                                                  ((value) {
+                                                                subTotal =
+                                                                    indItem.cost *
+                                                                        amount;
+
+                                                                setState(() {});
+                                                              }),
+                                                              controller:
+                                                                  amountControllers[
+                                                                      index],
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .white),
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                filled: true,
+                                                                fillColor: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        46,
+                                                                        44,
+                                                                        62),
+                                                                border: OutlineInputBorder(
+                                                                    borderRadius: BorderRadius.only(
+                                                                        topLeft:
+                                                                            Radius.circular(
+                                                                                20),
+                                                                        topRight:
+                                                                            Radius.circular(
+                                                                                20),
+                                                                        bottomLeft:
+                                                                            Radius.circular(
+                                                                                20),
+                                                                        bottomRight:
+                                                                            Radius.circular(
+                                                                                20)),
+                                                                    borderSide:
+                                                                        BorderSide
+                                                                            .none),
+                                                                hintText:
+                                                                    'จำนวน',
+                                                                hintStyle: const TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        12),
+                                                              )),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   )
                                                 ],
                                               ),
@@ -778,10 +804,11 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                   final _isSelected =
                                       selectedItems.contains(indItem);
                                   var amount = 0;
-                                  amount = int.parse(
-                                      amountControllers[index].text.isEmpty
-                                          ? '0'
-                                          : amountControllers[index].text);
+                                  amount = double.parse(
+                                          amountControllers[index].text.isEmpty
+                                              ? '0'
+                                              : amountControllers[index].text)
+                                      .toInt();
 
                                   var totalPrice = indItem.cost * amount;
 

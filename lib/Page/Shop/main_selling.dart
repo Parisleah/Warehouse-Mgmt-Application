@@ -33,25 +33,24 @@ class _SellingPageState extends State<SellingPage> {
   void initState() {
     super.initState();
     refreshSellings();
-    
   }
 
   Future refreshSellings() async {
     selllings =
         await DatabaseManager.instance.readAllSellings(widget.shop.shopid!);
-addresses = await DatabaseManager.instance.readCustomerAllAddress(widget.shop.shopid!);
+    addresses = await DatabaseManager.instance
+        .readCustomerAllAddress(widget.shop.shopid!);
     customers = await DatabaseManager.instance
         .readAllCustomerInShop(widget.shop.shopid!);
 
     setState(() {});
   }
 
-
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 3,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: PreferredSize(
@@ -88,66 +87,56 @@ addresses = await DatabaseManager.instance.readCustomerAllAddress(widget.shop.sh
                   baselineType: TextBaseline.alphabetic,
                   child: SearchBox("ชื่อลูกค้า หรือ เบอร์โทรศัพท์")),
             ),
-            bottom: TabBar(tabs: [
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
+            bottom: TabBar(
+                onTap: (value) {
+                  setState(() {
+                    // if (value == 0) {
+                    //   refreshPurchasings();
+                    // } else if (value == 1) {
+                    //   refreshPurchasingsWHEREisReceived();
+                    // } else {
+                    //   refreshPurchasingsWHEREisNotReceived();
+                    // }
+                  });
+                },
+                tabs: [
+                  Tab(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Color.fromRGBO(56, 54, 76, 1.0),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(" ทั้งหมด "),
+                      ),
+                    ),
                   ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(" ทั้งหมด "),
+                  Tab(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Color.fromRGBO(56, 54, 76, 1.0),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(" รับสินค้าแล้ว "),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
+                  Tab(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: Color.fromRGBO(56, 54, 76, 1.0),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text("ไม่ได้รับสินค้า"),
+                      ),
+                    ),
                   ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text("วันนี้"),
-                  ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                      alignment: Alignment.center, child: Text("สัปดาห ์")),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text("เดือน "),
-                  ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    // color: Color.fromRGBO(56, 54, 76, 1.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text("ระบุวัน"),
-                  ),
-                ),
-              ),
-            ]),
+                ]),
           ),
         ),
         body: SingleChildScrollView(

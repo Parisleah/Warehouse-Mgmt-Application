@@ -664,9 +664,9 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                         _calculate(
                             totalPrice,
                             amount,
-                            int.parse(
+                            double.parse(
                               shipPricController.text,
-                            ),
+                            ).toInt(),
                             noShippingPrice);
                       }
                     },

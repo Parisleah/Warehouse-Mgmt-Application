@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing.dart';
+import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_add.dart';
@@ -13,6 +14,7 @@ import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit.dart';
 import '../../db/database.dart';
 import '../Component/SearchBox.dart';
 import '../Component/SearchBoxController.dart';
+import '../Model/ProductLot.dart';
 
 class BuyingPage extends StatefulWidget {
   final Shop shop;
@@ -27,6 +29,8 @@ class _BuyingPageState extends State<BuyingPage> {
   List<PurchasingModel> selectedPurchasing = [];
   List<PurchasingModel> purchasings = [];
   List<DealerModel> dealers = [];
+  List<ProductLot> productLots = [];
+
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
   @override
   void initState() {
@@ -40,7 +44,24 @@ class _BuyingPageState extends State<BuyingPage> {
     purchasings =
         await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
     dealers = await DatabaseManager.instance.readAllDealers();
+    productLots = await DatabaseManager.instance.readAllProductLots();
 
+    setState(() {});
+  }
+
+  Future refreshPurchasingsWHEREisReceived() async {
+    purchasings = await DatabaseManager.instance
+        .readAllPurchasingsWHEREisReceived(widget.shop.shopid!);
+    dealers = await DatabaseManager.instance.readAllDealers();
+    productLots = await DatabaseManager.instance.readAllProductLots();
+    setState(() {});
+  }
+
+  Future refreshPurchasingsWHEREisNotReceived() async {
+    purchasings = await DatabaseManager.instance
+        .readAllPurchasingsWHEREisNotReceived(widget.shop.shopid!);
+    dealers = await DatabaseManager.instance.readAllDealers();
+    productLots = await DatabaseManager.instance.readAllProductLots();
     setState(() {});
   }
 
@@ -69,6 +90,77 @@ class _BuyingPageState extends State<BuyingPage> {
             shape: BoxShape.circle),
       );
     });
+  }
+
+  Future<void> dialogConfirmDelete() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, dialogSetState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: Row(
+              children: [
+                const Text(
+                  'ต้องการลบ ?',
+                  style: TextStyle(color: Colors.white),
+                ),
+                const Spacer(),
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: Colors.grey,
+                    ))
+              ],
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.redAccent),
+                child: const Text('ลบ'),
+                onPressed: () async {
+                  List<PurchasingItemsModel> purchasingItems = [];
+                  for (var pur in selectedPurchasing) {
+                    purchasingItems = await DatabaseManager.instance
+                        .readAllPurchasingItemsWherePurID(pur.purId!);
+                    if (pur.isReceive == true) {
+                      print(pur.isReceive);
+                      for (var item in purchasingItems) {
+                        for (var lot in productLots) {
+                          if (item.purId == lot.purId) {
+                            final updatedLot = lot.copy(
+                                remainAmount: lot.remainAmount - item.amount);
+                            await DatabaseManager.instance
+                                .updateProductLot(updatedLot);
+                          }
+                        }
+                        await DatabaseManager.instance
+                            .deletePurchasingItem(item.purItemsId!);
+                      }
+                    } else {
+                      print('else Purchjasing');
+                      for (var item in purchasingItems) {
+                        await DatabaseManager.instance
+                            .deletePurchasingItem(item.purItemsId!);
+                      }
+                    }
+                    await DatabaseManager.instance.deletePurchasing(pur.purId!);
+                  }
+
+                  dialogSetState(() {});
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   @override
@@ -173,7 +265,13 @@ class _BuyingPageState extends State<BuyingPage> {
             bottom: TabBar(
                 onTap: (value) {
                   setState(() {
-                    if (value == 0) {}
+                    if (value == 0) {
+                      refreshPurchasings();
+                    } else if (value == 1) {
+                      refreshPurchasingsWHEREisReceived();
+                    } else {
+                      refreshPurchasingsWHEREisNotReceived();
+                    }
                   });
                 },
                 tabs: [
@@ -354,6 +452,49 @@ class _BuyingPageState extends State<BuyingPage> {
                                               ),
                                             ),
                                             onDismissed: (direction) async {
+                                              List<PurchasingItemsModel>
+                                                  purchasingItems = [];
+                                              if (purchasing.isReceive ==
+                                                  true) {
+                                                print(purchasing.isReceive);
+                                                for (var item
+                                                    in purchasingItems) {
+                                                  purchasingItems =
+                                                      await DatabaseManager
+                                                          .instance
+                                                          .readAllPurchasingItemsWherePurID(
+                                                              purchasing
+                                                                  .purId!);
+                                                  for (var lot in productLots) {
+                                                    if (item.purId ==
+                                                        lot.purId) {
+                                                      final updatedLot = lot.copy(
+                                                          remainAmount:
+                                                              lot.remainAmount -
+                                                                  item.amount);
+                                                      await DatabaseManager
+                                                          .instance
+                                                          .updateProductLot(
+                                                              updatedLot);
+                                                    }
+                                                  }
+                                                  await DatabaseManager.instance
+                                                      .deletePurchasingItem(
+                                                          item.purItemsId!);
+                                                }
+                                              } else {
+                                                print('else Purchjasing');
+                                                for (var item
+                                                    in purchasingItems) {
+                                                  await DatabaseManager.instance
+                                                      .deletePurchasingItem(
+                                                          item.purItemsId!);
+                                                }
+                                              }
+                                              await DatabaseManager.instance
+                                                  .deletePurchasing(
+                                                      purchasing.purId!);
+
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(SnackBar(
                                                 behavior:
@@ -376,9 +517,6 @@ class _BuyingPageState extends State<BuyingPage> {
                                                 )),
                                                 duration: Duration(seconds: 5),
                                               ));
-                                              await DatabaseManager.instance
-                                                  .deletePurchasing(
-                                                      purchasing.purId!);
                                               refreshPurchasings();
                                               setState(() {});
                                             },
@@ -445,13 +583,17 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                       child: Row(
                                                                                         children: [
                                                                                           Text(
-                                                                                            'รายการ (${selectedPurchasing.length})',
+                                                                                            'รายการสั่งซื้อสินค้า \n(${selectedPurchasing.length})',
                                                                                             style: TextStyle(fontSize: 20),
                                                                                           ),
                                                                                           const Spacer(),
                                                                                           ElevatedButton(
                                                                                               style: ElevatedButton.styleFrom(primary: Colors.redAccent),
-                                                                                              onPressed: () {},
+                                                                                              onPressed: () async {
+                                                                                                await dialogConfirmDelete();
+                                                                                                selectedPurchasing.clear();
+                                                                                                refreshPurchasings();
+                                                                                              },
                                                                                               child: Icon(
                                                                                                 Icons.delete_rounded,
                                                                                               )),
@@ -459,7 +601,37 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                             width: 10,
                                                                                           ),
                                                                                           ElevatedButton(
-                                                                                              onPressed: () {},
+                                                                                              onPressed: () async {
+                                                                                                List<PurchasingItemsModel> purchasingItems = [];
+                                                                                                for (var pur in selectedPurchasing) {
+                                                                                                  if (pur.isReceive != true) {
+                                                                                                    purchasingItems = await DatabaseManager.instance.readAllPurchasingItemsWherePurID(pur.purId!);
+                                                                                                    for (var item in purchasingItems) {
+                                                                                                      for (var lot in productLots) {
+                                                                                                        if (item.purId == lot.purId) {
+                                                                                                          final updatedLot = lot.copy(isReceived: true, remainAmount: int.parse('${lot.amount}'));
+                                                                                                          await DatabaseManager.instance.updateProductLot(updatedLot);
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                    final updatedPur = pur.copy(isReceive: true);
+                                                                                                    await DatabaseManager.instance.updatePurchasing(updatedPur);
+                                                                                                  }
+                                                                                                }
+                                                                                                setState(() {});
+                                                                                                refreshPurchasings();
+                                                                                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                                  backgroundColor: Theme.of(context).backgroundColor,
+                                                                                                  behavior: SnackBarBehavior.floating,
+                                                                                                  content: Row(
+                                                                                                    children: [
+                                                                                                      Text("ปรับปรุงสินค้าคงเหลือแล้ว"),
+                                                                                                    ],
+                                                                                                  ),
+                                                                                                  duration: Duration(seconds: 5),
+                                                                                                ));
+                                                                                                Navigator.pop(context);
+                                                                                              },
                                                                                               child: Row(
                                                                                                 children: [
                                                                                                   Text('รับสินค้าแล้ว'),
@@ -510,32 +682,27 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                                 Icons.check_box_rounded,
                                                                                                                 color: Theme.of(context).backgroundColor,
                                                                                                               )),
-                                                                                                          Column(
-                                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                          Text(
+                                                                                                            '${_dealer.dName}',
+                                                                                                            style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                                          ),
+                                                                                                          Row(
+                                                                                                            mainAxisAlignment: MainAxisAlignment.center,
                                                                                                             children: [
+                                                                                                              indItem.isReceive == true
+                                                                                                                  ? Icon(
+                                                                                                                      Icons.check_circle,
+                                                                                                                      color: Colors.greenAccent,
+                                                                                                                      size: 15,
+                                                                                                                    )
+                                                                                                                  : Icon(
+                                                                                                                      Icons.circle_outlined,
+                                                                                                                      color: Colors.greenAccent,
+                                                                                                                      size: 15,
+                                                                                                                    ),
                                                                                                               Text(
-                                                                                                                '${_dealer.dName}',
-                                                                                                                style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
-                                                                                                              ),
-                                                                                                              Row(
-                                                                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                                                                children: [
-                                                                                                                  indItem.isReceive == true
-                                                                                                                      ? Icon(
-                                                                                                                          Icons.check_circle,
-                                                                                                                          color: Colors.greenAccent,
-                                                                                                                          size: 15,
-                                                                                                                        )
-                                                                                                                      : Icon(
-                                                                                                                          Icons.circle_outlined,
-                                                                                                                          color: Colors.greenAccent,
-                                                                                                                          size: 15,
-                                                                                                                        ),
-                                                                                                                  Text(
-                                                                                                                    '${NumberFormat("#,###.##").format(indItem.total)} ฿',
-                                                                                                                    style: TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold),
-                                                                                                                  ),
-                                                                                                                ],
+                                                                                                                '${NumberFormat("#,###.##").format(indItem.total)} ฿',
+                                                                                                                style: TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold),
                                                                                                               ),
                                                                                                             ],
                                                                                                           ),

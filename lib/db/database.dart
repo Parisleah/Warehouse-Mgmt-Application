@@ -549,6 +549,33 @@ ${DealerFields.shopId} $integerType
   //   }
   //   return result.map((json) => PurchasingModel.fromJson(json)).toList();
   // }
+  Future<List<PurchasingModel>> readAllPurchasingsWHEREisNotReceived(
+      int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingFields.purId} DESC';
+    final result = await db.query(tablePurchasing,
+        columns: PurchasingFields.values,
+        where:
+            '${PurchasingFields.shopId} = ? and ${PurchasingFields.isReceive} = ?',
+        whereArgs: [shopId, 0],
+        orderBy: orderBy);
+    print('All Purchasing -> ${result}');
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
+
+  Future<List<PurchasingModel>> readAllPurchasingsWHEREisReceived(
+      int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingFields.purId} DESC';
+    final result = await db.query(tablePurchasing,
+        columns: PurchasingFields.values,
+        where:
+            '${PurchasingFields.shopId} = ? and ${PurchasingFields.isReceive} = ?',
+        whereArgs: [shopId, 1],
+        orderBy: orderBy);
+    print('All Purchasing -> ${result}');
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
 
   Future<List<PurchasingModel>> readAllPurchasings(int shopId) async {
     final db = await instance.database;
@@ -639,6 +666,7 @@ ${DealerFields.shopId} $integerType
         where: '${PurchasingItemsFields.purItemsId} = ?',
         whereArgs: [purItemId]);
   }
+
   // PurchasingItems
 
   // Dealers
