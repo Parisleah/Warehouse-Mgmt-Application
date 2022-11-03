@@ -42,6 +42,20 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
   List<ProductLot> productLots = [];
   List<ProductModel_stProperty> stPropertys = [];
   List<ProductModel_ndProperty> ndPropertys = [];
+  final List<String> items = [
+    'Item1',
+    'Item2',
+    'Item3',
+    'Item4',
+    'Item5',
+    'Item6',
+    'Item7',
+    'Item8',
+    'Item9',
+    'Item10',
+    'Item11',
+    'Item12',
+  ];
 
   List<TextEditingController> amountControllers = [];
   List<ProductModel> ddModelSelectedItems = [];
@@ -132,24 +146,10 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
         .toList();
   }
 
-  final List<String> modelitems = [
-    'Item1',
-    'Item2',
-    'Item3',
-    'Item4',
-    'Item5',
-    'Item6',
-    'Item7',
-    'Item8',
-    'Item9',
-    'Item10',
-    'Item11',
-    'Item12',
-  ];
-
   final df = new DateFormat('dd-MM-yyyy');
   final prodRequestController = TextEditingController();
   // Text Field
+
   void initState() {
     super.initState();
     refreshProducts();
@@ -164,7 +164,6 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
   }
 
   final _formKeyProdModel = GlobalKey<FormState>();
-  final _formKeyProdLot = GlobalKey<FormState>();
   final _formKeyAmount = GlobalKey<FormState>();
 
   Future refreshProducts() async {
@@ -386,7 +385,7 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                   color: Colors.white,
                                 ),
                                 iconSize: 30,
-                                buttonHeight: 70,
+                                buttonHeight: 80,
                                 buttonPadding:
                                     const EdgeInsets.only(left: 20, right: 10),
                                 dropdownDecoration: BoxDecoration(
@@ -589,126 +588,70 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                 buttonWidth: 200,
                                 itemPadding: EdgeInsets.zero,
                                 selectedItemBuilder: (context) {
-                                  return ddModelSelectedItems.map(
+                                  return items.map(
                                     (item) {
-                                      final _isSelected =
-                                          ddModelSelectedItems.contains(item);
                                       return Row(
                                         children: [
                                           Container(
-                                            width: 280,
+                                            height: 90,
+                                            width: 250,
                                             child: ListView.builder(
                                                 scrollDirection:
                                                     Axis.horizontal,
                                                 padding:
                                                     const EdgeInsets.all(8),
-                                                itemCount:
-                                                    ddModelSelectedItems.length,
+                                                itemCount: selectedItems.length,
                                                 itemBuilder:
                                                     (BuildContext context,
                                                         int index) {
                                                   final indItem =
                                                       ddModelSelectedItems[
                                                           index];
-                                                  final found =
-                                                      ddModelSelectedItems
-                                                          .indexWhere(
-                                                              (e) => e == item);
-                                                  var getLastestLot;
-
-                                                  for (var lot in productLots) {
-                                                    if (lot.prodModelId ==
-                                                        item.prodModelId) {
-                                                      if (lot.remainAmount !=
-                                                          0) {
-                                                        getLastestLot = lot;
-                                                        break;
-                                                      }
-                                                    }
-                                                  }
-
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      if (_isSelected ==
-                                                          false) {
-                                                        ddModelSelectedItems
-                                                            .add(item);
-                                                        ddLotSelectedItems
-                                                            .add(getLastestLot);
-                                                        amountControllers.add(
-                                                            TextEditingController());
-                                                      } else {
-                                                        ddModelSelectedItems
-                                                            .remove(item);
-                                                        ddLotSelectedItems
-                                                            .remove(
-                                                                getLastestLot);
-                                                        amountControllers
-                                                            .remove(found);
-                                                      }
-                                                      setState(() {});
-                                                    },
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              3),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(30),
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                  gradient:
-                                                                      LinearGradient(
-                                                            colors: [
-                                                              // Color.fromRGBO(29,
-                                                              //     29, 65, 1.0),
-                                                              Theme.of(context)
-                                                                  .backgroundColor,
-                                                              Theme.of(context)
-                                                                  .backgroundColor,
+                                                  // ??????asdsd
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(3),
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      child: Container(
+                                                        height: 100,
+                                                        color: Color.fromRGBO(
+                                                            66, 64, 87, 1.0),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(10.0),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .check_box_rounded,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .backgroundColor,
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 10),
+                                                              Text(
+                                                                '${indItem.stProperty} ${(indItem.ndProperty)}',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        11,
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
                                                             ],
-                                                            begin: Alignment
-                                                                .topCenter,
-                                                            end: Alignment
-                                                                .bottomCenter,
-                                                          )),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 10,
-                                                                    right: 10),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .check_outlined,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 10),
-                                                                Text(
-                                                                  '${indItem.stProperty} ${(indItem.ndProperty)}',
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          11,
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 10,
-                                                                ),
-                                                              ],
-                                                            ),
                                                           ),
                                                         ),
                                                       ),
@@ -730,6 +673,89 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                   ),
                 ),
                 // Container of ListView ProuductLots
+                Container(
+                  height: 90,
+                  width: 370,
+                  child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.all(8),
+                      itemCount: ddModelSelectedItems.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final indItem = ddModelSelectedItems[index];
+                        final found = ddModelSelectedItems
+                            .indexWhere((e) => e == indItem);
+                        var getLastestLot;
+                        var _isSelected =
+                            ddModelSelectedItems.contains(indItem);
+                        for (var lot in productLots) {
+                          if (lot.prodModelId == indItem.prodModelId) {
+                            if (lot.remainAmount != 0) {
+                              getLastestLot = lot;
+                              break;
+                            }
+                          }
+                        }
+
+                        return InkWell(
+                          onTap: () {
+                            if (_isSelected == false) {
+                              ddModelSelectedItems.add(indItem);
+                              ddLotSelectedItems.add(getLastestLot);
+                              amountControllers.add(TextEditingController());
+                            } else {
+                              ddModelSelectedItems.remove(indItem);
+                              ddLotSelectedItems.remove(getLastestLot);
+                              amountControllers.remove(found);
+                            }
+                            setState(() {});
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                  colors: [
+                                    // Color.fromRGBO(29,
+                                    //     29, 65, 1.0),
+                                    Theme.of(context).backgroundColor,
+                                    Theme.of(context).backgroundColor,
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                )),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.check_outlined,
+                                        color: Colors.white,
+                                        size: 15,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        '${indItem.stProperty} ${(indItem.ndProperty)}',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                ),
 
                 // Container of จำนวนสินค้า
                 Container(
@@ -754,372 +780,391 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                       ),
 
                       // Container of ListView LotSelectedItems
-                      Container(
-                        height: 270,
-                        width: 450,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        child: PageView.builder(
-                            scrollDirection: Axis.horizontal,
-                            // padding: EdgeInsets.zero,
-                            pageSnapping: true,
-                            controller: _pageController,
-                            onPageChanged: (page) {
-                              setState(() {
-                                activePage = page;
-                              });
-                            },
-                            itemCount: ddModelSelectedItems.length,
-                            itemBuilder: (context, index) {
-                              final selectedModel = ddModelSelectedItems[index];
-                              final _isSelected =
-                                  ddModelSelectedItems.contains(selectedModel);
+                      Form(
+                        key: _formKeyAmount,
+                        child: Container(
+                          height: 300,
+                          width: 450,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: PageView.builder(
+                              scrollDirection: Axis.horizontal,
+                              // padding: EdgeInsets.zero,
+                              pageSnapping: true,
+                              controller: _pageController,
+                              onPageChanged: (page) {
+                                setState(() {
+                                  activePage = page;
+                                });
+                              },
+                              itemCount: ddModelSelectedItems.length,
+                              itemBuilder: (context, index) {
+                                final selectedModel =
+                                    ddModelSelectedItems[index];
+                                final _isSelected = ddModelSelectedItems
+                                    .contains(selectedModel);
 
-                              final found = selectedItems
-                                  .indexWhere((e) => e == selectedModel);
-                              var getLastestLot;
+                                final found = selectedItems
+                                    .indexWhere((e) => e == selectedModel);
+                                var getLastestLot;
 
-                              for (var lot in productLots) {
-                                if (lot.prodModelId ==
-                                    selectedModel.prodModelId) {
-                                  if (lot.remainAmount != 0) {
-                                    getLastestLot = lot;
-                                    break;
+                                for (var lot in productLots) {
+                                  if (lot.prodModelId ==
+                                      selectedModel.prodModelId) {
+                                    if (lot.remainAmount != 0) {
+                                      getLastestLot = lot;
+                                      break;
+                                    }
                                   }
                                 }
-                              }
-                              var amount = 0;
-                              amount = int.parse(
-                                  amountControllers[index].text.isEmpty
-                                      ? '0'
-                                      : amountControllers[index].text);
+                                var amount = 0;
+                                amount = int.parse(
+                                    amountControllers[index].text.isEmpty
+                                        ? '0'
+                                        : amountControllers[index].text);
 
-                              var subTotal = selectedModel.price * amount;
+                                var subTotal = selectedModel.price * amount;
 
-                              return TextButton(
-                                onPressed: () {},
-                                child: Container(
-                                  width: 250,
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                            spreadRadius: 0,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 3))
-                                      ],
-                                      borderRadius: BorderRadius.circular(22),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Theme.of(context).backgroundColor,
-                                          Color.fromRGBO(29, 29, 65, 1.0),
+                                return TextButton(
+                                  onPressed: () {},
+                                  child: Container(
+                                    width: 250,
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                              spreadRadius: 0,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 3))
                                         ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      )),
-                                  child: Column(
-                                      // mainAxisAlignment:
-                                      //     MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            IconButton(
-                                                onPressed: () {
-                                                  if (_isSelected == false) {
-                                                    ddModelSelectedItems
-                                                        .add(selectedModel);
-                                                    amountControllers.add(
-                                                        TextEditingController());
-                                                    ddLotSelectedItems
-                                                        .add(getLastestLot);
-                                                  } else {
-                                                    ddModelSelectedItems
-                                                        .remove(selectedModel);
-                                                    ddLotSelectedItems
-                                                        .remove(getLastestLot);
-                                                    amountControllers
-                                                        .remove(found);
-                                                  }
-                                                  setState(() {});
-                                                },
-                                                icon: Icon(
-                                                  Icons.close_rounded,
-                                                  color: Colors.grey,
-                                                )),
+                                        borderRadius: BorderRadius.circular(22),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Theme.of(context).backgroundColor,
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .onSecondary,
                                           ],
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Row(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        )),
+                                    child: Column(
+                                        // mainAxisAlignment:
+                                        //     MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
                                             children: [
-                                              Center(
-                                                child: Stack(
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              22),
-                                                      child: Image.file(
-                                                        File(widget.product
-                                                            .prodImage!),
-                                                        width: 80,
-                                                        height: 80,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      top: 0.0,
-                                                      right: 0.0,
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                                color: Colors
-                                                                    .black
-                                                                    .withOpacity(
-                                                                        0.7),
-                                                                spreadRadius: 0,
-                                                                blurRadius: 5,
-                                                                offset: Offset(
-                                                                    0, 4))
-                                                          ],
-                                                          color: Theme.of(
-                                                                  context)
-                                                              .backgroundColor,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(30),
+                                              IconButton(
+                                                  onPressed: () {
+                                                    if (_isSelected == false) {
+                                                      ddModelSelectedItems
+                                                          .add(selectedModel);
+                                                      amountControllers.add(
+                                                          TextEditingController());
+                                                      ddLotSelectedItems
+                                                          .add(getLastestLot);
+                                                    } else {
+                                                      ddModelSelectedItems
+                                                          .remove(
+                                                              selectedModel);
+                                                      ddLotSelectedItems.remove(
+                                                          getLastestLot);
+                                                      amountControllers
+                                                          .remove(found);
+                                                    }
+                                                    setState(() {});
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.close_rounded,
+                                                    color: Colors.grey,
+                                                  )),
+                                            ],
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Row(
+                                              children: [
+                                                Center(
+                                                  child: Stack(
+                                                    children: [
+                                                      ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(22),
+                                                        child: Image.file(
+                                                          File(widget.product
+                                                              .prodImage!),
+                                                          width: 80,
+                                                          height: 80,
+                                                          fit: BoxFit.cover,
                                                         ),
-                                                        child: Text(
-                                                          '${NumberFormat("#,###.##").format(subTotal)} ฿',
+                                                      ),
+                                                      Positioned(
+                                                        top: 0.0,
+                                                        right: 0.0,
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.7),
+                                                                  spreadRadius:
+                                                                      0,
+                                                                  blurRadius: 5,
+                                                                  offset:
+                                                                      Offset(
+                                                                          0, 4))
+                                                            ],
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .backgroundColor,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30),
+                                                          ),
+                                                          child: Text(
+                                                            '${NumberFormat("#,###.##").format(subTotal)} ฿',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          '${selectedModel.stProperty} ${selectedModel.ndProperty} ',
                                                           style: TextStyle(
-                                                              fontSize: 12,
+                                                              fontSize: 15,
                                                               color:
                                                                   Colors.white,
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold),
                                                         ),
+                                                        Text(
+                                                          'x ${NumberFormat("#,###.##").format(amount)} ชิ้น',
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Text(
+                                                      'ราคา ${NumberFormat("#,###.##").format(selectedModel.price)} ฿',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        '${selectedModel.stProperty} ${selectedModel.ndProperty} ',
-                                                        style: TextStyle(
-                                                            fontSize: 15,
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      Text(
-                                                        'x ${NumberFormat("#,###.##").format(amount)} ชิ้น',
-                                                        style: TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.white,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(3.0),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const SizedBox(
+                                                          width: 5,
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Text(
-                                                    'ราคา ${NumberFormat("#,###.##").format(selectedModel.price)} ฿',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.white,
+                                                        getLastestLot == null
+                                                            ? Container()
+                                                            : Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                      'ล็อตที่ ${NumberFormat("#,###.##").format(getLastestLot.prodLotId)} (คงเหลือ ${NumberFormat("#,###.##").format(getLastestLot.remainAmount)})',
+                                                                      style: const TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              12)),
+                                                                  Text(
+                                                                      '(วันที่ ${df.format(getLastestLot.orderedTime!)})',
+                                                                      style: TextStyle(
+                                                                          color: Theme.of(context)
+                                                                              .backgroundColor,
+                                                                          fontSize:
+                                                                              12)),
+                                                                ],
+                                                              ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(3.0),
-                                              child: Column(
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        width: 5,
-                                                      ),
-                                                      getLastestLot == null
-                                                          ? Container()
-                                                          : Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                    'ล็อตที่ ${NumberFormat("#,###.##").format(getLastestLot.prodLotId)} (คงเหลือ ${NumberFormat("#,###.##").format(getLastestLot.remainAmount)})',
-                                                                    style: const TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            12)),
-                                                                Text(
-                                                                    '(วันที่ ${df.format(getLastestLot.orderedTime!)})',
-                                                                    style: TextStyle(
-                                                                        color: Theme.of(context)
-                                                                            .backgroundColor,
-                                                                        fontSize:
-                                                                            12)),
-                                                              ],
-                                                            ),
-                                                    ],
-                                                  ),
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.all(5),
-                                                    height: 50,
-                                                    child: TextField(
-                                                        onChanged: ((value) {
-                                                          if (amountControllers[
-                                                                          index]
-                                                                      .text !=
-                                                                  null &&
-                                                              amountControllers[
-                                                                          index]
-                                                                      .text !=
-                                                                  '') {
-                                                            if (int.parse(
-                                                                    amountControllers[
-                                                                            index]
-                                                                        .text) >
-                                                                getLastestLot
-                                                                    .remainAmount) {
-                                                              amountControllers[
-                                                                      index]
-                                                                  .clear();
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                SnackBar(
-                                                                  backgroundColor:
-                                                                      Theme.of(
-                                                                              context)
-                                                                          .backgroundColor,
-                                                                  behavior:
-                                                                      SnackBarBehavior
-                                                                          .floating,
-                                                                  content: Text(
-                                                                      "สินค้าคเหลือไม่เพียพอ"),
-                                                                  duration:
-                                                                      Duration(
-                                                                          seconds:
-                                                                              2),
-                                                                ),
-                                                              );
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              5),
+                                                      height: 90,
+                                                      child: TextFormField(
+                                                          validator: (value) {
+                                                            if (value == null ||
+                                                                value.isEmpty) {
+                                                              return 'โปรดระบุจำนวน';
                                                             }
-                                                          } else {
-                                                            subTotal =
-                                                                selectedModel
-                                                                        .cost *
-                                                                    amount;
-                                                          }
+                                                            return null;
+                                                          },
+                                                          onChanged: ((value) {
+                                                            if (amountControllers[
+                                                                            index]
+                                                                        .text !=
+                                                                    null &&
+                                                                amountControllers[
+                                                                            index]
+                                                                        .text !=
+                                                                    '') {
+                                                              if (double.parse(amountControllers[
+                                                                              index]
+                                                                          .text)
+                                                                      .toInt() >
+                                                                  getLastestLot
+                                                                      .remainAmount) {
+                                                                amountControllers[
+                                                                        index]
+                                                                    .clear();
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(
+                                                                  SnackBar(
+                                                                    backgroundColor:
+                                                                        Theme.of(context)
+                                                                            .backgroundColor,
+                                                                    behavior:
+                                                                        SnackBarBehavior
+                                                                            .floating,
+                                                                    content: Text(
+                                                                        "สินค้าคเหลือไม่เพียพอ"),
+                                                                    duration: Duration(
+                                                                        seconds:
+                                                                            2),
+                                                                  ),
+                                                                );
+                                                              }
+                                                            } else {
+                                                              subTotal =
+                                                                  selectedModel
+                                                                          .cost *
+                                                                      amount;
+                                                            }
 
-                                                          setState(() {});
-                                                        }),
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        controller:
-                                                            amountControllers[
-                                                                index],
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                        decoration:
-                                                            InputDecoration(
-                                                          filled: true,
-                                                          fillColor:
-                                                              Color.fromARGB(
-                                                                  255,
-                                                                  32,
-                                                                  31,
-                                                                  45),
-                                                          border: const OutlineInputBorder(
-                                                              borderRadius: BorderRadius.only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                          15),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                          15),
-                                                                  bottomLeft: Radius
-                                                                      .circular(
-                                                                          15),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                          15)),
-                                                              borderSide:
-                                                                  BorderSide
-                                                                      .none),
-                                                          hintText: 'จำนวน',
-                                                          hintStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontSize: 14),
-                                                          suffixIcon:
+                                                            setState(() {});
+                                                          }),
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          controller:
                                                               amountControllers[
-                                                                          index]
-                                                                      .text
-                                                                      .isEmpty
-                                                                  ? Container(
-                                                                      width: 0,
-                                                                    )
-                                                                  : IconButton(
-                                                                      onPressed:
-                                                                          () {
-                                                                        amountControllers[index]
-                                                                            .clear();
-                                                                        setState(
-                                                                            () {});
-                                                                      },
-                                                                      icon:
-                                                                          const Icon(
-                                                                        Icons
-                                                                            .close_sharp,
-                                                                        color: Colors
-                                                                            .white,
+                                                                  index],
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                          decoration:
+                                                              InputDecoration(
+                                                            filled: true,
+                                                            fillColor:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    32,
+                                                                    31,
+                                                                    45),
+                                                            border: const OutlineInputBorder(
+                                                                borderRadius: BorderRadius.only(
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            15),
+                                                                    topRight: Radius
+                                                                        .circular(
+                                                                            15),
+                                                                    bottomLeft:
+                                                                        Radius.circular(
+                                                                            15),
+                                                                    bottomRight:
+                                                                        Radius.circular(
+                                                                            15)),
+                                                                borderSide:
+                                                                    BorderSide
+                                                                        .none),
+                                                            hintText: 'จำนวน',
+                                                            hintStyle:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        14),
+                                                            suffixIcon:
+                                                                amountControllers[
+                                                                            index]
+                                                                        .text
+                                                                        .isEmpty
+                                                                    ? Container(
+                                                                        width:
+                                                                            0,
+                                                                      )
+                                                                    : IconButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          amountControllers[index]
+                                                                              .clear();
+                                                                          setState(
+                                                                              () {});
+                                                                        },
+                                                                        icon:
+                                                                            const Icon(
+                                                                          Icons
+                                                                              .close_sharp,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
                                                                       ),
-                                                                    ),
-                                                        )),
-                                                  ),
-                                                ],
+                                                          )),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )
-                                      ]),
-                                ),
-                              );
-                            }),
+                                          )
+                                        ]),
+                                  ),
+                                );
+                              }),
+                        ),
                       ),
                     ],
                   ),
@@ -1151,129 +1196,104 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
-                                    if (_formKeyProdModel.currentState!
+                                    if (_formKeyAmount.currentState!
                                         .validate()) {
-                                      _formKeyProdModel.currentState!.save();
-
+                                      print('All Amount Controller is filled');
+                                      // ผลรวม จำนวน[สินค้า]ทั้งหมด
                                       var oldTotalAmount = 0;
-                                      for (var controller
-                                          in amountControllers) {
-                                        if (controller.text != null &&
-                                            controller.text != '') {
-                                          oldTotalAmount +=
-                                              int.parse(controller.text);
-                                          for (var i = 0;
-                                              i < ddModelSelectedItems.length;
-                                              i++) {
-                                            final createdSellingItem =
-                                                SellingItemModel(
-                                                    prodId:
-                                                        widget.product.prodId,
-                                                    prodModelId:
-                                                        ddModelSelectedItems[
-                                                                i]
-                                                            .prodModelId,
-                                                    prodLotId:
-                                                        ddLotSelectedItems[
-                                                                i]
-                                                            .prodLotId!,
-                                                    amount: int
-                                                        .parse(
-                                                            amountControllers[
-                                                                    i]
-                                                                .text),
-                                                    total: int.parse(
+
+                                      for (var i = 0;
+                                          i < ddModelSelectedItems.length;
+                                          i++) {
+                                        oldTotalAmount += double.parse(
+                                                amountControllers[i].text)
+                                            .toInt();
+                                        final createdSellingItem =
+                                            SellingItemModel(
+                                                prodId: widget.product.prodId,
+                                                prodModelId: ddModelSelectedItems[
+                                                        i]
+                                                    .prodModelId,
+                                                prodLotId:
+                                                    ddLotSelectedItems[i]
+                                                        .prodLotId!,
+                                                amount:
+                                                    double.parse(
                                                             amountControllers[i]
-                                                                .text) *
-                                                        ddModelSelectedItems[i]
-                                                            .price);
-                                            widget.update(createdSellingItem);
-                                            print(
-                                                'Add ->${createdSellingItem.total}');
-                                            final updateAmountSelectedProductLot =
-                                                ddLotSelectedItems[i].copy(
-                                                    remainAmount:
-                                                        ddLotSelectedItems[i]
-                                                                .remainAmount -
-                                                            int.parse(
-                                                                amountControllers[
-                                                                        i]
-                                                                    .text));
-                                            await DatabaseManager.instance
-                                                .updateProductLot(
-                                                    updateAmountSelectedProductLot);
-
-                                            totalAmount = oldTotalAmount;
-
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              backgroundColor: Theme.of(context)
-                                                  .backgroundColor,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              content: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons
-                                                        .shopping_cart_outlined,
-                                                    color: Colors.white,
-                                                  ),
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30),
-                                                    child: Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      child: Image.file(
-                                                        File(widget.product
-                                                            .prodImage!),
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .backgroundColor,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10)),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              3.0),
-                                                      child: Text(
-                                                        "+${totalAmount}",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                      " ${widget.product.prodName} "),
-                                                ],
-                                              ),
-                                              duration: Duration(seconds: 5),
-                                            ));
-                                            Navigator.pop(context);
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              backgroundColor: Theme.of(context)
-                                                  .backgroundColor,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              content: Text("ระบุจำนวนสินค้า"),
-                                              duration: Duration(seconds: 2),
-                                            ),
-                                          );
-                                        }
+                                                                .text)
+                                                        .toInt(),
+                                                total: double.parse(
+                                                            amountControllers[i]
+                                                                .text)
+                                                        .toInt() *
+                                                    ddModelSelectedItems[i]
+                                                        .price);
+                                        widget.update(createdSellingItem);
+                                        final updateAmountSelectedProductLot =
+                                            ddLotSelectedItems[i].copy(
+                                                remainAmount: ddLotSelectedItems[
+                                                            i]
+                                                        .remainAmount -
+                                                    double.parse(
+                                                            amountControllers[i]
+                                                                .text)
+                                                        .toInt());
+                                        await DatabaseManager.instance
+                                            .updateProductLot(
+                                                updateAmountSelectedProductLot);
                                       }
+                                      totalAmount = oldTotalAmount;
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        backgroundColor:
+                                            Theme.of(context).backgroundColor,
+                                        behavior: SnackBarBehavior.floating,
+                                        content: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.shopping_cart_outlined,
+                                              color: Colors.white,
+                                            ),
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              child: Container(
+                                                width: 20,
+                                                height: 20,
+                                                child: Image.file(
+                                                  File(widget
+                                                      .product.prodImage!),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .backgroundColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(3.0),
+                                                child: Text(
+                                                  "+${totalAmount}",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                                " ${widget.product.prodName} "),
+                                          ],
+                                        ),
+                                        duration: Duration(seconds: 5),
+                                      ));
+                                      Navigator.pop(context);
+                                    } else {
+                                      print('Some Amount Controller is null');
                                     }
                                   },
                                   child: Text(

@@ -339,9 +339,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     builder: (context) => PinVerifyPage(
                                           profile: widget.profile,
                                         )));
-                            setState(() {
-                              refreshProfile();
-                            });
+                            refreshProfile();
+                            setState(() {});
                           },
                           child: Container(
                             width: 350,

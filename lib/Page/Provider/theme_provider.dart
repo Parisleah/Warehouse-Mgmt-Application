@@ -35,6 +35,11 @@ const scafBG_dark_Color = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
 );
+const tabbarGred = LinearGradient(
+  colors: [Color.fromRGBO(29, 29, 65, 1.0), Color.fromARGB(255, 141, 106, 225)],
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+);
 
 const dark_primary_accent_color = Color.fromARGB(255, 141, 106, 225);
 
@@ -84,23 +89,25 @@ class MyThemes {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
     ),
-    
 
     // Tabbar
     tabBarTheme: TabBarTheme(
-      unselectedLabelColor: Colors.white,
-      indicator: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                spreadRadius: 0,
-                blurRadius: 5,
-                offset: Offset(0, 3))
-          ],
-          borderRadius: BorderRadius.circular(15),
-          color: dark_primary_accent_color),
-      indicatorSize: TabBarIndicatorSize.tab,
-    ),
+        labelStyle: TextStyle(fontSize: 12, fontFamily: 'NotoSansThai'),
+        unselectedLabelColor: Colors.white,
+        indicator: BoxDecoration(
+            gradient: tabbarGred,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 0,
+                  blurRadius: 5,
+                  offset: Offset(0, 3))
+            ],
+            borderRadius: BorderRadius.circular(15),
+            color: dark_primary_accent_color),
+        indicatorSize: TabBarIndicatorSize.tab,
+        unselectedLabelStyle:
+            TextStyle(fontSize: 10, fontFamily: 'NotoSansThai')),
 
     // BottomAppBar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -123,7 +130,6 @@ class MyThemes {
       // padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
       //     const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0)),
     )),
-    
   );
 
   static final lightTheme = ThemeData(

@@ -1570,6 +1570,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
     return DefaultTabController(
       length: 5,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: AppBar(
@@ -1640,7 +1641,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                   ),
                 ],
                 offset: Offset(0, 80),
-                color: Theme.of(context).colorScheme.onSecondary,
+                color: Theme.of(context).colorScheme.background,
                 elevation: 2,
               ),
             ],
@@ -1652,11 +1653,19 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            // decoration: BoxDecoration(
-            //     gradient: scafBG_dark_Color),
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(29, 29, 65, 1.0),
+                Color.fromRGBO(31, 31, 31, 1.0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            )),
             alignment: Alignment.center,
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.only(
+                  top: 110, left: 10.0, right: 10.0, bottom: 10.0),
               child: Wrap(
                 alignment: WrapAlignment.center,
                 runSpacing: 10,
@@ -1811,25 +1820,25 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                         'รูปแบบสินค้า',
                         style: TextStyle(color: Colors.white),
                       ),
-                      Spacer(),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.redAccent,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              productModels.clear();
-                            });
-                          },
-                          child: Icon(Icons.delete_sweep_rounded)),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      ElevatedButton(
-                          onPressed: () {
-                            showProductModelDialog();
-                          },
-                          child: Icon(Icons.add_rounded))
+                      // Spacer(),
+                      // ElevatedButton(
+                      //     style: ElevatedButton.styleFrom(
+                      //       primary: Colors.redAccent,
+                      //     ),
+                      //     onPressed: () {
+                      //       setState(() {
+                      //         productModels.clear();
+                      //       });
+                      //     },
+                      //     child: Icon(Icons.delete_sweep_rounded)),
+                      // const SizedBox(
+                      //   width: 10,
+                      // ),
+                      // ElevatedButton(
+                      //     onPressed: () {
+                      //       showProductModelDialog();
+                      //     },
+                      //     child: Icon(Icons.add_rounded))
                     ],
                   ),
                   Container(

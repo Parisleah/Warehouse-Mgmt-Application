@@ -19,7 +19,7 @@ class MoneyBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(
-        width: 112,
+        width: MediaQuery.of(context).size.width / 3.5,
         height: size,
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(

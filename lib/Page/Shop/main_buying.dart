@@ -26,7 +26,7 @@ class BuyingPage extends StatefulWidget {
 
 class _BuyingPageState extends State<BuyingPage> {
   TextEditingController searchDealerController = new TextEditingController();
-  List<PurchasingModel> selectedPurchasing = [];
+  List<PurchasingModel> selectedPurchasings = [];
   List<PurchasingModel> purchasings = [];
   List<DealerModel> dealers = [];
   List<ProductLot> productLots = [];
@@ -41,8 +41,8 @@ class _BuyingPageState extends State<BuyingPage> {
   }
 
   Future refreshPurchasings() async {
-    purchasings =
-        await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
+    purchasings = await DatabaseManager.instance
+        .readAllPurchasingsORDERBYPresent(widget.shop.shopid!);
     dealers = await DatabaseManager.instance.readAllDealers();
     productLots = await DatabaseManager.instance.readAllProductLots();
 
@@ -125,7 +125,7 @@ class _BuyingPageState extends State<BuyingPage> {
                 child: const Text('ลบ'),
                 onPressed: () async {
                   List<PurchasingItemsModel> purchasingItems = [];
-                  for (var pur in selectedPurchasing) {
+                  for (var pur in selectedPurchasings) {
                     purchasingItems = await DatabaseManager.instance
                         .readAllPurchasingItemsWherePurID(pur.purId!);
                     if (pur.isReceive == true) {
@@ -295,7 +295,18 @@ class _BuyingPageState extends State<BuyingPage> {
                       ),
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text(" รับสินค้าแล้ว "),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.greenAccent,
+                              ),
+                              Text("รับสินค้าแล้ว"),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -307,7 +318,15 @@ class _BuyingPageState extends State<BuyingPage> {
                       ),
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text("ไม่ได้รับสินค้า"),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.circle_outlined,
+                              color: Colors.greenAccent,
+                            ),
+                            Text("ไม่ได้รับสินค้า"),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -341,7 +360,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                       setState(() {
                                         isSelectedPurchasing =
                                             !isSelectedPurchasing;
-                                        selectedPurchasing.clear();
+                                        selectedPurchasings.clear();
                                       });
                                     },
                                     child: Row(
@@ -396,7 +415,7 @@ class _BuyingPageState extends State<BuyingPage> {
                             : Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Container(
-                                  height: 480.0,
+                                  height: (MediaQuery.of(context).size.height),
                                   width: 400.0,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
@@ -410,6 +429,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                         itemBuilder: (context, index) {
                                           final purchasing = purchasings[index];
                                           var _dealer;
+                                          TextEditingController controller;
 
                                           for (var dealer in dealers) {
                                             if (dealer.dealerId ==
@@ -418,7 +438,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                             }
                                           }
                                           final isSelectedItem =
-                                              selectedPurchasing
+                                              selectedPurchasings
                                                   .contains(purchasing);
                                           return Dismissible(
                                             key: UniqueKey(),
@@ -557,7 +577,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                   onPressed: () {
                                                                     if (isSelectedItem ==
                                                                         false) {
-                                                                      selectedPurchasing
+                                                                      selectedPurchasings
                                                                           .add(
                                                                               purchasing);
                                                                       showModalBottomSheet(
@@ -583,7 +603,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                       child: Row(
                                                                                         children: [
                                                                                           Text(
-                                                                                            'รายการสั่งซื้อสินค้า \n(${selectedPurchasing.length})',
+                                                                                            'รายการสั่งซื้อสินค้า \n(${selectedPurchasings.length})',
                                                                                             style: TextStyle(fontSize: 20),
                                                                                           ),
                                                                                           const Spacer(),
@@ -591,7 +611,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                               style: ElevatedButton.styleFrom(primary: Colors.redAccent),
                                                                                               onPressed: () async {
                                                                                                 await dialogConfirmDelete();
-                                                                                                selectedPurchasing.clear();
+                                                                                                selectedPurchasings.clear();
                                                                                                 refreshPurchasings();
                                                                                               },
                                                                                               child: Icon(
@@ -603,7 +623,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                           ElevatedButton(
                                                                                               onPressed: () async {
                                                                                                 List<PurchasingItemsModel> purchasingItems = [];
-                                                                                                for (var pur in selectedPurchasing) {
+                                                                                                for (var pur in selectedPurchasings) {
                                                                                                   if (pur.isReceive != true) {
                                                                                                     purchasingItems = await DatabaseManager.instance.readAllPurchasingItemsWherePurID(pur.purId!);
                                                                                                     for (var item in purchasingItems) {
@@ -655,9 +675,9 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                             scrollDirection: Axis.horizontal,
                                                                                             // padding: const EdgeInsets.all(8),
 
-                                                                                            itemCount: selectedPurchasing.length,
+                                                                                            itemCount: selectedPurchasings.length,
                                                                                             itemBuilder: (BuildContext context, int index) {
-                                                                                              final indItem = selectedPurchasing[index];
+                                                                                              final indItem = selectedPurchasings[index];
 
                                                                                               // ??????asdsd
                                                                                               return Padding(
@@ -674,7 +694,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                         children: [
                                                                                                           IconButton(
                                                                                                               onPressed: () {
-                                                                                                                selectedPurchasing.remove(indItem);
+                                                                                                                selectedPurchasings.remove(indItem);
                                                                                                                 Navigator.pop(context);
                                                                                                                 setState(() {});
                                                                                                               },
@@ -714,7 +734,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                               );
                                                                                             }),
                                                                                       ),
-                                                                                      Row(mainAxisAlignment: MainAxisAlignment.center, children: buyingIndicators(selectedPurchasing.length)),
+                                                                                      Row(mainAxisAlignment: MainAxisAlignment.center, children: buyingIndicators(selectedPurchasings.length)),
                                                                                     ],
                                                                                   ),
                                                                                 ],
@@ -722,7 +742,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                             );
                                                                           });
                                                                     } else {
-                                                                      selectedPurchasing
+                                                                      selectedPurchasings
                                                                           .remove(
                                                                               purchasing);
                                                                     }
@@ -764,7 +784,9 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                     .start,
                                                             children: <Widget>[
                                                               Text(
-                                                                '${_dealer.dName}',
+                                                                _dealer == null
+                                                                    ? 'กำลังแสดง'
+                                                                    : '${_dealer.dName!}',
                                                                 style: const TextStyle(
                                                                     fontWeight:
                                                                         FontWeight
@@ -782,7 +804,10 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                     size: 14,
                                                                   ),
                                                                   Text(
-                                                                    ' ${_dealer.dPhone}',
+                                                                    _dealer ==
+                                                                            null
+                                                                        ? 'กำลังแสดง'
+                                                                        : ' ${_dealer.dPhone!}',
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,
@@ -793,7 +818,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                               ),
                                                               Center(
                                                                 child: Text(
-                                                                    '${df.format(purchasing.orderedDate)}',
+                                                                    '${DateFormat.yMMMd().format(purchasing.orderedDate)}',
                                                                     style: const TextStyle(
                                                                         color: Colors
                                                                             .grey,

@@ -24,8 +24,9 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   // TextField
   bool _validate = false;
-  final shopNameController = TextEditingController();
-  final shopPhoneController = TextEditingController();
+  late final shopNameController = TextEditingController(text: widget.shop.name);
+  late final shopPhoneController =
+      TextEditingController(text: widget.shop.phone);
   // TextField
 
   File? _image;
@@ -34,6 +35,7 @@ class _ShopPageState extends State<ShopPage> {
   Shop? shop;
   @override
   void initState() {
+    refreshShop();
     shop = widget.shop;
     super.initState();
     shopNameController.addListener(() => setState(() {}));
@@ -53,13 +55,13 @@ class _ShopPageState extends State<ShopPage> {
     });
   }
 
+  Future refreshShop() async {
+    shop = await DatabaseManager.instance.readShop(widget.shop.shopid!);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    Future refreshShop() async {
-      shop = await DatabaseManager.instance.readShop(widget.shop.shopid!);
-      setState(() {});
-    }
-
     Future updateShop() async {
       final shop = widget.shop.copy(
           name: shopNameController.text.isEmpty
@@ -235,8 +237,6 @@ class _ShopPageState extends State<ShopPage> {
                                                               isChange =
                                                                   !isChange;
                                                             });
-                                                            if (_image!.path !=
-                                                                null) {}
                                                           },
                                                         )),
                                                   ),
@@ -596,7 +596,7 @@ class _ShopPageState extends State<ShopPage> {
                                                             isChange = false;
                                                           });
                                                         },
-                                                        child: Text('ยืนยัน'))
+                                                        child: Text('บันทึก'))
                                                     : Container(
                                                         width: 0,
                                                       ),
@@ -729,117 +729,119 @@ class _ShopPageState extends State<ShopPage> {
             ),
           ),
         ),
-        body: Container(
-          // decoration: BoxDecoration(gradient: scafBG_dark_Color),
-          alignment: Alignment.center,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 90,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 0, top: 10, right: 10, bottom: 0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.file(
-                          File(shop!.image),
-                          width: 170,
-                          height: 170,
-                          fit: BoxFit.cover,
+        body: SingleChildScrollView(
+          child: Container(
+            // decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 90,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 0, top: 10, right: 10, bottom: 0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.file(
+                            File(shop!.image),
+                            width: 170,
+                            height: 170,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 80,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .background
-                          .withOpacity(1.0),
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('ชื่อร้าน',
-                            style: TextStyle(color: Colors.white)),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(0.0),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(shop!.name,
-                                      style: TextStyle(color: Colors.grey)),
-                                )
-                              ]),
-                        ),
-                      ],
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .background
+                            .withOpacity(1.0),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('ชื่อร้าน',
+                              style: TextStyle(color: Colors.white)),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(shop!.name,
+                                        style: TextStyle(color: Colors.grey)),
+                                  )
+                                ]),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 80,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .background
-                          .withOpacity(1.0),
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('เบอร์โทรศัพท์',
-                            style: TextStyle(color: Colors.white)),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(0.0),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(
-                                      shop!.phone.replaceAllMapped(
-                                          RegExp(r'(\d{3})(\d{3})(\d+)'),
-                                          (Match m) =>
-                                              "${m[1]}-${m[2]}-${m[3]}"),
-                                      style: TextStyle(color: Colors.grey)),
-                                )
-                              ]),
-                        ),
-                      ],
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .background
+                            .withOpacity(1.0),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('เบอร์โทรศัพท์',
+                              style: TextStyle(color: Colors.white)),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                        shop!.phone.replaceAllMapped(
+                                            RegExp(r'(\d{3})(\d{3})(\d+)'),
+                                            (Match m) =>
+                                                "${m[1]}-${m[2]}-${m[3]}"),
+                                        style: TextStyle(color: Colors.grey)),
+                                  )
+                                ]),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-              ],
+                  const SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -37,6 +37,7 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
   List<SellingItemModel> sellingItems = [];
   bool inCartIsVisible = false;
   bool outOfStockIsVisible = false;
+
   void initState() {
     super.initState();
     searchController.addListener(() => setState(() {}));
@@ -239,19 +240,23 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                               _minPrice = minprice;
                               _maxPrice = maxprice;
                             }
+
                             return TextButton(
                               onPressed: () async {
+                                
+
                                 amountOfProd == 0
                                     ? ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                        SnackBar(
-                                          backgroundColor:
-                                              Theme.of(context).backgroundColor,
-                                          behavior: SnackBarBehavior.floating,
-                                          content: Text("สินค้าหมด"),
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      )
+                                            .showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: Theme.of(context)
+                                                  .backgroundColor,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              content: Text("สินค้าหมด"),
+                                              duration: Duration(seconds: 1),
+                                            ),
+                                          )
                                     : await Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: (context) =>

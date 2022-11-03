@@ -48,6 +48,7 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
+        backgroundColor: Theme.of(context).backgroundColor,
         content: Text("สร้าง ${widget.shopName} เสร็จสิ้น! "),
         duration: Duration(seconds: 1),
       ),

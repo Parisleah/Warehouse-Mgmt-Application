@@ -79,14 +79,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentIndex = 0;
+  late Shop shop = widget.shop;
+  Future refreshShop() async {
+    shop = await DatabaseManager.instance.readShop(widget.shop.shopid!);
+    setState(() {});
+  }
 
   Widget build(BuildContext context) {
     final screens = [
-      DashboardPage(shop: widget.shop),
-      SellingPage(shop: widget.shop),
-      BuyingPage(shop: widget.shop),
-      ProductPage(shop: widget.shop),
-      ShopPage(shop: widget.shop),
+      DashboardPage(shop: shop),
+      SellingPage(shop: shop),
+      BuyingPage(shop: shop),
+      ProductPage(shop: shop),
+      ShopPage(shop: shop),
     ];
 
     return Scaffold(
@@ -99,7 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         child: BottomNavigationBar(
           currentIndex: currentIndex,
-          onTap: (index) => setState(() => currentIndex = index),
+          onTap: (index) => setState(() {
+            currentIndex = index;
+            refreshShop();
+          }),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.add_chart_rounded),

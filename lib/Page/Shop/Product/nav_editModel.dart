@@ -486,7 +486,27 @@ class _ProductEditModelState extends State<ProductEditModel> {
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                final updatedModel = widget.model.copy(
+                                  prodModelname: '${stPropName},${ndPropName}',
+                                  cost:
+                                      double.parse(costController.text).toInt(),
+                                  price: double.parse(priceController.text)
+                                      .toInt(),
+                                );
+                                await DatabaseManager.instance
+                                    .updateProductModel(updatedModel);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).backgroundColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text("เสร็จสิ้น"),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              },
                               child: Text(
                                 "บันทึก",
                                 style: TextStyle(fontSize: 17),

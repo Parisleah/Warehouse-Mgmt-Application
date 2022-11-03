@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:intl/intl.dart';
 
@@ -80,6 +81,10 @@ class _ProductNavAddState extends State<ProductNavAdd> {
 
   bool isFoundNullCost = false;
   bool isFoundNullPrice = false;
+
+  List stPropertySelecteds = [];
+  List ndPropertySelecteds = [];
+
   showSnackBarIfEmpty(object) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.redAccent,
@@ -261,7 +266,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
 
   _createProductModeltoSetPrice(stPropsList, ndPropsList) {
     for (var st in stPropsList) {
-      if (stPropsList.isNotEmpty) {
+      if (ndPropsList.isNotEmpty) {
         for (var nd in ndPropsList) {
           final model = ProductModel(
               prodModelname: '${stPropName},${ndPropName}',
@@ -277,6 +282,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         final model = ProductModel(
             prodModelname: '${stPropName}',
             stProperty: '${st.pmstPropName}',
+            ndProperty: '',
             cost: 0,
             price: 0);
         productModels.add(model);
@@ -291,11 +297,14 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   // ราคาทั้งหมด
   Future<void> dialogEdit_PropCostPrice(TextEditingController pController,
       TextEditingController cController) async {
+    final _costformKey = GlobalKey<FormState>();
+
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, Edit_st_PropDialogSetState) {
+        return StatefulBuilder(
+            builder: (context, EditPropCostPriceDialogSetState) {
           return AlertDialog(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(
@@ -309,11 +318,15 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                 Spacer(),
                 IconButton(
                     onPressed: () {
+                      stPropertySelecteds.clear();
+                      ndPropertySelecteds.clear();
+                      cController.clear();
+                      pController.clear();
                       Navigator.pop(context);
                     },
                     icon: Icon(
                       Icons.close,
-                      color: Colors.white,
+                      color: Colors.grey,
                     ))
               ],
             ),
@@ -364,7 +377,17 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                     value: '${item.pmstPropName}',
                                     label: '${item.pmstPropName}'))
                                 .toList(),
-                            onChange: (allSelectedItems, selectedItem) {}),
+                            onChange: (allSelectedItems, selectedItem) {
+                              // for (var item in allSelectedItems) {
+                              //   stPropertySelecteds.add(item);
+                              //   print('${item}');
+                              // }
+                              EditPropCostPriceDialogSetState(() {
+                                stPropertySelecteds = allSelectedItems;
+                                print(
+                                    'stPropertySelecteds -> ${stPropertySelecteds.length}');
+                              });
+                            }),
                       ],
                     ),
                   ),
@@ -373,69 +396,218 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '${ndPropName}',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        MultiSelectContainer(
-                            textStyles: const MultiSelectTextStyles(
-                                textStyle: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color.fromARGB(255, 255, 255, 255))),
-                            prefix: MultiSelectPrefix(
-                              selectedPrefix: const Padding(
-                                padding: EdgeInsets.only(right: 5),
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
+                        ndPropsList.isEmpty
+                            ? Container()
+                            : Text(
+                                '${ndPropName}',
+                                style: TextStyle(color: Colors.white),
                               ),
-                            ),
-                            itemsDecoration: MultiSelectDecorations(
-                              decoration: BoxDecoration(
-                                  gradient: LinearGradient(colors: [
-                                    const Color.fromRGBO(56, 54, 76, 1.0),
-                                    const Color.fromRGBO(56, 54, 76, 1.0),
-                                  ]),
-                                  borderRadius: BorderRadius.circular(20)),
-                              selectedDecoration: BoxDecoration(
-                                  gradient: LinearGradient(colors: [
-                                    Theme.of(context).backgroundColor,
-                                    Theme.of(context).backgroundColor,
-                                  ]),
-                                  borderRadius: BorderRadius.circular(20)),
-                            ),
-                            items: ndPropsList
-                                .map((item) => MultiSelectCard(
-                                    value: '${item.pmndPropName}',
-                                    label: '${item.pmndPropName}'))
-                                .toList(),
-                            onChange: (allSelectedItems, selectedItem) {}),
+                        ndPropsList.isEmpty
+                            ? Container()
+                            : MultiSelectContainer(
+                                textStyles: const MultiSelectTextStyles(
+                                    textStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(
+                                            255, 255, 255, 255))),
+                                prefix: MultiSelectPrefix(
+                                  selectedPrefix: const Padding(
+                                    padding: EdgeInsets.only(right: 5),
+                                    child: Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ),
+                                ),
+                                itemsDecoration: MultiSelectDecorations(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(colors: [
+                                        const Color.fromRGBO(56, 54, 76, 1.0),
+                                        const Color.fromRGBO(56, 54, 76, 1.0),
+                                      ]),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  selectedDecoration: BoxDecoration(
+                                      gradient: LinearGradient(colors: [
+                                        Theme.of(context).backgroundColor,
+                                        Theme.of(context).backgroundColor,
+                                      ]),
+                                      borderRadius: BorderRadius.circular(20)),
+                                ),
+                                items: ndPropsList
+                                    .map((item) => MultiSelectCard(
+                                        value: '${item.pmndPropName}',
+                                        label: '${item.pmndPropName}'))
+                                    .toList(),
+                                onChange: (allSelectedItems, selectedItem) {
+                                  EditPropCostPriceDialogSetState(() {
+                                    ndPropertySelecteds = allSelectedItems;
+                                    print(
+                                        'ndPropertySelecteds -> ${ndPropertySelecteds.length}');
+                                  });
+                                }),
                       ],
                     ),
                   ),
                   ListBody(
                     children: <Widget>[
-                      CustomTextField.textField(
-                        context,
-                        'ราคาต้นทุน',
-                        _validate,
-                        length: 30,
-                        isNumber: true,
-                        textController: cController,
+                      Form(
+                        key: _costformKey,
+                        child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .background
+                                    .withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(15)),
+                            width: 400,
+                            height: 80,
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'โปรดระบุราคาต้นทุน';
+                                    } else if (pController.text.isNotEmpty &&
+                                        value.isNotEmpty &&
+                                        value != null) {
+                                      if (double.parse(pController.text)
+                                              .toInt() <
+                                          double.parse(cController.text)
+                                              .toInt()) {
+                                        return 'ราคาต้นทุน น้อยกว่า ราคาขาย';
+                                      }
+                                    }
+                                    return null;
+                                  },
+                                  textAlign: TextAlign.start,
+                                  keyboardType: TextInputType.number,
+                                  // maxLength: length,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(20),
+                                  ],
+                                  controller: cController,
+                                  //-----------------------------------------------------
+
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                  cursorColor: primary_color,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(
+                                        top: 25,
+                                        bottom: 10,
+                                        left: 10,
+                                        right: 10),
+                                    // labelText: title,
+                                    fillColor: Theme.of(context)
+                                        .colorScheme
+                                        .background,
+
+                                    hoverColor: Colors.white,
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10.0),
+                                      ),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                      ),
+                                    ),
+                                    border: const OutlineInputBorder(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                            topRight: Radius.circular(20),
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20)),
+                                        borderSide: BorderSide.none),
+                                    hintText: 'ราคาต้นทุน',
+                                    hintStyle: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
+                                    suffixIcon: cController.text.isEmpty
+                                        ? Container(
+                                            width: 0,
+                                          )
+                                        : IconButton(
+                                            onPressed: () =>
+                                                cController.clear(),
+                                            icon: const Icon(
+                                              Icons.close_sharp,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                  )),
+                            )),
                       ),
                       SizedBox(
                         height: 10,
                       ),
-                      CustomTextField.textField(
-                        context,
-                        'ราคาขาย',
-                        _validate,
-                        length: 30,
-                        isNumber: true,
-                        textController: pController,
-                      )
+                      Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .background
+                                  .withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(15)),
+                          width: 400,
+                          height: 80,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: TextFormField(
+                                textAlign: TextAlign.start,
+                                keyboardType: TextInputType.number,
+                                // maxLength: length,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(20),
+                                ],
+                                controller: pController,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 12),
+                                cursorColor: primary_color,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(
+                                      top: 25, bottom: 10, left: 10, right: 10),
+                                  // labelText: title,
+                                  fillColor:
+                                      Theme.of(context).colorScheme.background,
+
+                                  hoverColor: Colors.white,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    borderSide: BorderSide(
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                    ),
+                                  ),
+                                  border: const OutlineInputBorder(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(20),
+                                          topRight: Radius.circular(20),
+                                          bottomLeft: Radius.circular(20),
+                                          bottomRight: Radius.circular(20)),
+                                      borderSide: BorderSide.none),
+                                  hintText: 'ราคาขาย',
+                                  hintStyle: const TextStyle(
+                                      color: Colors.grey, fontSize: 14),
+                                  // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
+                                  suffixIcon: pController.text.isEmpty
+                                      ? Container(
+                                          width: 0,
+                                        )
+                                      : IconButton(
+                                          onPressed: () => pController.clear(),
+                                          icon: const Icon(
+                                            Icons.close_sharp,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                )),
+                          )),
                     ],
                   ),
                 ],
@@ -445,17 +617,115 @@ class _ProductNavAddState extends State<ProductNavAdd> {
               ElevatedButton(
                 child: const Text('ยืนยัน'),
                 onPressed: () {
-                  var cPrice = cController.text;
-                  var pPrice = pController.text;
-                  for (var c in editCostControllers) {
-                    c.text = cPrice;
-                  }
-                  for (var p in editPriceControllers) {
-                    p.text = pPrice;
-                  }
-                  setState(() {});
+                  // if (_costformKey.currentState!.validate()) {
+                  // }
+                  if (ndPropsList.isNotEmpty) {
+                    print('1st + 2nd Propertys');
+                    if (stPropertySelecteds.isNotEmpty &&
+                        ndPropertySelecteds.isNotEmpty) {
+                      print('Both Selected');
+                      for (var i = 0; i < ndPropertySelecteds.length; i++) {
+                        for (var st in stPropertySelecteds) {
+                          for (var nd in ndPropertySelecteds) {
+                            for (var model in productModels) {
+                              if (model.stProperty == st &&
+                                  model.ndProperty == nd) {
+                                var findIndex =
+                                    productModels.indexWhere((e) => e == model);
+                                editCostControllers[findIndex].text =
+                                    cController.text;
+                                editPriceControllers[findIndex].text =
+                                    pController.text;
+                              }
+                            }
+                          }
+                        }
+                      }
+                      Navigator.of(context).pop();
+                    } else if (stPropertySelecteds.isNotEmpty &&
+                        ndPropertySelecteds.isEmpty) {
+                      print('Only 1st Selected');
+                      for (var i = 0; i < stPropertySelecteds.length; i++) {
+                        var stSelectedInd = stPropertySelecteds[i];
 
-                  Navigator.of(context).pop();
+                        print(stSelectedInd);
+                        for (var model in productModels) {
+                          if (model.stProperty == stSelectedInd) {
+                            var findIndex =
+                                productModels.indexWhere((e) => e == model);
+
+                            editCostControllers[findIndex].text =
+                                cController.text;
+                            editPriceControllers[findIndex].text =
+                                pController.text;
+                          } else {}
+                        }
+                      }
+                      Navigator.of(context).pop();
+                    } else if (stPropertySelecteds.isEmpty &&
+                        ndPropertySelecteds.isNotEmpty) {
+                      print('Only 2nd Selected');
+                      for (var i = 0; i < ndPropertySelecteds.length; i++) {
+                        var ndSelectedInd = ndPropertySelecteds[i];
+
+                        for (var model in productModels) {
+                          if (model.stProperty == ndSelectedInd) {
+                            var findIndex =
+                                productModels.indexWhere((e) => e == model);
+
+                            editCostControllers[findIndex].text =
+                                cController.text;
+                            editPriceControllers[findIndex].text =
+                                pController.text;
+                          }
+                        }
+                      }
+                      Navigator.of(context).pop();
+                    } else {
+                      print('No Selected');
+                      var cnt = 0;
+                      for (var c in editCostControllers) {
+                        c.text = cController.text;
+                        cnt++;
+                      }
+                      print(cnt);
+                      for (var p in editPriceControllers) {
+                        p.text = pController.text;
+                      }
+                      Navigator.of(context).pop();
+                    }
+                  } else {
+                    print('Only 1st Property');
+                    // Created Only 1st Propertys
+                    if (stPropertySelecteds.isNotEmpty) {
+                      print('Empty Selection 1st Property');
+                      for (var st in stPropertySelecteds) {
+                        for (var model in productModels) {
+                          if (model.stProperty == st) {
+                            var findIndex =
+                                productModels.indexWhere((e) => e == model);
+
+                            editCostControllers[findIndex].text =
+                                cController.text;
+                            editPriceControllers[findIndex].text =
+                                pController.text;
+                          }
+                        }
+                      }
+
+                      Navigator.of(context).pop();
+                    } else {
+                      for (var c in editCostControllers) {
+                        c.text = cController.text;
+                      }
+                      for (var p in editPriceControllers) {
+                        p.text = pController.text;
+                      }
+                      Navigator.of(context).pop();
+                    }
+                  }
+                  stPropertySelecteds.clear();
+                  ndPropertySelecteds.clear();
                 },
               ),
             ],
@@ -634,7 +904,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .backgroundColor,
+                                                                        .colorScheme
+                                                                        .primary,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),
@@ -661,7 +932,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .backgroundColor,
+                                                                        .colorScheme
+                                                                        .primary,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),
@@ -698,10 +970,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                               onPressed: () {
                                                                 DialogSetState(
                                                                   () {
-                                                                    productModels.removeWhere((item) =>
-                                                                        item.ndProperty ==
-                                                                        productModelInd
-                                                                            .ndProperty);
+                                                                    productModels
+                                                                        .removeAt(
+                                                                            index);
                                                                   },
                                                                 );
                                                               },
@@ -864,6 +1135,97 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         });
   }
 
+  Future<void> dialogEdit_ProductCategory(ProductCategory prodCategory) async {
+    TextEditingController controller =
+        TextEditingController(text: prodCategory.prodCategName);
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, Edit_st_PropDialogSetState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: Row(
+              children: [
+                Text(
+                  'แก้ไข',
+                  style: TextStyle(color: Colors.white),
+                ),
+                Spacer(),
+                IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.grey,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  CustomTextField.textField(
+                    context,
+                    prodCategory.prodCategName,
+                    _validate,
+                    length: 30,
+                    textController: controller,
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.redAccent),
+                child: Wrap(
+                  children: [
+                    Icon(Icons.delete_rounded),
+                    const Text('ลบ'),
+                  ],
+                ),
+                onPressed: () async {
+                  await DatabaseManager.instance
+                      .deleteProductCategory(prodCategory.prodCategId!);
+                  Navigator.of(context).pop();
+                  refreshProductCategorys();
+                },
+              ),
+              Spacer(),
+              ElevatedButton(
+                child: const Text('ยืนยัน'),
+                onPressed: () async {
+                  if (controller.text.isEmpty ||
+                      controller.text == '' ||
+                      controller.text == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: Theme.of(context).backgroundColor,
+                        behavior: SnackBarBehavior.floating,
+                        content: Text("โปรดระบุ"),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  } else {
+                    final updatedprodCateg =
+                        prodCategory.copy(prodCategName: controller.text);
+                    await DatabaseManager.instance
+                        .updateProductCategory(updatedprodCateg);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   Future<void> dialogEdit_PropName(TextEditingController controller) async {
     return showDialog<void>(
       context: context,
@@ -874,9 +1236,24 @@ class _ProductNavAddState extends State<ProductNavAdd> {
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
-            title: const Text(
-              'แก้ไข',
-              style: TextStyle(color: Colors.white),
+            title: Row(
+              children: [
+                Text(
+                  'แก้ไข',
+                  style: TextStyle(color: Colors.white),
+                ),
+                Spacer(),
+                IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.grey,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
             ),
             content: SingleChildScrollView(
               child: ListBody(
@@ -914,6 +1291,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   }
 
   dialogProductModel() async {
+    final ScrollController _firstController = ScrollController();
     await showDialog(
         context: context,
         useRootNavigator: false,
@@ -931,7 +1309,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
+                      children: <Widget>[
                         Container(
                           decoration: BoxDecoration(
                               // color: Theme.of(context).colorScheme.background,
@@ -1018,7 +1396,26 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                         icon: const Icon(
                                           Icons.edit,
                                           color: Colors.white,
-                                        ))
+                                        )),
+                                    const Spacer(),
+                                    stPropsList.isEmpty
+                                        ? Container()
+                                        : Container(
+                                            decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .backgroundColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(15)),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(2.0),
+                                              child: Text(
+                                                '${NumberFormat("#,###.##").format(stPropsList.length)}',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          )
                                   ],
                                 ),
                                 Row(
@@ -1169,10 +1566,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                         const Spacer(),
                                                         IconButton(
                                                             onPressed: () {
-                                                              stPropsList.removeWhere((item) =>
-                                                                  item.pmstPropName ==
-                                                                  stPropsListInd
-                                                                      .pmstPropName);
+                                                              stPropsList
+                                                                  .removeAt(
+                                                                      index);
                                                               DialogSetState(
                                                                   () {
                                                                 stPropsList =
@@ -1180,7 +1576,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                               });
                                                             },
                                                             icon: const Icon(
-                                                              Icons.delete,
+                                                              Icons
+                                                                  .close_rounded,
                                                               color:
                                                                   Colors.white,
                                                             ))
@@ -1428,9 +1825,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                     IconButton(
                                                                         onPressed:
                                                                             () {
-                                                                          ndPropsList.removeWhere((item) =>
-                                                                              item.pmndPropName ==
-                                                                              ndPropsListInd.pmndPropName);
+                                                                          ndPropsList
+                                                                              .removeAt(index);
                                                                           DialogSetState(
                                                                               () {
                                                                             ndPropsList =
@@ -1440,7 +1836,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                         icon:
                                                                             const Icon(
                                                                           Icons
-                                                                              .delete,
+                                                                              .close_rounded,
                                                                           color:
                                                                               Colors.white,
                                                                         ))
@@ -1546,7 +1942,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
-          return StatefulBuilder(builder: (prodCategContext, DialogSetState) {
+          return StatefulBuilder(
+              builder: (prodCategContext, CategoryDialogSetState) {
             return Dialog(
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               shape: RoundedRectangleBorder(
@@ -1579,14 +1976,16 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                 ),
                               ),
                               Spacer(),
-                              // IconButton(
-                              //   icon: const Icon(
-                              //     Icons.add_rounded,
-                              //     color: Colors.white,
-                              //     size: 25,
-                              //   ),
-                              //   onPressed: () {},
-                              // ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close_rounded,
+                                  color: Colors.grey,
+                                  size: 25,
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -1624,6 +2023,17 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                       duration: Duration(seconds: 3),
                                     ),
                                   );
+                                } else if (productCategorys.contains(
+                                    productCategoryNameController.text)) {
+                                  ScaffoldMessenger.of(prodCategContext)
+                                      .showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.redAccent,
+                                      content: Text(
+                                          "มีหมวดหมู่สินค้า ${productCategoryNameController.text} อยู่แล้ว"),
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
                                 } else {
                                   final prodCategory = ProductCategory(
                                     prodCategName:
@@ -1634,10 +2044,10 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                   await DatabaseManager.instance
                                       .createProductCategory(prodCategory);
                                   productCategoryNameController.clear();
-                                  setState(() {});
-                                  refreshProductCategorys();
 
-                                  DialogSetState(() {});
+                                  CategoryDialogSetState(() {
+                                    refreshProductCategorys();
+                                  });
                                 }
                               },
                               child: Row(children: const [
@@ -1695,48 +2105,92 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                     itemBuilder: (context, index) {
                                       final productCategory =
                                           productCategorys[index];
-                                      return GestureDetector(
-                                        onTap: () {
-                                          _updateChooseProductCateg(
-                                              productCategory);
-                                          print(productCategory.prodCategName);
-                                          Navigator.pop(context);
+                                      bool isEditCategory = false;
+                                      TextEditingController controller =
+                                          TextEditingController(
+                                              text: productCategory
+                                                  .prodCategName);
+                                      return Dismissible(
+                                        key: UniqueKey(),
+                                        direction: DismissDirection.endToStart,
+                                        resizeDuration: Duration(seconds: 1),
+                                        background: Container(
+                                          margin: EdgeInsets.only(
+                                              left: 0,
+                                              top: 10,
+                                              right: 10,
+                                              bottom: 10),
+                                          decoration: BoxDecoration(
+                                              color: Colors.redAccent,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.delete_forever,
+                                                color: Colors.white,
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        onDismissed: (direction) async {
+                                          await DatabaseManager.instance
+                                              .deleteProductCategory(
+                                                  productCategory.prodCategId!);
+                                          CategoryDialogSetState(() {
+                                            refreshProductCategorys();
+                                          });
                                         },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5.0),
-                                          child: Container(
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .backgroundColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Row(children: [
-                                                Text(
-                                                  productCategory.prodCategName,
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                                const Spacer(),
-                                                IconButton(
-                                                    onPressed: () async {
-                                                      await DatabaseManager
-                                                          .instance
-                                                          .deleteProductCategory(
-                                                              productCategory
-                                                                  .prodCategId!);
-                                                      DialogSetState(() {
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            _updateChooseProductCateg(
+                                                productCategory);
+                                            print(
+                                                productCategory.prodCategName);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Container(
+                                              height: 60,
+                                              decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .backgroundColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: Row(children: [
+                                                  Text(
+                                                    productCategory
+                                                        .prodCategName,
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  const Spacer(),
+                                                  IconButton(
+                                                      onPressed: () async {
+                                                        await dialogEdit_ProductCategory(
+                                                            productCategory);
+
+                                                        setState(() {});
                                                         refreshProductCategorys();
-                                                      });
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.delete,
-                                                      color: Colors.white,
-                                                    ))
-                                              ]),
+                                                        CategoryDialogSetState(
+                                                            () {});
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.edit,
+                                                        color: Colors.white,
+                                                      ))
+                                                ]),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -1758,6 +2212,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     return DefaultTabController(
       length: 5,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: AppBar(
@@ -1769,8 +2224,15 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            // decoration: BoxDecoration(
-            //     gradient: scafBG_dark_Color),
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(29, 29, 65, 1.0),
+                Color.fromRGBO(31, 31, 31, 1.0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -1869,7 +2331,15 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                             productModels.clear();
                             setState(() {});
                           },
-                          child: Icon(Icons.delete_sweep_rounded)),
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_sweep_rounded),
+                              Text(
+                                'ลบทั้งหมด',
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          )),
                       const SizedBox(
                         width: 10,
                       ),

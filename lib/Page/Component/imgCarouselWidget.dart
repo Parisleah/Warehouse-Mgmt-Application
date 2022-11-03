@@ -37,28 +37,32 @@ class _ImgCarouselState extends State<ImgCarousel> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: 180,
-          child: PageView.builder(
-              itemCount: widget.images.length,
-              pageSnapping: true,
-              controller: _pageController,
-              onPageChanged: (page) {
-                setState(() {
-                  activePage = page;
-                });
-              },
-              itemBuilder: (context, pagePosition) {
-                return Container(
-                  margin: EdgeInsets.all(10),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image(
-                          image: AssetImage(widget.images[pagePosition]))),
-                );
-              }),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 150,
+            child: PageView.builder(
+                itemCount: widget.images.length,
+                pageSnapping: true,
+                controller: _pageController,
+                onPageChanged: (page) {
+                  setState(() {
+                    activePage = page;
+                  });
+                },
+                itemBuilder: (context, pagePosition) {
+                  return Container(
+                    margin: EdgeInsets.all(10),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image(
+                            image: AssetImage(widget.images[pagePosition]))),
+                  );
+                }),
+          ),
         ),
+        Text('ProductName'),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: indicators(widget.images.length, activePage))

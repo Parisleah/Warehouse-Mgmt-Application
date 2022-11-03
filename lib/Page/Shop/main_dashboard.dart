@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:warehouse_mnmt/Page/Component/PieChart.dart';
 import 'package:warehouse_mnmt/Page/Component/RaisedGradientButton%20.dart';
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
 import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
+import 'package:warehouse_mnmt/Page/Model/Product.dart';
+import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 // Component
 
 import 'package:warehouse_mnmt/Page/Model/Selling.dart';
@@ -53,31 +56,74 @@ class _DashboardPageState extends State<DashboardPage> {
   List<PurchasingModel> purchasings = [];
   List<SellingModel> sellings = [];
   List<CustomerModel> customers = [];
+  List<Product> products = [];
+
   var sale = 0;
   var cost = 0;
   var profit = 0;
   var _maxPurchasing = 0;
   bool isToday = true;
+  late PageController _pageController;
+  int activePage = 1;
+  late Shop shop = widget.shop;
   @override
   void initState() {
     initializeDateFormatting();
     super.initState();
     refreshPage();
-
+    _pageController = PageController(viewportFraction: 0.8);
     setState(() {});
+  }
+
+  Future refreshShop() async {
+    shop = await DatabaseManager.instance.readShop(widget.shop.shopid!);
+    setState(() {});
+  }
+
+  List<Widget> sellingIndicators(sellingLength) {
+    return List<Widget>.generate(sellingLength, (index) {
+      return Container(
+        margin: EdgeInsets.all(3),
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+            color:
+                // currentIndex == index
+                //     ? Theme.of(context).backgroundColor
+                //     :
+                Colors.black26,
+            shape: BoxShape.circle),
+      );
+    });
+  }
+
+  List<Widget> productIndicators(imagesLength, currentIndex) {
+    return List<Widget>.generate(imagesLength, (index) {
+      return Container(
+        margin: EdgeInsets.all(3),
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+            color: currentIndex == index ? Colors.black : Colors.black26,
+            shape: BoxShape.circle),
+      );
+    });
   }
 
   List<CustomerAddressModel> addresses = [];
 
   Future refreshPage() async {
-    purchasings =
-        await DatabaseManager.instance.readAllPurchasings(widget.shop.shopid!);
+    products =
+        await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
+    purchasings = await DatabaseManager.instance
+        .readAllPurchasingsORDERBYPresentForGraph(widget.shop.shopid!);
     addresses = await DatabaseManager.instance
         .readCustomerAllAddress(widget.shop.shopid!);
-    sellings =
-        await DatabaseManager.instance.readAllSellings(widget.shop.shopid!);
+    sellings = await DatabaseManager.instance
+        .readAllSellingsORDERBYPresentForGraph(widget.shop.shopid!);
     customers = await DatabaseManager.instance
         .readAllCustomerInShop(widget.shop.shopid!);
+
     _calculateDashboard(sale, cost, profit);
     setState(() {});
   }
@@ -94,14 +140,6 @@ class _DashboardPageState extends State<DashboardPage> {
     cost = _cost;
     sale = _sale;
     profit = _sale - _cost;
-  }
-
-  _getMaxPurchasing() {
-    print(_maxPurchasing);
-    var maxPurchasing = purchasings
-        .reduce((curr, next) => curr.total > next.total ? curr : next);
-    _maxPurchasing = maxPurchasing.total;
-    return _maxPurchasing.toDouble();
   }
 
   List<FlSpot> gatherPurData() {
@@ -138,7 +176,7 @@ class _DashboardPageState extends State<DashboardPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(130),
           child: AppBar(
-            backgroundColor: Colors.transparent,
+            // backgroundColor: Colors.transparent,
             elevation: 0,
             automaticallyImplyLeading: false,
             title: const Text(
@@ -150,8 +188,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(widget.shop.name,
-                      style: Theme.of(context).textTheme.headline2),
+                  Text(shop.name, style: Theme.of(context).textTheme.headline2),
                   const SizedBox(
                     width: 10,
                   ),
@@ -163,13 +200,13 @@ class _DashboardPageState extends State<DashboardPage> {
                           padding: const EdgeInsets.all(3),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
-                            child: widget.shop.image == null
+                            child: shop.image == null
                                 ? Icon(
                                     Icons.image,
                                     color: Colors.white,
                                   )
                                 : Image.file(
-                                    File(widget.shop.image),
+                                    File(shop.image),
                                     width: 40,
                                     height: 40,
                                     fit: BoxFit.cover,
@@ -222,7 +259,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height * 2,
+            height: MediaQuery.of(context).size.height * 2.2,
             decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
@@ -278,6 +315,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     height: 10,
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       MoneyBox(
                           Icon(
@@ -307,7 +345,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           Icon(Icons.attach_money_rounded, color: Colors.white),
                           Icon(Icons.price_change, color: Colors.white),
                           'กำไร',
-                          profit,
+                          profit < 0 ? 0 : profit,
                           Color.fromRGBO(29, 29, 65, 1.0),
                           Theme.of(context).backgroundColor,
                           90,
@@ -429,7 +467,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(
-                                            ' ${NumberFormat("#,###,###.##").format(profit)} ฿',
+                                            ' ${NumberFormat("#,###,###.##").format(profit < 0 ? 0 : profit)} ฿',
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: Color.fromARGB(
@@ -446,134 +484,153 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(right: 20, top: 20),
+                          padding: const EdgeInsets.only(left: 12, right: 38),
                           child: Center(
                             child: SizedBox(
-                              height: 120,
-                              child: AspectRatio(
-                                aspectRatio: 2,
-                                child: LineChart(LineChartData(
-                                    borderData: FlBorderData(
-                                        show: true,
-                                        border: Border.all(
-                                            color: Color.fromARGB(
-                                                0, 226, 226, 226),
-                                            width: 2)),
-                                    gridData: FlGridData(
+                              width: 400,
+                              height: 300,
+                              child: LineChart(LineChartData(
+                                  borderData: FlBorderData(
                                       show: true,
-                                      getDrawingHorizontalLine: (value) {
-                                        return FlLine(
-                                            color: Color.fromARGB(
-                                                0, 210, 210, 210),
-                                            // color: Color.fromARGB(255, 52, 52, 52),
-                                            strokeWidth: 1);
-                                      },
-                                      drawVerticalLine: false,
-                                      getDrawingVerticalLine: (value) {
-                                        return FlLine(
-                                            color: Colors.amber,
-                                            strokeWidth: 1);
-                                      },
-                                    ),
-                                    titlesData: FlTitlesData(
-                                      show: true,
-                                      bottomTitles: SideTitles(
-                                          showTitles: true,
-                                          reservedSize: 35,
-                                          getTextStyles: (context, value) {
-                                            return const TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 255, 255, 255),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold);
-                                          },
-                                          getTitles: (value) {
-                                            switch (value.toInt()) {
-                                              case 0:
-                                                return '1';
-                                              case 1:
-                                                return '5';
-                                              case 30:
-                                                return '30';
-                                            }
-
-                                            return '';
-                                          },
-                                          margin: 10),
-                                      rightTitles: SideTitles(),
-                                      topTitles: SideTitles(),
-                                      leftTitles: SideTitles(
+                                      border: Border.all(
+                                          color: Colors.transparent, width: 2)),
+                                  gridData: FlGridData(
+                                    show: true,
+                                    getDrawingHorizontalLine: (value) {
+                                      return FlLine(
+                                          // เส้น Horizon
+                                          color:
+                                              Color.fromARGB(255, 93, 93, 93),
+                                          strokeWidth: 1);
+                                    },
+                                    drawVerticalLine: false,
+                                    getDrawingVerticalLine: (value) {
+                                      return FlLine(
+                                          color: Colors.white, strokeWidth: 1);
+                                    },
+                                  ),
+                                  titlesData: FlTitlesData(
+                                    show: true,
+                                    bottomTitles: SideTitles(
                                         showTitles: true,
-                                        reservedSize: 10,
+                                        reservedSize: 35,
                                         getTextStyles: (context, value) {
                                           return const TextStyle(
-                                              color: Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                              fontSize: 12,
+                                              color: Color(0xff68737d),
+                                              fontSize: 8,
                                               fontWeight: FontWeight.bold);
                                         },
                                         getTitles: (value) {
+                                          DateFormat.yMMMd()
+                                              .format(DateTime.now());
+
                                           switch (value.toInt()) {
-                                            case 0:
-                                              return '0';
-                                            case 1125:
-                                              return '1125';
-                                            case 2250:
-                                              return '2250';
-                                            case 4500:
-                                              return '4500';
-                                            case 6750:
-                                              return '6750';
-                                            case 3200:
-                                              return '9000';
+                                            case 1:
+                                              return '${DateFormat.MMM().format(date)} 1';
+                                            case 5:
+                                              return '${DateFormat.MMM().format(date)} 5';
+                                            case 10:
+                                              return '${DateFormat.MMM().format(date)} 10';
+                                            case 15:
+                                              return '${DateFormat.MMM().format(date)} 15';
+                                            case 20:
+                                              return '${DateFormat.MMM().format(date)} 20';
+                                            case 25:
+                                              return '${DateFormat.MMM().format(date)} 25';
+                                            case 30:
+                                              return '${DateFormat.MMM().format(date)} 30';
                                           }
                                           return '';
                                         },
-                                        margin: 12,
-                                      ),
+                                        margin: 8),
+                                    rightTitles: SideTitles(),
+                                    topTitles: SideTitles(),
+                                    leftTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 35,
+                                      getTextStyles: (context, value) {
+                                        return const TextStyle(
+                                            color: Color(0xff68737d),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold);
+                                      },
+                                      getTitles: (value) {
+                                        var maxPurchasing = purchasings.reduce(
+                                            (curr, next) =>
+                                                curr.total > next.total
+                                                    ? curr
+                                                    : next);
+
+                                        var maxSelling = sellings.reduce(
+                                            (curr, next) =>
+                                                curr.total > next.total
+                                                    ? curr
+                                                    : next);
+                                        int _maxPurchasing =
+                                            maxPurchasing.total;
+                                        int _maxSelling = maxSelling.total;
+                                        switch (value.toInt()) {
+                                          // กดเดือน
+                                          // 1. Display เดือนที่ผ่านมา
+                                          // 2. Display เป็นเดือนกว้างๆ Sep Oct Nov Dec
+                                          case 0:
+                                            return '0';
+                                          case 1000:
+                                            return '500';
+                                          case 3000:
+                                            return '750';
+                                          case 10000:
+                                            return '1500';
+                                          case 20000:
+                                            return '${_maxPurchasing > _maxSelling ? _maxPurchasing : _maxSelling}';
+                                        }
+                                        return '';
+                                      },
+                                      margin: 12,
                                     ),
-                                    minX: 10,
-                                    maxX: 19,
-                                    minY: 0,
-                                    maxY: 6000,
-                                    lineBarsData: [
-                                      LineChartBarData(
-                                          spots: purchasings
-                                              .map((point) => FlSpot(
-                                                  29.toDouble(),
-                                                  point.total.toDouble()))
-                                              .toList(),
-                                          isCurved: true,
-                                          colors: [
-                                            Color.fromARGB(255, 255, 101, 101),
-                                          ],
-                                          barWidth: 3,
-                                          belowBarData: BarAreaData(
-                                              show: true,
-                                              colors: sellingGradientColors
-                                                  .map(
-                                                      (e) => e.withOpacity(0.5))
-                                                  .toList())),
-                                      // LineChartBarData(
-                                      //     spots: sellings
-                                      //         .map((point) => FlSpot(
-                                      //             point.orderedDate.day
-                                      //                 .toDouble(),
-                                      //             point.total.toDouble()))
-                                      //         .toList(),
-                                      //     isCurved: true,
-                                      //     colors: [
-                                      //       Color.fromARGB(255, 164, 118, 255),
-                                      //     ],
-                                      //     barWidth: 3,
-                                      //     belowBarData: BarAreaData(
-                                      //         show: true,
-                                      //         colors: purchasingGradientColors
-                                      //             .map(
-                                      //                 (e) => e.withOpacity(0.7))
-                                      //             .toList())),
-                                    ])),
-                              ),
+                                  ),
+                                  maxX: 30,
+                                  maxY: 20000,
+                                  minY: 0,
+                                  minX: 0,
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                        spots: purchasings
+                                            .map((point) => FlSpot(
+                                                point.orderedDate.day
+                                                    .toDouble(),
+                                                point.total.toDouble()))
+                                            .toList(),
+                                        isCurved: true,
+                                        colors: [
+                                          Theme.of(context).backgroundColor,
+                                        ],
+                                        barWidth: 2,
+                                        belowBarData: BarAreaData(
+                                            gradientFrom: Offset(0, 1),
+                                            show: true,
+                                            colors: gradientColors
+                                                .map((e) => e.withOpacity(0.8))
+                                                .toList())),
+                                    LineChartBarData(
+                                        spots: sellings
+                                            .map((point) => FlSpot(
+                                                point.orderedDate.day
+                                                    .toDouble(),
+                                                point.total.toDouble()))
+                                            .toList(),
+                                        isCurved: true,
+                                        colors: [
+                                          Color.fromARGB(255, 244, 112, 112),
+                                        ],
+                                        barWidth: 2,
+                                        belowBarData: BarAreaData(
+                                            gradientFrom: Offset(0, 1),
+                                            show: true,
+                                            colors: sellingGradientColors
+                                                .map((e) => e.withOpacity(0.8))
+                                                .toList()))
+                                  ])),
                             ),
                           ),
                         ),
@@ -581,256 +638,326 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   // Doing
-                  Container(
-                    width: 400,
-                    height: 300,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 38),
-                      child: Center(
-                        child: SizedBox(
-                          width: 400,
-                          height: 300,
-                          child: LineChart(LineChartData(
-                              borderData: FlBorderData(
-                                  show: true,
-                                  border: Border.all(
-                                      color: Colors.white, width: 2)),
-                              gridData: FlGridData(
-                                show: true,
-                                getDrawingHorizontalLine: (value) {
-                                  return FlLine(
-                                      color: Color.fromARGB(255, 93, 93, 93),
-                                      strokeWidth: 1);
-                                },
-                                drawVerticalLine: false,
-                                getDrawingVerticalLine: (value) {
-                                  return FlLine(
-                                      color: Colors.white, strokeWidth: 1);
-                                },
-                              ),
-                              titlesData: FlTitlesData(
-                                show: true,
-                                bottomTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 35,
-                                    getTextStyles: (context, value) {
-                                      return const TextStyle(
-                                          color: Color(0xff68737d),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold);
-                                    },
-                                    getTitles: (value) {
-                                      DateTime date = DateTime.now();
-                                      DateFormat.yMMMd().format(date);
-                                      switch (value.toInt()) {
-                                        case 0:
-                                          return '${DateFormat.MMMd().format(date)}';
-                                        case 2:
-                                          return '${DateFormat.MMMd().format(date)}';
-                                        case 4:
-                                          return '${DateFormat.MMMd().format(date)}';
-                                        case 8:
-                                          return '${DateFormat.MMMd().format(date)}';
-                                        case 10:
-                                          return '${DateFormat.MMMd().format(date)}';
-                                      }
-                                      return '';
-                                    },
-                                    margin: 8),
-                                rightTitles: SideTitles(),
-                                topTitles: SideTitles(),
-                                leftTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 35,
-                                  getTextStyles: (context, value) {
-                                    return const TextStyle(
-                                        color: Color(0xff68737d),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold);
-                                  },
-                                  getTitles: (value) {
-                                    switch (value.toInt()) {
-                                      case 0:
-                                        return '0';
-                                      case 2:
-                                        return '50';
-                                      case 4:
-                                        return '100';
-                                      case 6:
-                                        return '150';
-                                      case 8:
-                                        return '200';
-                                      case 10:
-                                        return '250';
-                                    }
-                                    return '';
-                                  },
-                                  margin: 12,
-                                ),
-                              ),
-                              maxX: 10,
-                              maxY: 9000,
-                              minY: 0,
-                              minX: 0,
-                              lineBarsData: [
-                                LineChartBarData(
-                                    spots: purchasings
-                                        .map((point) =>
-                                            FlSpot(29, point.total.toDouble()))
-                                        .toList(),
-                                    isCurved: true,
-                                    colors: [
-                                      Colors.black12,
-                                      Colors.white70,
-                                      Colors.white
-                                    ],
-                                    barWidth: 5,
-                                    belowBarData: BarAreaData(
-                                        show: true,
-                                        colors: gradientColors
-                                            .map((e) => e.withOpacity(0.7))
-                                            .toList()))
-                              ])),
-                        ),
-                      ),
-                    ),
-                  ),
 
                   const SizedBox(
                     height: 10,
                   ),
-
-                  Container(
-                    height: 250,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Theme.of(context).colorScheme.primary,
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 4))
-                      ],
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromRGBO(29, 29, 65, 1.0),
-                          Theme.of(context).backgroundColor,
-                        ],
-                        begin: Alignment.bottomLeft,
-                        end: Alignment.topRight,
-                        stops: [0.1, 0.8],
-                        tileMode: TileMode.clamp,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                "สินค้าขายดีตลอดกาล",
-                                style: TextStyle(
-                                    fontSize: 15, color: Colors.white),
+                  sellings.isEmpty && products.isEmpty
+                      ? Container()
+                      : Container(
+                          height: 300,
+                          // decoration: BoxDecoration(
+                          //   boxShadow: [
+                          //     BoxShadow(
+                          //         color: Theme.of(context).colorScheme.primary,
+                          //         spreadRadius: 2,
+                          //         blurRadius: 5,
+                          //         offset: Offset(0, 4))
+                          //   ],
+                          //   gradient: LinearGradient(
+                          //     colors: [
+                          //       Color.fromRGBO(29, 29, 65, 1.0),
+                          //       Theme.of(context).backgroundColor,
+                          //     ],
+                          //     begin: Alignment.bottomLeft,
+                          //     end: Alignment.topRight,
+                          //     stops: [0.1, 0.8],
+                          //     tileMode: TileMode.clamp,
+                          //   ),
+                          //   borderRadius: BorderRadius.circular(20),
+                          // ),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      "สินค้าขายดี",
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.white),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 220,
+                                  child: PageView.builder(
+                                      itemCount: products.length,
+                                      pageSnapping: true,
+                                      controller: _pageController,
+                                      onPageChanged: (page) {
+                                        setState(() {
+                                          activePage = page;
+                                        });
+                                      },
+                                      itemBuilder: (context, pagePosition) {
+                                        return Container(
+                                          margin: EdgeInsets.all(10),
+                                          child: Column(
+                                            children: [
+                                              Stack(
+                                                children: [
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: Container(
+                                                      width: 300,
+                                                      height: 175,
+                                                      child: Image.file(
+                                                        File(products[
+                                                                pagePosition]
+                                                            .prodImage!),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 0.0,
+                                                    right: 0.0,
+                                                    child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        0.7),
+                                                                spreadRadius: 0,
+                                                                blurRadius: 5,
+                                                                offset: Offset(
+                                                                    0, 4))
+                                                          ],
+                                                          color:
+                                                              Colors.redAccent,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(3.0),
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .sell_rounded,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: 15,
+                                                              ),
+                                                              Text(
+                                                                'ขายดี',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 9,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        )),
+                                                  )
+                                                ],
+                                              ),
+                                              Text(
+                                                  '${products[pagePosition].prodName}'),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                ),
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: productIndicators(
+                                      products.length, activePage))
+                            ],
+                          ),
                         ),
-                        ImgCarousel(images)
-                      ],
-                    ),
+                  const SizedBox(
+                    height: 10,
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text(
+                          "ขายวันนี้",
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  sellings.isEmpty
+                      ? Container()
+                      : Container(
+                          height: 140,
+                          width: 450,
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              padding: EdgeInsets.zero,
+                              itemCount: sellings.length,
+                              itemBuilder: (context, index) {
+                                final selling = sellings[index];
+                                var _customerText;
+                                var _phoneText;
+                                var _addressText;
+                                for (var customer in customers) {
+                                  if (customer.cusId == selling.customerId) {
+                                    _customerText = customer;
+                                  }
+                                }
+
+                                for (var address in addresses) {
+                                  if (address.cAddreId == selling.cAddreId) {
+                                    _phoneText = address;
+                                    _addressText = address;
+                                  }
+                                }
+                                return TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SellingNavEdit(
+                                                  customerAddress: _addressText,
+                                                  customer: _customerText,
+                                                  shop: widget.shop,
+                                                  selling: selling,
+                                                )));
+                                  },
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                  spreadRadius: 0,
+                                                  blurRadius: 5,
+                                                  offset: Offset(0, 3))
+                                            ],
+                                            borderRadius:
+                                                BorderRadius.circular(22),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color.fromRGBO(29, 29, 65, 1.0),
+                                                Theme.of(context)
+                                                    .backgroundColor,
+                                              ],
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                            )),
+                                        child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.person,
+                                                size: 50,
+                                                color: Colors.white,
+                                              ),
+                                              Text(
+                                                _customerText.cName,
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.white),
+                                              ),
+                                              Text(
+                                                '${NumberFormat("#,###.##").format(selling.total)} ฿',
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                            ]),
+                                      ),
+                                      Positioned(
+                                        top: 0.0,
+                                        right: 0.0,
+                                        child: Container(
+                                            decoration: BoxDecoration(
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.7),
+                                                    spreadRadius: 0,
+                                                    blurRadius: 5,
+                                                    offset: Offset(0, 4))
+                                              ],
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .background,
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                selling.isDelivered == true
+                                                    ? Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.check_circle,
+                                                            color: Colors
+                                                                .greenAccent,
+                                                            size: 22,
+                                                          ),
+                                                          Text(
+                                                            'จัดส่งแล้ว',
+                                                            style: TextStyle(
+                                                              fontSize: 9,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      )
+                                                    : Icon(
+                                                        Icons.circle_outlined,
+                                                        color:
+                                                            Colors.greenAccent,
+                                                        size: 25,
+                                                      ),
+                                              ],
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                        ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: sellingIndicators(sellings.length)),
+
                   const SizedBox(
                     height: 10,
                   ),
                   Container(
                     height: 140,
                     width: 450,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.zero,
-                        itemCount: sellings.length,
-                        itemBuilder: (context, index) {
-                          final selling = sellings[index];
-                          var _customerText;
-                          var _phoneText;
-                          var _addressText;
-                          for (var customer in customers) {
-                            if (customer.cusId == selling.customerId) {
-                              _customerText = customer;
-                            }
-                          }
-
-                          for (var address in addresses) {
-                            if (address.cAddreId == selling.cAddreId) {
-                              _phoneText = address;
-                              _addressText = address;
-                            }
-                          }
-                          return TextButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => SellingNavEdit(
-                                        customerAddress: _addressText,
-                                        customer: _customerText,
-                                        shop: widget.shop,
-                                        selling: selling,
-                                      )));
-                            },
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black.withOpacity(0.5),
-                                        spreadRadius: 0,
-                                        blurRadius: 5,
-                                        offset: Offset(0, 3))
-                                  ],
-                                  borderRadius: BorderRadius.circular(22),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color.fromRGBO(29, 29, 65, 1.0),
-                                      Theme.of(context).backgroundColor,
-                                    ],
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                  )),
-                              child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(
-                                      Icons.person,
-                                      size: 50,
-                                      color: Colors.white,
-                                    ),
-                                    Text(
-                                      _customerText.cName,
-                                      style: TextStyle(
-                                          fontSize: 12, color: Colors.white),
-                                    ),
-                                    Text(
-                                      '${NumberFormat("#,###.##").format(selling.total)} ฿',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    )
-                                  ]),
-                            ),
-                          );
-                        }),
+                    child: PieChartSample2(),
                   ),
 
                   SizedBox(
                     height: 50,
-                  )
+                  ),
                 ],
               ),
             ),

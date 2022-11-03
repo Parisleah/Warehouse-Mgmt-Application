@@ -129,7 +129,7 @@ class _SellingNavCreateCustomerAddressState
                         duration: Duration(seconds: 2),
                       ),
                     );
-                    refreshCustomerAddresses();
+
                     Navigator.of(dContext).pop();
                   }
                 },
@@ -320,9 +320,10 @@ class _SellingNavCreateCustomerAddressState
                       ),
                       Spacer(),
                       ElevatedButton(
-                        onPressed: () {
-                          dialogCreateCusAddress(
+                        onPressed: () async {
+                          await dialogCreateCusAddress(
                               cusPhoneController, cusAddressController);
+                          refreshCustomerAddresses();
                         },
                         child: Row(
                           children: [

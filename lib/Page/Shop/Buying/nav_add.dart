@@ -30,7 +30,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   List<Product> products = [];
   List<ProductModel> models = [];
   DateTime date = DateTime.now();
-  final df = new DateFormat('dd-MM-yyyy hh:mm a');
+  final df = new DateFormat('dd-MM-yyyy');
   DealerModel _dealer =
       DealerModel(dName: 'ยังไม่ระบุตัวแทนจำหน่าย', dAddress: '', dPhone: '');
   String _shipping = 'ระบุการจัดส่ง';
@@ -933,7 +933,11 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                               content: Row(
                                 children: [
                                   Text(
-                                      "ทำรายการเสร็จสิ้น ยอด${NumberFormat("#,###,###.##").format(purchased.total)} ${df.format(date)} "),
+                                      "ทำรายการเสร็จสิ้น ยอด${NumberFormat("#,###,###.##").format(purchased.total)}"),
+                                  Text(
+                                    "${df.format(date)}",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
                                 ],
                               ),
                               duration: Duration(seconds: 5),

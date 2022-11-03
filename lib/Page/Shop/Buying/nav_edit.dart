@@ -40,7 +40,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
   List<DealerModel> dealers = [];
 
   DateTime date = DateTime.now();
-  final df = new DateFormat('dd-MM-yyyy');
+  final df = new DateFormat('dd-MM-yyyy hh:mm a');
 
   String _shipping = 'ระบุการจัดส่ง';
   late var shippingCost = widget.purchasing.shippingCost;
@@ -384,7 +384,8 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                       child: Container(
                                         height: 80,
                                         width: 400,
-                                        color: Color.fromRGBO(56, 54, 76, 1.0),
+                                        color: Color.fromRGBO(56, 54, 76, 1.0)
+                                            .withOpacity(0.4),
                                         child: Row(
                                           children: <Widget>[
                                             Container(
@@ -742,12 +743,17 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: Colors.white,
+                          color:
+                              isReceived == true ? Colors.grey : Colors.white,
                         ),
                       ),
                       Text(
                         "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
-                        style: TextStyle(fontSize: 15, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: isReceived == true
+                                ? Colors.grey
+                                : Colors.white),
                       ),
                     ],
                   ),

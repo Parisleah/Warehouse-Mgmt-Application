@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +32,7 @@ class SellingNavAdd extends StatefulWidget {
 class _SellingNavAddState extends State<SellingNavAdd> {
   TextEditingController shipPricController = TextEditingController();
   TextEditingController specReqController = TextEditingController();
+  TextEditingController discountPercentController = TextEditingController();
   CustomerModel _customer = CustomerModel(cName: 'ยังไม่ระบุลูกค้า');
   CustomerAddressModel _address = CustomerAddressModel(
     cAddress: 'ที่อยู่',
@@ -41,9 +43,12 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
 
   var shippingCost = 0;
+  var showtotalPrice = 0;
   var totalPrice = 0;
   var noShippingPrice = 0;
   var amount = 0;
+  var discountPercent = 0;
+  var discountPercentPrice = 0;
   double vat7percent = 0.0;
   double noVatPrice = 0.0;
   bool isDelivered = false;
@@ -54,6 +59,19 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   List<ProductLot> productLots = [];
 
   _addSellingItem(SellingItemModel product) {
+    // for (var item in carts) {
+    //   if (carts.isNotEmpty) {
+    //     if (item.prodModelId == product.prodModelId) {
+    //       carts[carts.indexWhere(
+    //               (element) => element.prodModelId == product.prodModelId)]
+    //           .copy(amount: item.amount + product.amount);
+
+    //       setState(() {});
+    //     }
+    //   } else {
+    //     carts.add(product);
+    //   }
+    // }
     carts.add(product);
   }
 
@@ -93,25 +111,40 @@ class _SellingNavAddState extends State<SellingNavAdd> {
     });
   }
 
-  _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice,
-      oldvat7percent, oldNoVatPrice) {
+  _calculate(
+      oldTotal,
+      oldAmount,
+      oldShippingPrice,
+      oldNoShippingPrice,
+      oldvat7percent,
+      oldNoVatPrice,
+      oldDiscountPercent,
+      oldDiscountPercentPrice) {
     oldTotal = 0;
     oldAmount = 0;
     oldNoShippingPrice = 0;
     oldvat7percent = 0;
     oldNoVatPrice = 0;
 
+    oldDiscountPercentPrice = 0;
     for (var i in carts) {
       oldTotal += i.total;
       oldAmount += i.amount;
     }
+    // discount
+    discountPercent = oldDiscountPercent;
+    discountPercentPrice = (oldTotal * oldDiscountPercent / 100).toInt();
+    print('% ${discountPercent}');
+    print('Discount -> ${discountPercentPrice}');
 
-    totalPrice = oldTotal + oldShippingPrice;
+    totalPrice = oldTotal - discountPercentPrice;
+    showtotalPrice = oldTotal + oldShippingPrice - discountPercentPrice;
     amount = oldAmount;
     shippingCost = oldShippingPrice;
     noShippingPrice = oldTotal;
     vat7percent = oldTotal * 7 / 100;
     noVatPrice = oldTotal - vat7percent;
+
     setState(() {});
   }
 
@@ -370,8 +403,15 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                     )));
                         refreshProducts();
 
-                        _calculate(totalPrice, amount, shippingCost,
-                            noShippingPrice, vat7percent, noVatPrice);
+                        _calculate(
+                            totalPrice,
+                            amount,
+                            shippingCost,
+                            noShippingPrice,
+                            vat7percent,
+                            noVatPrice,
+                            discountPercent,
+                            discountPercentPrice);
 
                         setState(() {});
                       },
@@ -485,7 +525,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                         ],
                                                       )),
                                                       duration:
-                                                          Duration(seconds: 5),
+                                                          Duration(seconds: 1),
                                                     ));
                                                     carts.remove(selling);
                                                     for (var lot in lots) {
@@ -503,6 +543,34 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                 updateAmountDeletedProductLot);
                                                       }
                                                     }
+                                                    _calculate(
+                                                        totalPrice,
+                                                        amount,
+                                                        shipPricController.text
+                                                                    .isEmpty ||
+                                                                shipPricController
+                                                                        .text ==
+                                                                    null
+                                                            ? 0
+                                                            : double.parse(
+                                                                shipPricController
+                                                                    .text,
+                                                              ).toInt(),
+                                                        noShippingPrice,
+                                                        vat7percent,
+                                                        noVatPrice,
+                                                        discountPercentController
+                                                                    .text
+                                                                    .isEmpty ||
+                                                                discountPercentController
+                                                                        .text ==
+                                                                    null
+                                                            ? 0
+                                                            : double.parse(
+                                                                discountPercentController
+                                                                    .text,
+                                                              ).toInt(),
+                                                        discountPercentPrice);
 
                                                     setState(() {});
                                                   },
@@ -771,12 +839,14 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                         _calculate(
                             totalPrice,
                             amount,
-                            int.parse(
+                            double.parse(
                               shipPricController.text,
-                            ),
+                            ).toInt(),
                             noShippingPrice,
                             vat7percent,
-                            noVatPrice);
+                            noVatPrice,
+                            discountPercent,
+                            discountPercentPrice);
                       } else {
                         shippingCost = 0;
                       }
@@ -809,20 +879,15 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                               onPressed: () {
                                 shippingCost = 0;
                                 shipPricController.clear();
-                                if (shipPricController.text.isNotEmpty &&
-                                    shipPricController.text != null) {
-                                  _calculate(
-                                      totalPrice,
-                                      amount,
-                                      int.parse(
-                                        shipPricController.text,
-                                      ),
-                                      noShippingPrice,
-                                      vat7percent,
-                                      noVatPrice);
-                                } else {
-                                  shippingCost = 0;
-                                }
+                                _calculate(
+                                    totalPrice,
+                                    amount,
+                                    shippingCost,
+                                    noShippingPrice,
+                                    vat7percent,
+                                    noVatPrice,
+                                    discountPercent,
+                                    discountPercentPrice);
                               },
                               icon: const Icon(
                                 Icons.close_sharp,
@@ -918,7 +983,112 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   ),
                 ]),
               ),
-              // Container of ภาษี 7 %
+              // Container of ส่วนลด
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 400,
+                height: 70,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 10,
+                    ),
+                    const Icon(Icons.discount_rounded, color: Colors.white),
+                    Text(" % ส่วนลด ",
+                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    const Spacer(),
+                    Container(
+                      width: 150,
+                      height: 70,
+                      child: TextField(
+                          onChanged: ((value) {
+                            if (discountPercentController.text.isNotEmpty &&
+                                discountPercentController.text != null) {
+                              if (double.parse(discountPercentController.text)
+                                      .toInt() >
+                                  100) {
+                                discountPercentController.clear();
+                                setState(() {});
+                              } else {
+                                _calculate(
+                                    totalPrice,
+                                    amount,
+                                    shipPricController.text.isEmpty
+                                        ? 0
+                                        : int.parse(
+                                            shipPricController.text,
+                                          ).toInt(),
+                                    noShippingPrice,
+                                    vat7percent,
+                                    noVatPrice,
+                                    double.parse(
+                                      discountPercentController.text,
+                                    ).toInt(),
+                                    discountPercentPrice);
+                              }
+                            }
+                          }),
+                          textAlign: TextAlign.end,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(3),
+                          ],
+                          onSubmitted: (context) {
+                            // if (shipPricController.text.isEmpty == true) {
+                            //   _calculateShip(0.0);
+                            // } else {
+                            //   _calculateShip(double.parse(shipPricController.text));
+                            // }
+                          },
+                          //-----------------------------------------------------
+                          style: const TextStyle(color: Colors.grey),
+                          controller: discountPercentController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            border: const OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide.none),
+                            hintText: "%",
+                            hintStyle: const TextStyle(
+                                color: Colors.grey, fontSize: 14),
+                            suffixIcon: !discountPercentController.text.isEmpty
+                                ? IconButton(
+                                    onPressed: () {
+                                      discountPercentController.clear();
+                                      discountPercent = 0;
+                                      _calculate(
+                                          totalPrice,
+                                          amount,
+                                          shipPricController.text.isEmpty
+                                              ? 0
+                                              : double.parse(
+                                                  shipPricController.text,
+                                                ).toInt(),
+                                          noShippingPrice,
+                                          vat7percent,
+                                          noVatPrice,
+                                          discountPercent,
+                                          discountPercentPrice);
+                                    },
+                                    icon: const Icon(
+                                      Icons.close_sharp,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : null,
+                          )),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -928,7 +1098,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     color: const Color.fromRGBO(56, 48, 77, 1.0),
                     borderRadius: BorderRadius.circular(15)),
                 width: 400,
-                height: 70,
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Row(children: [
@@ -938,31 +1107,59 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                           style: TextStyle(fontSize: 15, color: Colors.white)),
                     ),
                     if (products.length != 0)
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.shopping_cart_rounded,
-                              color: Colors.white, size: 15),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(
-                                'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(
-                                    fontSize: 12, color: Colors.grey)),
+                          Row(
+                            children: [
+                              const Icon(Icons.shopping_cart_rounded,
+                                  color: Colors.white, size: 15),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                    'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey)),
+                              ),
+                            ],
                           ),
                           if (shipPricController.text.isNotEmpty)
                             Row(
                               children: [
                                 const Icon(Icons.local_shipping,
                                     color: Colors.greenAccent, size: 15),
+                                Text(' ค่าจัดส่ง',
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.greenAccent)),
+                                Text(
+                                    '+ (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.greenAccent)),
+                              ],
+                            ),
+                          if (discountPercentController.text.isNotEmpty)
+                            Row(
+                              children: [
+                                const Icon(Icons.discount_rounded,
+                                    color: Colors.redAccent, size: 15),
+                                Text(
+                                    ' ${NumberFormat("#,###,###,###.##").format(discountPercent)} %',
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.redAccent)),
                                 Padding(
                                   padding: const EdgeInsets.all(5.0),
                                   child: Text(
-                                      '+ (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                      '(-${NumberFormat("#,###,###,###.##").format(discountPercentPrice)})',
                                       textAlign: TextAlign.left,
                                       style: const TextStyle(
                                           fontSize: 12,
-                                          color: Colors.greenAccent)),
+                                          color: Colors.redAccent)),
                                 ),
                               ],
                             )
@@ -972,7 +1169,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                          '${NumberFormat("#,###,###,###.##").format(totalPrice)}',
+                          '${NumberFormat("#,###,###,###.##").format(showtotalPrice)}',
                           textAlign: TextAlign.left,
                           style: const TextStyle(
                               fontSize: 15, color: Colors.grey)),
@@ -1116,7 +1313,30 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                           } else if (carts.isEmpty) {
                             _showAlertSnackBar(
                                 'โปรดเลือกสินค้าอย่างน้อย 1 รายการ');
+                          } else if (_address.cAddress == 'ที่อยู่') {
+                            _showAlertSnackBar('โปรดเลือกที่อยู่ลูกค้า');
                           } else {
+                            _calculate(
+                                totalPrice,
+                                amount,
+                                shipPricController.text.isEmpty ||
+                                        shipPricController.text == null
+                                    ? 0
+                                    : double.parse(
+                                        shipPricController.text,
+                                      ).toInt(),
+                                noShippingPrice,
+                                vat7percent,
+                                noVatPrice,
+                                discountPercentController.text.isEmpty ||
+                                        discountPercentController.text == null
+                                    ? 0
+                                    : double.parse(
+                                        discountPercentController.text,
+                                      ).toInt(),
+                                discountPercentPrice);
+                            setState(() {});
+
                             final createSelling = SellingModel(
                                 orderedDate: date,
                                 customerId: _customer.cusId!,
@@ -1124,6 +1344,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 shipping: _shipping == null ? '-' : _shipping,
                                 shippingCost: shippingCost,
                                 amount: amount,
+                                discountPercent: discountPercent,
                                 total: totalPrice,
                                 speacialReq: specReqController.text.isEmpty ||
                                         specReqController.text == null
@@ -1166,6 +1387,22 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 }
                               }
                             }
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor:
+                                  Theme.of(context).backgroundColor,
+                              behavior: SnackBarBehavior.floating,
+                              content: Row(
+                                children: [
+                                  Text(
+                                      "ทำรายการเสร็จสิ้น ยอด${NumberFormat("#,###,###.##").format(createSelling.total)}"),
+                                  Text(
+                                    " ${df.format(date)}",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                              duration: Duration(seconds: 5),
+                            ));
                             Navigator.pop(context);
                           }
                         },

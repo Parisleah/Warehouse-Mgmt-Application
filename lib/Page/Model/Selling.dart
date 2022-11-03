@@ -9,6 +9,7 @@ class SellingFields {
     shipping,
     shippingCost,
     amount,
+    discountPercent,
     total,
     speacialReq,
     isDelivered,
@@ -22,6 +23,7 @@ class SellingFields {
   static final String shipping = 'shipping';
   static final String shippingCost = 'shippingCost';
   static final String amount = 'amount';
+  static final String discountPercent = 'discountPercent';
   static final String total = 'total';
   static final String speacialReq = 'speacialReq';
   static final String isDelivered = 'isDelivered';
@@ -36,6 +38,7 @@ class SellingModel {
   final String? shipping;
   final int shippingCost;
   final int amount;
+  final int discountPercent;
   final int total;
   final String? speacialReq;
   final bool isDelivered;
@@ -49,6 +52,7 @@ class SellingModel {
       required this.shipping,
       required this.shippingCost,
       required this.amount,
+      required this.discountPercent,
       required this.total,
       required this.speacialReq,
       required this.isDelivered,
@@ -61,6 +65,7 @@ class SellingModel {
     int? shippingCost,
     String? shipping,
     int? amount,
+    int? discountPercent,
     int? total,
     String? speacialReq,
     bool? isDelivered,
@@ -74,6 +79,7 @@ class SellingModel {
           shipping: shipping ?? this.shipping,
           shippingCost: shippingCost ?? this.shippingCost,
           amount: amount ?? this.amount,
+          discountPercent: discountPercent ?? this.discountPercent,
           total: total ?? this.total,
           speacialReq: speacialReq ?? this.speacialReq,
           isDelivered: isDelivered ?? this.isDelivered,
@@ -86,6 +92,7 @@ class SellingModel {
         shipping: json[SellingFields.shipping] as String,
         shippingCost: json[SellingFields.shippingCost] as int,
         amount: json[SellingFields.amount] as int,
+        discountPercent: json[SellingFields.discountPercent] as int,
         total: json[SellingFields.total] as int,
         speacialReq: json[SellingFields.speacialReq] as String,
         isDelivered: json[SellingFields.isDelivered] == 1,
@@ -100,6 +107,7 @@ class SellingModel {
         SellingFields.shippingCost: shippingCost,
         SellingFields.amount: amount,
         SellingFields.speacialReq: speacialReq,
+        SellingFields.discountPercent: discountPercent,
         SellingFields.total: total,
         SellingFields.isDelivered: isDelivered ? 1 : 0,
         SellingFields.shopId: shopId,

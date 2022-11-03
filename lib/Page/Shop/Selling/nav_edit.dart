@@ -41,7 +41,9 @@ class _SellingNavEditState extends State<SellingNavEdit> {
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
 
   late var shippingCost = widget.selling.shippingCost;
-  late var totalPrice = widget.selling.total;
+  late var discountPercent = widget.selling.discountPercent;
+  late var totalPrice = 0;
+  var showtotalPrice = 0;
   late var noShippingPrice = widget.selling.total - shippingCost;
   late var amount = widget.selling.amount;
   late double vat7percent = widget.selling.total * 7 / 100;
@@ -75,29 +77,21 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     sellingItems = await DatabaseManager.instance
         .readAllSellingItemsWhereSellID(widget.selling.selId!);
     productLots = await DatabaseManager.instance.readAllProductLots();
+    for (var item in sellingItems) {
+      showtotalPrice += item.total;
+    }
     setState(() {});
   }
 
-  _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice,
-      oldvat7percent, oldNoVatPrice) {
-    oldTotal = 0;
-    oldAmount = 0;
-    oldNoShippingPrice = 0;
-    oldvat7percent = 0;
-    oldNoVatPrice = 0;
-
+  _calculate() {
+    var oldTotalPrice = 0;
     for (var i in sellingItems) {
-      oldTotal += i.total;
-      oldAmount += i.amount;
+      oldTotalPrice += i.total;
     }
 
-    totalPrice = oldTotal + oldShippingPrice;
-    amount = oldAmount;
-    shippingCost = oldShippingPrice;
-    noShippingPrice = oldTotal;
-    vat7percent = oldTotal * 7 / 100;
-    noVatPrice = oldTotal - vat7percent;
-    setState(() {});
+    setState(() {
+      showtotalPrice = oldTotalPrice;
+    });
   }
 
   _showAlertSnackBar(title) {
@@ -107,49 +101,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
       content: Text(title),
       duration: Duration(seconds: 2),
     ));
-  }
-
-  Future<void> dialogConfirmDelete() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (dContext, DialogSetState) {
-          return AlertDialog(
-            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)),
-            title: Container(
-              width: 150,
-              child: Row(
-                children: [
-                  const Text(
-                    'ต้องการลบรายการการขาย ?',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('adasdasd'),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              ElevatedButton(
-                child: const Text('ยืนยัน'),
-                onPressed: () {
-                  Navigator.of(dContext).pop();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
-      },
-    );
   }
 
   @override
@@ -180,7 +131,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0)),
                           title: const Text(
-                            'ต้องการลบรายการการขาย ?',
+                            'ต้องการลบ ?',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                           actions: <Widget>[
@@ -195,8 +146,30 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                             ElevatedButton(
                               child: const Text('ยืนยัน'),
                               onPressed: () async {
+                                if (isDelivered == true) {
+                                  print(widget.selling.isDelivered);
+                                  for (var item in sellingItems) {
+                                    for (var lot in productLots) {
+                                      if (item.prodLotId == lot.prodLotId) {
+                                        final updatedLot = lot.copy(
+                                            remainAmount:
+                                                lot.remainAmount + item.amount);
+                                        await DatabaseManager.instance
+                                            .updateProductLot(updatedLot);
+                                      }
+                                    }
+                                    await DatabaseManager.instance
+                                        .deletePurchasingItem(item.selItemId!);
+                                  }
+                                } else {
+                                  for (var item in sellingItems) {
+                                    await DatabaseManager.instance
+                                        .deletePurchasingItem(item.selItemId!);
+                                  }
+                                }
                                 await DatabaseManager.instance
-                                    .deleteSelling(widget.selling.selId!);
+                                    .deletePurchasing(widget.selling.selId!);
+
                                 Navigator.of(context).pop();
                                 Navigator.of(context).pop();
                               },
@@ -507,7 +480,8 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                     height: 80,
                                                     width: 400,
                                                     color: Color.fromRGBO(
-                                                        56, 54, 76, 1.0),
+                                                            56, 54, 76, 1.0)
+                                                        .withOpacity(0.4),
                                                     child: Row(
                                                       children: <Widget>[
                                                         Container(
@@ -754,7 +728,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: const Text("ราคาสินค้าสุทธิ",
+                    child: const Text("ราคาสินค้า",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
@@ -807,7 +781,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: const Text("ราคาสินค้ารวม",
+                    child: const Text("ราคารวม",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
@@ -822,34 +796,60 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   ),
                 ]),
               ),
+              Container(
+                padding: const EdgeInsets.all(5),
+                width: 400,
+                height: 30,
+                child: Row(children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Text("ส่วนลด ",
+                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Text(
+                        //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
+                        '${NumberFormat("#,###.##").format(discountPercent)} %',
+                        textAlign: TextAlign.left,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
+                ]),
+              ),
               const SizedBox(
                 height: 10,
               ),
               // Container of ราคาสุทธิ
               Container(
                 width: 400,
-                height: 30,
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
-                    child: const Text("ราคารวม",
+                    child: const Text("ราคารวมสุทธิ ",
                         style: TextStyle(
                             fontSize: 15,
                             color: Colors.white,
                             fontWeight: FontWeight.bold)),
                   ),
                   if (products.length != 0)
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.shopping_cart_rounded,
-                            color: Colors.white, size: 15),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Text(
-                              'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
-                              textAlign: TextAlign.left,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey)),
+                        Row(
+                          children: [
+                            const Icon(Icons.shopping_cart_rounded,
+                                color: Colors.white, size: 15),
+                            Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Text(
+                                  'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            ),
+                          ],
                         ),
                         if (shippingCost != 0)
                           Row(
@@ -866,14 +866,33 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                         color: Colors.greenAccent)),
                               ),
                             ],
-                          )
+                          ),
+                        Row(
+                          children: [
+                            const Icon(Icons.discount_rounded,
+                                color: Colors.redAccent, size: 15),
+                            Text(
+                                ' ${NumberFormat("#,###,###,###.##").format(discountPercent)} %',
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.redAccent)),
+                            Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Text(
+                                  '(-${NumberFormat("#,###,###,###.##").format(showtotalPrice * discountPercent / 100)})',
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.redAccent)),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   const Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Text(
-                        '${NumberFormat("#,###,###,###.##").format(totalPrice)}',
+                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice - (showtotalPrice * discountPercent / 100))}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -902,36 +921,46 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Center(
-                      child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        isDelivered = !isDelivered;
-                        if (isDelivered == false) {
-                          print('ยังไม่ได้รับสินค้า (${isDelivered})');
-                        } else {
-                          print('ได้รับสินค้าแล้ว (${isDelivered})');
-                        }
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: Colors.transparent),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: isDelivered
-                            ? Icon(
-                                Icons.check_box,
-                                size: 40.0,
-                                color: Theme.of(context).backgroundColor,
-                              )
-                            : Icon(
-                                Icons.check_box_outline_blank,
-                                size: 40.0,
-                                color: Theme.of(context).backgroundColor,
+                      child: widget.selling.isDelivered == true
+                          ? Icon(
+                              Icons.check_box,
+                              size: 40.0,
+                              color: Theme.of(context).backgroundColor,
+                            )
+                          : InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isDelivered = !isDelivered;
+                                  if (isDelivered == false) {
+                                    print(
+                                        'ยังไม่ได้รับสินค้า (${isDelivered})');
+                                  } else {
+                                    print('ได้รับสินค้าแล้ว (${isDelivered})');
+                                  }
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.transparent),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: isDelivered
+                                      ? Icon(
+                                          Icons.check_box,
+                                          size: 40.0,
+                                          color:
+                                              Theme.of(context).backgroundColor,
+                                        )
+                                      : Icon(
+                                          Icons.check_box_outline_blank,
+                                          size: 40.0,
+                                          color:
+                                              Theme.of(context).backgroundColor,
+                                        ),
+                                ),
                               ),
-                      ),
-                    ),
-                  )),
+                            )),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -940,115 +969,108 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: Colors.white,
+                          color:
+                              isDelivered == true ? Colors.grey : Colors.white,
                         ),
                       ),
                       Text(
                         "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
-                        style: TextStyle(fontSize: 15, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: isDelivered == true
+                                ? Colors.grey
+                                : Colors.white),
                       ),
                     ],
                   ),
                 ],
               ),
 
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            for (var selling in sellingItems) {
-                              for (var lot in lots) {
-                                if (lot.prodLotId == selling.prodLotId) {
-                                  final updateAmountDeletedProductLot =
-                                      lot.copy(
-                                          remainAmount: selling!.amount +
-                                              lot.remainAmount);
+              widget.selling.isDelivered == true
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(children: [
+                            ElevatedButton(
+                                onPressed: () async {
+                                  for (var selling in sellingItems) {
+                                    for (var lot in lots) {
+                                      if (lot.prodLotId == selling.prodLotId) {
+                                        final updateAmountDeletedProductLot =
+                                            lot.copy(
+                                                remainAmount: selling!.amount +
+                                                    lot.remainAmount);
+
+                                        await DatabaseManager.instance
+                                            .updateProductLot(
+                                                updateAmountDeletedProductLot);
+                                      }
+                                    }
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "ยกเลิกรายการ",
+                                  style: TextStyle(fontSize: 17),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                    primary: Colors.red))
+                          ]),
+                          Column(children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                if (isDelivered == true) {
+                                  final updatedSelling = widget.selling
+                                      .copy(isDelivered: isDelivered);
 
                                   await DatabaseManager.instance
-                                      .updateProductLot(
-                                          updateAmountDeletedProductLot);
+                                      .updateSelling(updatedSelling);
+                                  for (var i = 0;
+                                      sellingItems.length > i;
+                                      i++) {
+                                    for (var lot in productLots) {
+                                      if (sellingItems[i].prodLotId ==
+                                          lot.prodLotId) {
+                                        print(
+                                            'Before Update ${lot.remainAmount}');
+                                        final updateAmountSelectedProductLot =
+                                            lot.copy(
+                                                remainAmount: lot.remainAmount -
+                                                    sellingItems[i].amount);
+                                        await DatabaseManager.instance
+                                            .updateProductLot(
+                                                updateAmountSelectedProductLot);
+                                      }
+                                    }
+                                  }
+
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).backgroundColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Row(
+                                      children: [
+                                        Text("ปรับปรุงสินค้าคงเหลือแล้ว"),
+                                      ],
+                                    ),
+                                    duration: Duration(seconds: 5),
+                                  ));
                                 }
-                              }
-                            }
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            "ยกเลิกรายการ",
-                            style: TextStyle(fontSize: 17),
-                          ),
-                          style: ElevatedButton.styleFrom(primary: Colors.red))
-                    ]),
-                    Column(children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (isDelivered == true) {
-                            final updatedSelling =
-                                widget.selling.copy(isDelivered: isDelivered);
-
-                            await DatabaseManager.instance
-                                .updateSelling(updatedSelling);
-                            for (var i = 0; sellingItems.length > i; i++) {
-                              for (var lot in productLots) {
-                                if (sellingItems[i].prodLotId ==
-                                    lot.prodLotId) {
-                                  print('Before Update ${lot.remainAmount}');
-                                  final updateAmountSelectedProductLot =
-                                      lot.copy(
-                                          remainAmount: lot.remainAmount -
-                                              sellingItems[i].amount);
-                                  await DatabaseManager.instance
-                                      .updateProductLot(
-                                          updateAmountSelectedProductLot);
-                                }
-                              }
-                            }
-
-                            // for (var i = 0; sellingItems.length > i; i++) {
-                            //   for (var lot in productLots) {
-                            //     if (sellingItems[i].prodLotId ==
-                            //         lot.prodLotId) {
-                            //       print('Before Update ${lot.remainAmount}');
-                            //       final updateAmountSelectedProductLot =
-                            //           lot.copy(
-                            //               remainAmount: lot.remainAmount -
-                            //                   sellingItems[i].amount);
-                            //       print('After Updated ${lot.remainAmount}');
-                            //       await DatabaseManager.instance
-                            //           .updateProductLot(
-                            //               updateAmountSelectedProductLot);
-                            //     }
-                            //   }
-                            //   final updatedSelling = widget.selling!
-                            //       .copy(isDelivered: isDelivered);
-                            // }
-
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor:
-                                  Theme.of(context).backgroundColor,
-                              behavior: SnackBarBehavior.floating,
-                              content: Row(
-                                children: [
-                                  Text("ปรับปรุงสินค้าคงเหลือแล้ว"),
-                                ],
+                              },
+                              child: Text(
+                                "บันทึก",
+                                style: TextStyle(fontSize: 17),
                               ),
-                              duration: Duration(seconds: 5),
-                            ));
-                          }
-                        },
-                        child: Text(
-                          "บันทึก",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                      )
-                    ]),
-                  ],
-                ),
-              )
+                            )
+                          ]),
+                        ],
+                      ),
+                    )
             ]),
           ),
         ),

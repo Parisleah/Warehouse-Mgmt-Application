@@ -235,7 +235,7 @@ class _AllShopPageState extends State<AllShopPage> {
                               Navigator.pop(context);
                               refreshAllShops();
                             },
-                            child: Text('ยืนยัน')),
+                            child: Text('ลบร้าน')),
                         const SizedBox(
                           width: 20,
                         ),
@@ -303,9 +303,7 @@ class _AllShopPageState extends State<AllShopPage> {
                                   ),
                                 ));
                             refreshProfile();
-                            setState(() {
-                             
-                            });
+                            setState(() {});
                           }),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(30),
