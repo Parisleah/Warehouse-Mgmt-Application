@@ -44,6 +44,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   List<TextEditingController> editPriceControllers = [];
   TextEditingController editAllCostController = TextEditingController();
   TextEditingController editAllPriceController = TextEditingController();
+  TextEditingController pController = TextEditingController();
+  TextEditingController cController = TextEditingController();
 
   @override
   void initState() {
@@ -62,6 +64,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     productModel_ndPropListNameController.addListener(() => setState(() {}));
     editAllCostController.addListener(() => setState(() {}));
     editAllPriceController.addListener(() => setState(() {}));
+    pController.addListener(() => setState(() {}));
+    cController.addListener(() => setState(() {}));
   }
 
   // Product
@@ -92,6 +96,43 @@ class _ProductNavAddState extends State<ProductNavAdd> {
       content: Text("${object} ว่าง"),
       duration: Duration(seconds: 3),
     ));
+  }
+
+  _invalidationPriceController() {
+    var found = 0;
+    for (var i = 0; i < productModels.length; i++) {
+      var c = editCostControllers[i];
+      var p = editPriceControllers[i];
+      if (c.text.isEmpty || p.text.isEmpty) {
+        if (c.text.isEmpty) {
+          print('[Cost] Found Null in (${found})');
+          isFoundNullCost = true;
+          return found;
+        } else {
+          print('[Price] Found Null in (${found})');
+          isFoundNullPrice = true;
+          return found;
+        }
+      } else if (int.parse(c.text.replaceAll(RegExp('[^0-9]'), '')) >
+          int.parse(p.text.replaceAll(RegExp('[^0-9]'), ''))) {
+        isFoundNullCost = true;
+        isFoundNullPrice = true;
+        setState(() {});
+        var whereModel = productModels[i];
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+          content: Text(
+              "(${i}) ${whereModel.stProperty} ${whereModel.ndProperty} ราคาขายน้อยกว่าต้นทุน (${found})"),
+          duration: Duration(seconds: 3),
+        ));
+      } else {
+        found++;
+        isFoundNullCost = false;
+        isFoundNullPrice = false;
+        setState(() {});
+      }
+    }
   }
 
   Future _insertProduct(shop) async {
@@ -191,41 +232,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     }
   }
 
-  // Product
-  _invalidationPriceController() {
-    var found = 1;
-    for (var c in editCostControllers) {
-      for (var p in editPriceControllers) {
-        if (c.text.isEmpty || p.text.isEmpty) {
-          if (c.text.isEmpty) {
-            print('[Cost ] Found Null in (${found})');
-            isFoundNullCost = true;
-            return found;
-          } else {
-            print('[Price] Found Null in (${found})');
-            isFoundNullPrice = true;
-            return found;
-          }
-        } else if (int.parse(c.text) > int.parse(p.text)) {
-          isFoundNullCost = true;
-          isFoundNullPrice = true;
-          setState(() {});
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.redAccent,
-            content: Text("ราคาขายน้อยกว่าต้นทุน (${found})"),
-            duration: Duration(seconds: 3),
-          ));
-        } else {
-          found++;
-          isFoundNullCost = false;
-          isFoundNullPrice = false;
-          setState(() {});
-        }
-      }
-    }
-  }
-
   _addCostPriceInProdModel(stPropsList, ndPropsList) {
     setState(() {
       productModels.clear();
@@ -295,10 +301,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   }
 
   // ราคาทั้งหมด
-  Future<void> dialogEdit_PropCostPrice(TextEditingController pController,
-      TextEditingController cController) async {
+  Future<void> dialogEdit_PropCostPrice() async {
     final _costformKey = GlobalKey<FormState>();
-
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -617,115 +621,140 @@ class _ProductNavAddState extends State<ProductNavAdd> {
               ElevatedButton(
                 child: const Text('ยืนยัน'),
                 onPressed: () {
-                  // if (_costformKey.currentState!.validate()) {
-                  // }
-                  if (ndPropsList.isNotEmpty) {
-                    print('1st + 2nd Propertys');
-                    if (stPropertySelecteds.isNotEmpty &&
-                        ndPropertySelecteds.isNotEmpty) {
-                      print('Both Selected');
-                      for (var i = 0; i < ndPropertySelecteds.length; i++) {
-                        for (var st in stPropertySelecteds) {
-                          for (var nd in ndPropertySelecteds) {
-                            for (var model in productModels) {
-                              if (model.stProperty == st &&
-                                  model.ndProperty == nd) {
-                                var findIndex =
-                                    productModels.indexWhere((e) => e == model);
-                                editCostControllers[findIndex].text =
-                                    cController.text;
-                                editPriceControllers[findIndex].text =
-                                    pController.text;
+                  if (_costformKey.currentState!.validate()) {
+                    if (ndPropsList.isNotEmpty) {
+                      print('1st + 2nd Propertys');
+                      if (stPropertySelecteds.isNotEmpty &&
+                          ndPropertySelecteds.isNotEmpty) {
+                        print('Both Selected');
+                        for (var i = 0; i < ndPropertySelecteds.length; i++) {
+                          for (var st in stPropertySelecteds) {
+                            for (var nd in ndPropertySelecteds) {
+                              for (var model in productModels) {
+                                if (model.stProperty == st &&
+                                    model.ndProperty == nd) {
+                                  var findIndex = productModels
+                                      .indexWhere((e) => e == model);
+
+                                  editCostControllers[findIndex].text =
+                                      cController.text
+                                          .replaceAll(RegExp('[^0-9]'), '');
+                                  ;
+                                  editPriceControllers[findIndex].text =
+                                      pController.text;
+                                  print(cController.text);
+                                  print(cController.runtimeType);
+                                  print(pController.text);
+                                  print(pController.runtimeType);
+                                }
                               }
                             }
                           }
                         }
-                      }
-                      Navigator.of(context).pop();
-                    } else if (stPropertySelecteds.isNotEmpty &&
-                        ndPropertySelecteds.isEmpty) {
-                      print('Only 1st Selected');
-                      for (var i = 0; i < stPropertySelecteds.length; i++) {
-                        var stSelectedInd = stPropertySelecteds[i];
+                        Navigator.of(context).pop();
+                      } else if (stPropertySelecteds.isNotEmpty &&
+                          ndPropertySelecteds.isEmpty) {
+                        print('Only 1st Selected');
+                        for (var i = 0; i < stPropertySelecteds.length; i++) {
+                          var stSelectedInd = stPropertySelecteds[i];
 
-                        print(stSelectedInd);
-                        for (var model in productModels) {
-                          if (model.stProperty == stSelectedInd) {
-                            var findIndex =
-                                productModels.indexWhere((e) => e == model);
+                          print(stSelectedInd);
+                          for (var model in productModels) {
+                            if (model.stProperty == stSelectedInd) {
+                              var findIndex =
+                                  productModels.indexWhere((e) => e == model);
 
-                            editCostControllers[findIndex].text =
-                                cController.text;
-                            editPriceControllers[findIndex].text =
-                                pController.text;
-                          } else {}
-                        }
-                      }
-                      Navigator.of(context).pop();
-                    } else if (stPropertySelecteds.isEmpty &&
-                        ndPropertySelecteds.isNotEmpty) {
-                      print('Only 2nd Selected');
-                      for (var i = 0; i < ndPropertySelecteds.length; i++) {
-                        var ndSelectedInd = ndPropertySelecteds[i];
-
-                        for (var model in productModels) {
-                          if (model.stProperty == ndSelectedInd) {
-                            var findIndex =
-                                productModels.indexWhere((e) => e == model);
-
-                            editCostControllers[findIndex].text =
-                                cController.text;
-                            editPriceControllers[findIndex].text =
-                                pController.text;
+                              editCostControllers[findIndex].text = cController
+                                  .text
+                                  .replaceAll(RegExp('[^0-9]'), '');
+                              ;
+                              editPriceControllers[findIndex].text = pController
+                                  .text
+                                  .replaceAll(RegExp('[^0-9]'), '');
+                              ;
+                              print(cController.text);
+                              print(cController.runtimeType);
+                              print(pController.text);
+                              print(pController.runtimeType);
+                            } else {}
                           }
                         }
+                        Navigator.of(context).pop();
+                      } else if (stPropertySelecteds.isEmpty &&
+                          ndPropertySelecteds.isNotEmpty) {
+                        print('Only 2nd Selected');
+                        for (var i = 0; i < ndPropertySelecteds.length; i++) {
+                          var ndSelectedInd = ndPropertySelecteds[i];
+
+                          for (var model in productModels) {
+                            if (model.ndProperty == ndSelectedInd) {
+                              var findIndex =
+                                  productModels.indexWhere((e) => e == model);
+
+                              editCostControllers[findIndex].text =
+                                  cController.text;
+                              editPriceControllers[findIndex].text =
+                                  pController.text;
+                            }
+                          }
+                        }
+                        Navigator.of(context).pop();
+                      } else {
+                        print('No Selected');
+                        var cnt = 0;
+                        for (var c in editCostControllers) {
+                          c.text =
+                              cController.text.replaceAll(RegExp('[^0-9]'), '');
+                          ;
+                          cnt++;
+                        }
+                        print(cnt);
+                        for (var p in editPriceControllers) {
+                          p.text =
+                              pController.text.replaceAll(RegExp('[^0-9]'), '');
+                          ;
+                        }
+                        Navigator.of(context).pop();
+                        print(cController.text);
+                        print(cController.text.runtimeType);
+                        print(pController.text);
+                        print(pController.text.runtimeType);
                       }
-                      Navigator.of(context).pop();
                     } else {
-                      print('No Selected');
-                      var cnt = 0;
-                      for (var c in editCostControllers) {
-                        c.text = cController.text;
-                        cnt++;
+                      print('Only 1st Property');
+                      // Created Only 1st Propertys
+                      if (stPropertySelecteds.isNotEmpty) {
+                        print('Empty Selection 1st Property');
+                        for (var st in stPropertySelecteds) {
+                          for (var model in productModels) {
+                            if (model.stProperty == st) {
+                              var findIndex =
+                                  productModels.indexWhere((e) => e == model);
+
+                              editCostControllers[findIndex].text =
+                                  cController.text;
+                              editPriceControllers[findIndex].text =
+                                  pController.text;
+                            }
+                          }
+                        }
+
+                        Navigator.of(context).pop();
+                      } else {
+                        for (var c in editCostControllers) {
+                          c.text = cController.text;
+                        }
+                        for (var p in editPriceControllers) {
+                          p.text = pController.text;
+                        }
+                        Navigator.of(context).pop();
                       }
-                      print(cnt);
-                      for (var p in editPriceControllers) {
-                        p.text = pController.text;
-                      }
-                      Navigator.of(context).pop();
                     }
+                    stPropertySelecteds.clear();
+                    ndPropertySelecteds.clear();
                   } else {
-                    print('Only 1st Property');
-                    // Created Only 1st Propertys
-                    if (stPropertySelecteds.isNotEmpty) {
-                      print('Empty Selection 1st Property');
-                      for (var st in stPropertySelecteds) {
-                        for (var model in productModels) {
-                          if (model.stProperty == st) {
-                            var findIndex =
-                                productModels.indexWhere((e) => e == model);
-
-                            editCostControllers[findIndex].text =
-                                cController.text;
-                            editPriceControllers[findIndex].text =
-                                pController.text;
-                          }
-                        }
-                      }
-
-                      Navigator.of(context).pop();
-                    } else {
-                      for (var c in editCostControllers) {
-                        c.text = cController.text;
-                      }
-                      for (var p in editPriceControllers) {
-                        p.text = pController.text;
-                      }
-                      Navigator.of(context).pop();
-                    }
+                    print('Else');
                   }
-                  stPropertySelecteds.clear();
-                  ndPropertySelecteds.clear();
                 },
               ),
             ],
@@ -782,9 +811,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                     ),
                                     ElevatedButton(
                                         onPressed: () {
-                                          dialogEdit_PropCostPrice(
-                                              editAllCostController,
-                                              editAllPriceController);
+                                          dialogEdit_PropCostPrice();
                                         },
                                         child: Row(
                                           children: [
@@ -1397,15 +1424,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                           Icons.edit,
                                           color: Colors.white,
                                         )),
-                                    const Spacer(),
                                     stPropsList.isEmpty
                                         ? Container()
                                         : Container(
-                                            decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .backgroundColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(15)),
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.all(2.0),
@@ -1661,7 +1682,22 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                 icon: const Icon(
                                                   Icons.edit,
                                                   color: Colors.white,
-                                                ))
+                                                )),
+                                            ndPropsList.isEmpty
+                                                ? Container()
+                                                : Container(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              2.0),
+                                                      child: Text(
+                                                        '${NumberFormat("#,###.##").format(ndPropsList.length)}',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ),
+                                                  )
                                           ],
                                         ),
                                         Row(
@@ -1908,7 +1944,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                 : ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                         fixedSize: const Size(80, 40)),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       productModels.clear();
                                       editCostControllers.clear();
                                       editPriceControllers.clear();
@@ -1923,7 +1959,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                         () {},
                                       );
                                       // Setprice
-                                      dialogProduct_CostPrice();
+                                      await dialogProduct_CostPrice();
+                                      stPropertySelecteds.clear();
+                                      ndPropertySelecteds.clear();
                                     },
                                     child: Text('สร้าง')),
                           ],
@@ -1938,7 +1976,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         });
   }
 
-  dialogProductCategory() async {
+  dialogProductChooseCategory() async {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1997,7 +2035,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                             Container(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10)),
-                              height: 60,
+                              height: 70,
                               width: 200,
                               child: CustomTextField.textField(
                                 context,
@@ -2169,8 +2207,10 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                     const EdgeInsets.all(10.0),
                                                 child: Row(children: [
                                                   Text(
-                                                    productCategory
-                                                        .prodCategName,
+                                                    productCategory == null
+                                                        ? 'เลือกหมวดหมู่สินค้า'
+                                                        : productCategory
+                                                            .prodCategName,
                                                     style: TextStyle(
                                                         color: Colors.white),
                                                   ),
@@ -2276,7 +2316,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      dialogProductCategory();
+                      dialogProductChooseCategory();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(30),

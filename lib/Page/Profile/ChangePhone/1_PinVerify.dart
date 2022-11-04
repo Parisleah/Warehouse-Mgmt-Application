@@ -25,6 +25,12 @@ class _PinVerifyPageState extends State<PinVerifyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: true,
+      ),
       body: Container(
         // ignore: prefer_const_constructors
         decoration: BoxDecoration(
@@ -383,7 +389,6 @@ class PINNumber extends StatelessWidget {
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
-                
               ),
               filled: true,
               fillColor: const Color.fromRGBO(50, 224, 119, 1.0)),

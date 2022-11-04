@@ -892,7 +892,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Text(
-                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice - (showtotalPrice * discountPercent / 100))}',
+                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice-(showtotalPrice * discountPercent / 100))}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),

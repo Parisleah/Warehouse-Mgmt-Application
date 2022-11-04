@@ -96,6 +96,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         centerTitle: true,
         automaticallyImplyLeading: true,
         backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+        
       ),
       body: SingleChildScrollView(
         child: Container(

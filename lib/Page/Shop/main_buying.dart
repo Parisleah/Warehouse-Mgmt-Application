@@ -473,18 +473,16 @@ class _BuyingPageState extends State<BuyingPage> {
                                             ),
                                             onDismissed: (direction) async {
                                               List<PurchasingItemsModel>
-                                                  purchasingItems = [];
+                                                  purchasingItemsList = [];
                                               if (purchasing.isReceive ==
                                                   true) {
-                                                print(purchasing.isReceive);
+                                                purchasingItemsList =
+                                                    await DatabaseManager
+                                                        .instance
+                                                        .readAllPurchasingItemsWherePurID(
+                                                            purchasing.purId!);
                                                 for (var item
-                                                    in purchasingItems) {
-                                                  purchasingItems =
-                                                      await DatabaseManager
-                                                          .instance
-                                                          .readAllPurchasingItemsWherePurID(
-                                                              purchasing
-                                                                  .purId!);
+                                                    in purchasingItemsList) {
                                                   for (var lot in productLots) {
                                                     if (item.purId ==
                                                         lot.purId) {
@@ -505,7 +503,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                               } else {
                                                 print('else Purchjasing');
                                                 for (var item
-                                                    in purchasingItems) {
+                                                    in purchasingItemsList) {
                                                   await DatabaseManager.instance
                                                       .deletePurchasingItem(
                                                           item.purItemsId!);

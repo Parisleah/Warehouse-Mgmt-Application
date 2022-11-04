@@ -41,6 +41,7 @@ class _SellingPageState extends State<SellingPage> {
   }
 
   Future refreshSellings() async {
+    productLots = await DatabaseManager.instance.readAllProductLots();
     selllings = await DatabaseManager.instance
         .readAlSellingsORDERBYPresent(widget.shop.shopid!);
     addresses = await DatabaseManager.instance
@@ -487,7 +488,7 @@ class _SellingPageState extends State<SellingPage> {
                                                     child: Row(
                                                   children: [
                                                     Text(
-                                                        "ลบรายการสั่งซื้อ {_customer.cName}"),
+                                                        "ลบรายการสั่งซื้อ ${_customerText.cName}"),
                                                     Text(
                                                         ' ยอด ${NumberFormat("#,###.##").format(selling.total)}',
                                                         style: const TextStyle(
@@ -499,52 +500,44 @@ class _SellingPageState extends State<SellingPage> {
                                                 )),
                                                 duration: Duration(seconds: 5),
                                               ));
-                                              // List<SellingItemModel>
-                                              //     purchasingItems = [];
-                                              // for (var selling
-                                              //     in selectedPurchasing) {
-                                              //   purchasingItems =
-                                              //       await DatabaseManager
-                                              //           .instance
-                                              //           .readAllPurchasingItemsWherePurID(
-                                              //               pur.purId!);
-                                              //   if (pur.isReceive == true) {
-                                              //     print(pur.isReceive);
-                                              //     for (var item
-                                              //         in purchasingItems) {
-                                              //       for (var lot
-                                              //           in productLots) {
-                                              //         if (item.purId ==
-                                              //             lot.purId) {
-                                              //           final updatedLot = lot.copy(
-                                              //               remainAmount:
-                                              //                   lot.remainAmount -
-                                              //                       item.amount);
-                                              //           await DatabaseManager
-                                              //               .instance
-                                              //               .updateProductLot(
-                                              //                   updatedLot);
-                                              //         }
-                                              //       }
-                                              //       await DatabaseManager
-                                              //           .instance
-                                              //           .deletePurchasingItem(
-                                              //               item.purItemsId!);
-                                              //     }
-                                              //   } else {
-                                              //     print('else Purchjasing');
-                                              //     for (var item
-                                              //         in purchasingItems) {
-                                              //       await DatabaseManager
-                                              //           .instance
-                                              //           .deletePurchasingItem(
-                                              //               item.purItemsId!);
-                                              //     }
-                                              //   }
-                                              //   await DatabaseManager.instance
-                                              //       .deletePurchasing(
-                                              //           pur.purId!);
-                                              // }
+                                              List<SellingItemModel>
+                                                  sellingItemsList = [];
+                                              if (selling.isDelivered == true) {
+                                                sellingItemsList =
+                                                    await DatabaseManager
+                                                        .instance
+                                                        .readAllSellingItemsWhereSellID(
+                                                            selling.selId!);
+                                                for (var item
+                                                    in sellingItemsList) {
+                                                  for (var lot in productLots) {
+                                                    if (item.prodLotId ==
+                                                        lot.prodLotId) {
+                                                      final updatedLot = lot.copy(
+                                                          remainAmount:
+                                                              lot.remainAmount +
+                                                                  item.amount);
+                                                      await DatabaseManager
+                                                          .instance
+                                                          .updateProductLot(
+                                                              updatedLot);
+                                                    }
+                                                  }
+                                                  await DatabaseManager.instance
+                                                      .deleteSellingItem(
+                                                          item.selItemId!);
+                                                }
+                                              } else {
+                                                for (var item
+                                                    in sellingItemsList) {
+                                                  await DatabaseManager.instance
+                                                      .deleteSellingItem(
+                                                          item.selItemId!);
+                                                }
+                                              }
+                                              await DatabaseManager.instance
+                                                  .deletePurchasing(
+                                                      selling.selId!);
 
                                               refreshSellings();
                                               setState(() {});
@@ -626,6 +619,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                                                 await dialogConfirmDelete();
                                                                                                 selectedSelling.clear();
                                                                                                 refreshSellings();
+                                                                                                Navigator.pop(context);
                                                                                               },
                                                                                               child: Icon(
                                                                                                 Icons.delete_rounded,

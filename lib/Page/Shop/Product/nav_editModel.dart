@@ -95,16 +95,23 @@ class _ProductEditModelState extends State<ProductEditModel> {
             actions: <Widget>[
               ElevatedButton(
                 child: const Text('ยืนยัน'),
-                onPressed: () {
-                  Edit_st_PropDialogSetState(() {
-                    if (controller.text.isEmpty) {
-                    } else {
-                      isDialogChooseFst == true
-                          ? stPropName = controller.text
-                          : ndPropName = controller.text;
+                onPressed: () async {
+                  if (controller.text.isEmpty) {
+                  } else {
+                    isDialogChooseFst == true
+                        ? stPropName = controller.text
+                        : ndPropName = controller.text;
+                    List<ProductModel> productModels = [];
+                    for (var model in productModels) {
+                      if (model.prodId == widget.model.prodId) {
+                        var updatedProductModel = model.copy(
+                            prodModelname: '${stPropName},${ndPropName}');
+                        await DatabaseManager.instance
+                            .updateProductModel(updatedProductModel);
+                      }
                     }
-                  });
-                  Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  }
                 },
               ),
             ],
@@ -161,25 +168,25 @@ class _ProductEditModelState extends State<ProductEditModel> {
                       stPropName,
                       style: TextStyle(color: Colors.white),
                     ),
-                    IconButton(
-                        onPressed: () async {
-                          setState(
-                            () {
-                              isDialogChooseFst = true;
-                            },
-                          );
-                          await dialogEdit_PropName(editPropertyName);
-                          setState(
-                            () {
-                              isDialogChooseFst = false;
-                            },
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 20,
-                        ))
+                    // IconButton(
+                    //     onPressed: () async {
+                    //       setState(
+                    //         () {
+                    //           isDialogChooseFst = true;
+                    //         },
+                    //       );
+                    //       await dialogEdit_PropName(editPropertyName);
+                    //       setState(
+                    //         () {
+                    //           isDialogChooseFst = false;
+                    //         },
+                    //       );
+                    //     },
+                    //     icon: const Icon(
+                    //       Icons.edit,
+                    //       color: Colors.white,
+                    //       size: 20,
+                    //     ))
                   ],
                 ),
                 CustomTextField.textField(
@@ -196,15 +203,15 @@ class _ProductEditModelState extends State<ProductEditModel> {
                       ndPropName,
                       style: TextStyle(color: Colors.white),
                     ),
-                    IconButton(
-                        onPressed: () async {
-                          await dialogEdit_PropName(editPropertyName);
-                        },
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 20,
-                        ))
+                    // IconButton(
+                    //     onPressed: () async {
+                    //       await dialogEdit_PropName(editPropertyName);
+                    //     },
+                    //     icon: const Icon(
+                    //       Icons.edit,
+                    //       color: Colors.white,
+                    //       size: 20,
+                    //     ))
                   ],
                 ),
                 CustomTextField.textField(

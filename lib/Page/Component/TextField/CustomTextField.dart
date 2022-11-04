@@ -40,6 +40,7 @@ class CustomTextField {
               style: const TextStyle(color: Colors.white, fontSize: 12),
               cursorColor: primary_color,
               decoration: InputDecoration(
+                
                 errorText: _validate ? 'โปรดระบุ' : null, //
                 contentPadding:
                     EdgeInsets.only(top: 25, bottom: 10, left: 10, right: 10),

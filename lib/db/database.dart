@@ -27,7 +27,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main44.db');
+    _database = await _initDB('main45.db');
     return _database!;
   }
 
