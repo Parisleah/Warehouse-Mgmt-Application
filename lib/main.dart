@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 // Theme
 
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Profile/NewUser/1_welcomePage.dart';
 import 'package:warehouse_mnmt/Page/Profile/NewUser/2_addName.dart';
 import 'package:warehouse_mnmt/Page/Shop/main_selling.dart';
 import 'package:warehouse_mnmt/Page/Shop/main_shop.dart';
@@ -47,7 +48,7 @@ class _MyAppState extends State<MyApp> {
     if (profile != null) {
       return AllShopPage(profile: profile);
     } else {
-      return const AddNamePage();
+      return const BuildingScreen();
     }
   }
 
@@ -61,8 +62,6 @@ class _MyAppState extends State<MyApp> {
           darkTheme: MyThemes.darkTheme,
           themeMode: themeProvider.themeMode,
           debugShowCheckedModeBanner: false,
-          //    _decideMainPage(profile)
-          //    AddNamePage()
           home: _decideMainPage(profile),
         );
       });
@@ -114,11 +113,15 @@ class _MyHomePageState extends State<MyHomePage> {
               label: "ภาพรวม",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.back_hand),
+              icon: ImageIcon(
+                AssetImage("assets/Icons/WhiteSellingIcon.png"),
+              ),
               label: "ขายสินค้า",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.handshake_outlined),
+              icon: ImageIcon(
+                AssetImage("assets/Icons/WhiteBuyingIcon.png"),
+              ),
               label: "สั่งซื้อสินค้า",
             ),
             BottomNavigationBarItem(

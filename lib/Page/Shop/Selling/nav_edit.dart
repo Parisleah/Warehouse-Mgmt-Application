@@ -42,12 +42,12 @@ class _SellingNavEditState extends State<SellingNavEdit> {
 
   late var shippingCost = widget.selling.shippingCost;
   late var discountPercent = widget.selling.discountPercent;
-  late var totalPrice = 0;
-  var showtotalPrice = 0;
-  late var noShippingPrice = widget.selling.total - shippingCost;
+  var noShippingPrice = 0;
+  late var showtotalPrice = widget.selling.total;
   late var amount = widget.selling.amount;
-  late double vat7percent = widget.selling.total * 7 / 100;
+  late var vat7percent = noShippingPrice * 7 / 100;
   double noVatPrice = 0.0;
+  var profit = 0;
   late bool isDelivered = widget.selling.isDelivered;
   List<Product> products = [];
   List<ProductModel> models = [];
@@ -79,6 +79,12 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     productLots = await DatabaseManager.instance.readAllProductLots();
     for (var item in sellingItems) {
       showtotalPrice += item.total;
+      noShippingPrice += item.total;
+      for (var model in models) {
+        if (item.prodModelId == model.prodModelId) {
+          profit = (item.amount * model.price) - (item.amount * model.cost);
+        }
+      }
     }
     setState(() {});
   }
@@ -87,10 +93,15 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     var oldTotalPrice = 0;
     for (var i in sellingItems) {
       oldTotalPrice += i.total;
+      for (var model in models) {
+        if (i.prodModelId == model.prodModelId) {
+          profit = (i.amount * model.price) - (i.amount * model.cost);
+        }
+      }
     }
 
     setState(() {
-      showtotalPrice = oldTotalPrice;
+      noShippingPrice = oldTotalPrice;
     });
   }
 
@@ -736,7 +747,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                     padding: const EdgeInsets.only(left: 20),
                     child: Text(
                         //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
-                        '${NumberFormat("#,###.##").format(noShippingPrice - vat7percent)}',
+                        '${NumberFormat("#,###.##").format(noShippingPrice - noShippingPrice * 7 / 100)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -761,7 +772,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: Text(
-                        '${NumberFormat("#,###.##").format(vat7percent)}',
+                        '${NumberFormat("#,###.##").format(noShippingPrice * 7 / 100)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -795,6 +806,9 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                             const TextStyle(fontSize: 15, color: Colors.grey)),
                   ),
                 ]),
+              ),
+              const SizedBox(
+                height: 10,
               ),
               Container(
                 padding: const EdgeInsets.all(5),
@@ -879,7 +893,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                             Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: Text(
-                                  '(-${NumberFormat("#,###,###,###.##").format(showtotalPrice * discountPercent / 100)})',
+                                  '(-${NumberFormat("#,###,###,###.##").format(noShippingPrice * discountPercent / 100)})',
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.redAccent)),
@@ -892,7 +906,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Text(
-                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice-(showtotalPrice * discountPercent / 100))}',
+                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),

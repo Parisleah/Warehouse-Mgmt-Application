@@ -55,7 +55,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(

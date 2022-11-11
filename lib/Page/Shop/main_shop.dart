@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:warehouse_mnmt/Page/Component/change_theme_btn.dart';
 
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
+
 import 'package:warehouse_mnmt/main.dart';
 
 import '../../db/database.dart';
@@ -22,17 +23,15 @@ class ShopPage extends StatefulWidget {
 }
 
 class _ShopPageState extends State<ShopPage> {
-  // TextField
-  bool _validate = false;
   late final shopNameController = TextEditingController(text: widget.shop.name);
   late final shopPhoneController =
       TextEditingController(text: widget.shop.phone);
-  // TextField
-
+  bool _validate = false;
   File? _image;
-
   bool isChange = false;
   Shop? shop;
+  ThemeMode themeMode = ThemeMode.dark;
+  bool get isDark => themeMode == ThemeMode.dark;
   @override
   void initState() {
     refreshShop();
@@ -645,40 +644,79 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                   PopupMenuItem(
                     onTap: () {
+                      String? gender;
                       Future.delayed(
                         const Duration(seconds: 0),
                         () => showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.background,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0)),
-                            title: Container(
-                              width: 150,
-                              child: Row(
-                                children: [
-                                  const Text(
-                                    'ธีม',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 15),
-                                  ),
-                                  Spacer(),
-                                  IconButton(
-                                      onPressed: (() {
-                                        Navigator.pop(context);
-                                      }),
-                                      icon: Icon(
-                                        Icons.close,
-                                        color: Colors.grey,
-                                      ))
-                                ],
+                          builder: (context) => StatefulBuilder(
+                              builder: (context, menuDialogSetState) {
+                            return AlertDialog(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.background,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0)),
+                              title: Container(
+                                width: 150,
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      'ธีม',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 15),
+                                    ),
+                                    // ChangeThemeButtonWidget(),
+                                    Spacer(),
+                                    IconButton(
+                                        onPressed: (() {
+                                          Navigator.pop(context);
+                                        }),
+                                        icon: Icon(
+                                          Icons.close,
+                                          color: Colors.grey,
+                                        ))
+                                  ],
+                                ),
                               ),
-                            ),
-                            content: Row(children: [
-                              ChangeThemeButtonWidget(),
-                            ]),
-                          ),
+                              content: Container(
+                                height: 220,
+                                child: Column(
+                                  children: [
+                                    RadioListTile(
+                                      title: Text("สว่าง"),
+                                      value: "light",
+                                      groupValue: gender,
+                                      onChanged: (value) {
+                                        menuDialogSetState(() {
+                                          gender = value.toString();
+                                        });
+                                      },
+                                    ),
+                                    RadioListTile(
+                                      title: Text("มืด"),
+                                      value: "dark",
+                                      groupValue: gender,
+                                      onChanged: (value) {
+                                        menuDialogSetState(() {
+                                          gender = value.toString();
+                                        });
+                                      },
+                                    ),
+                                    // RadioListTile(
+                                    //   title: Text(""),
+                                    //   value: "other",
+                                    //   groupValue: gender,
+                                    //   onChanged: (value) {
+                                    //     menuDialogSetState(() {
+                                    //       gender = value.toString();
+                                    //     });
+                                    //   },
+                                    // )
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
                         ),
                       );
                     },
@@ -731,7 +769,8 @@ class _ShopPageState extends State<ShopPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            // decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            height: (MediaQuery.of(context).size.height),
+            decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),

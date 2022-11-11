@@ -243,20 +243,17 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
 
                             return TextButton(
                               onPressed: () async {
-                                
-
                                 amountOfProd == 0
                                     ? ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                            SnackBar(
-                                              backgroundColor: Theme.of(context)
-                                                  .backgroundColor,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              content: Text("สินค้าหมด"),
-                                              duration: Duration(seconds: 1),
-                                            ),
-                                          )
+                                        .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor:
+                                              Theme.of(context).backgroundColor,
+                                          behavior: SnackBarBehavior.floating,
+                                          content: Text("สินค้าหมด"),
+                                          duration: Duration(seconds: 1),
+                                        ),
+                                      )
                                     : await Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: (context) =>
@@ -301,12 +298,17 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
                                             children: <Widget>[
                                               Row(
                                                 children: [
-                                                  Text(
-                                                    product.prodName,
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white),
+                                                  Container(
+                                                    width: 150,
+                                                    child: Text(
+                                                      product.prodName,
+                                                      style: const TextStyle(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white),
+                                                    ),
                                                   ),
                                                 ],
                                               ),

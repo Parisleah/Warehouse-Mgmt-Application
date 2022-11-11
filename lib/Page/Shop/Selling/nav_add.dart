@@ -45,10 +45,12 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   var shippingCost = 0;
   var showtotalPrice = 0;
   var totalPrice = 0;
+
   var noShippingPrice = 0;
   var amount = 0;
   var discountPercent = 0;
   var discountPercentPrice = 0;
+  var profit = 0;
   double vat7percent = 0.0;
   double noVatPrice = 0.0;
   bool isDelivered = false;
@@ -119,17 +121,24 @@ class _SellingNavAddState extends State<SellingNavAdd> {
       oldvat7percent,
       oldNoVatPrice,
       oldDiscountPercent,
-      oldDiscountPercentPrice) {
+      oldDiscountPercentPrice,
+      oldProfit) {
     oldTotal = 0;
     oldAmount = 0;
     oldNoShippingPrice = 0;
     oldvat7percent = 0;
     oldNoVatPrice = 0;
+    oldProfit = 0;
 
     oldDiscountPercentPrice = 0;
     for (var i in carts) {
       oldTotal += i.total;
       oldAmount += i.amount;
+      for (var model in models) {
+        if (i.prodModelId == model.prodModelId) {
+          oldProfit += (i.amount * model.price) - (i.amount * model.cost);
+        }
+      }
     }
     // discount
     discountPercent = oldDiscountPercent;
@@ -144,6 +153,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
     noShippingPrice = oldTotal;
     vat7percent = oldTotal * 7 / 100;
     noVatPrice = oldTotal - vat7percent;
+    profit = oldProfit - (oldProfit * discountPercent / 100).toInt();
 
     setState(() {});
   }
@@ -208,7 +218,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
@@ -411,7 +421,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                             vat7percent,
                             noVatPrice,
                             discountPercent,
-                            discountPercentPrice);
+                            discountPercentPrice,
+                            profit);
 
                         setState(() {});
                       },
@@ -570,7 +581,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                 discountPercentController
                                                                     .text,
                                                               ).toInt(),
-                                                        discountPercentPrice);
+                                                        discountPercentPrice,
+                                                        profit);
 
                                                     setState(() {});
                                                   },
@@ -772,9 +784,10 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                       Color.fromRGBO(30, 30, 49, 1.0),
                                   child: Text(
                                       '${NumberFormat("#,###").format(carts.length)}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.greenAccent,
+                                          color:
+                                              Theme.of(context).backgroundColor,
                                           fontWeight: FontWeight.bold)),
                                 ),
                               ),
@@ -794,6 +807,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                       context,
                       new MaterialPageRoute(
                           builder: (context) => ChooseShippingNav(
+                            shop: widget.shop,
                                 update: _updateShipping,
                               )));
                 }),
@@ -835,18 +849,20 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 child: TextField(
                     onChanged: ((value) {
                       if (shipPricController.text.isNotEmpty &&
-                          shipPricController.text != null) {
+                          shipPricController.text != null &&
+                          shipPricController.text != '') {
                         _calculate(
                             totalPrice,
                             amount,
-                            double.parse(
-                              shipPricController.text,
-                            ).toInt(),
+                            double.parse(shipPricController.text
+                                    .replaceAll(RegExp('[^0-9]'), ''))
+                                .toInt(),
                             noShippingPrice,
                             vat7percent,
                             noVatPrice,
                             discountPercent,
-                            discountPercentPrice);
+                            discountPercentPrice,
+                            profit);
                       } else {
                         shippingCost = 0;
                       }
@@ -887,7 +903,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                     vat7percent,
                                     noVatPrice,
                                     discountPercent,
-                                    discountPercentPrice);
+                                    discountPercentPrice,
+                                    profit);
                               },
                               icon: const Icon(
                                 Icons.close_sharp,
@@ -988,6 +1005,33 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 height: 10,
               ),
               Container(
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 400,
+                height: 70,
+                child: Row(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: const Text("กำไร",
+                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text('${NumberFormat("#,###.##").format(profit)}',
+                        textAlign: TextAlign.left,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
+                ]),
+              ),
+              // Container of ส่วนลด
+              const SizedBox(
+                height: 10,
+              ),
+
+              Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                     color: const Color.fromRGBO(56, 48, 77, 1.0),
@@ -1009,7 +1053,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                       child: TextField(
                           onChanged: ((value) {
                             if (discountPercentController.text.isNotEmpty &&
-                                discountPercentController.text != null) {
+                                discountPercentController.text != null &&
+                                discountPercentController.text != '') {
                               if (double.parse(discountPercentController.text)
                                       .toInt() >
                                   100) {
@@ -1021,16 +1066,18 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                     amount,
                                     shipPricController.text.isEmpty
                                         ? 0
-                                        : int.parse(
-                                            shipPricController.text,
-                                          ).toInt(),
+                                        : double.parse(shipPricController.text
+                                                .replaceAll(
+                                                    RegExp('[^0-9]'), ''))
+                                            .toInt(),
                                     noShippingPrice,
                                     vat7percent,
                                     noVatPrice,
-                                    double.parse(
-                                      discountPercentController.text,
-                                    ).toInt(),
-                                    discountPercentPrice);
+                                    double.parse(discountPercentController.text
+                                            .replaceAll(RegExp('[^0-9]'), ''))
+                                        .toInt(),
+                                    discountPercentPrice,
+                                    profit);
                               }
                             }
                           }),
@@ -1069,14 +1116,17 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                           amount,
                                           shipPricController.text.isEmpty
                                               ? 0
-                                              : double.parse(
-                                                  shipPricController.text,
-                                                ).toInt(),
+                                              : double.parse(shipPricController
+                                                      .text
+                                                      .replaceAll(
+                                                          RegExp('[^0-9]'), ''))
+                                                  .toInt(),
                                           noShippingPrice,
                                           vat7percent,
                                           noVatPrice,
                                           discountPercent,
-                                          discountPercentPrice);
+                                          discountPercentPrice,
+                                          profit);
                                     },
                                     icon: const Icon(
                                       Icons.close_sharp,
@@ -1112,12 +1162,19 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                         children: [
                           Row(
                             children: [
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text('สินค้า ',
+                                    textAlign: TextAlign.left,
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey)),
+                              ),
                               const Icon(Icons.shopping_cart_rounded,
                                   color: Colors.white, size: 15),
                               Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: Text(
-                                    'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                    '(${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12, color: Colors.grey)),
@@ -1127,15 +1184,15 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                           if (shipPricController.text.isNotEmpty)
                             Row(
                               children: [
-                                const Icon(Icons.local_shipping,
-                                    color: Colors.greenAccent, size: 15),
-                                Text(' ค่าจัดส่ง',
+                                Text(' ค่าจัดส่ง ',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.greenAccent)),
+                                const Icon(Icons.local_shipping,
+                                    color: Colors.greenAccent, size: 15),
                                 Text(
-                                    '+ (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                    ' + (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12,
@@ -1145,13 +1202,13 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                           if (discountPercentController.text.isNotEmpty)
                             Row(
                               children: [
-                                const Icon(Icons.discount_rounded,
-                                    color: Colors.redAccent, size: 15),
                                 Text(
-                                    ' ${NumberFormat("#,###,###,###.##").format(discountPercent)} %',
+                                    ' ส่วนลด ${NumberFormat("#,###,###,###.##").format(discountPercent)} %',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12, color: Colors.redAccent)),
+                                const Icon(Icons.discount_rounded,
+                                    color: Colors.redAccent, size: 15),
                                 Padding(
                                   padding: const EdgeInsets.all(5.0),
                                   child: Text(
@@ -1320,21 +1377,26 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 totalPrice,
                                 amount,
                                 shipPricController.text.isEmpty ||
-                                        shipPricController.text == null
+                                        shipPricController.text == null ||
+                                        shipPricController.text == ''
                                     ? 0
-                                    : double.parse(
-                                        shipPricController.text,
-                                      ).toInt(),
+                                    : double.parse(shipPricController.text
+                                            .replaceAll(RegExp('[^0-9]'), ''))
+                                        .toInt(),
                                 noShippingPrice,
                                 vat7percent,
                                 noVatPrice,
                                 discountPercentController.text.isEmpty ||
-                                        discountPercentController.text == null
+                                        discountPercentController.text ==
+                                            null ||
+                                        discountPercentController.text == ''
                                     ? 0
-                                    : double.parse(
-                                        discountPercentController.text,
-                                      ).toInt(),
-                                discountPercentPrice);
+                                    : double.parse(discountPercentController
+                                            .text
+                                            .replaceAll(RegExp('[^0-9]'), ''))
+                                        .toInt(),
+                                discountPercentPrice,
+                                profit);
                             setState(() {});
 
                             final createSelling = SellingModel(
@@ -1346,6 +1408,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 amount: amount,
                                 discountPercent: discountPercent,
                                 total: totalPrice,
+                                profit: profit,
                                 speacialReq: specReqController.text.isEmpty ||
                                         specReqController.text == null
                                     ? '-'

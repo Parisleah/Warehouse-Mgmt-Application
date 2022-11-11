@@ -391,23 +391,29 @@ class _ProductEditModelState extends State<ProductEditModel> {
                                             ],
                                           ),
                                           Text(
-                                            'เพิ่ม ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!))} ชิ้น',
+                                            '+ เพิ่ม ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!))} ชิ้น',
                                             style:
                                                 TextStyle(color: Colors.grey),
                                           ),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          lot.isReceived
-                                              ? Text(
-                                                  'ขายแล้ว ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!) - lot.remainAmount)} ชิ้น',
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                )
+                                          lot.isReceived == true
+                                              ? lot.remainAmount == 0
+                                                  ? Text(
+                                                      'ขายหมดแล้ว ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!))} ชิ้น',
+                                                      style: TextStyle(
+                                                          color: Colors.grey),
+                                                    )
+                                                  : Text(
+                                                      '- ขายแล้ว ${NumberFormat("#,###,###.##").format(int.parse(lot.amount!) - lot.remainAmount)} ชิ้น',
+                                                      style: TextStyle(
+                                                          color: Colors.grey),
+                                                    )
                                               : Text(
                                                   'ขายแล้ว 0 ชิ้น',
                                                   style: TextStyle(
-                                                      color: Colors.white),
+                                                      color: Colors.grey),
                                                 ),
                                         ],
                                       ),
@@ -415,17 +421,18 @@ class _ProductEditModelState extends State<ProductEditModel> {
                                       lot.remainAmount == 0
                                           ? Row(
                                               children: [
-                                                Icon(
-                                                  Icons.numbers_outlined,
-                                                  color: Theme.of(context)
-                                                      .backgroundColor,
-                                                ),
-                                                Text('สินค้าหมด',
-                                                    style: TextStyle(
+                                                Text('คงเหลือ ',
+                                                    style: const TextStyle(
                                                       fontSize: 15,
-                                                      color: Theme.of(context)
-                                                          .backgroundColor,
+                                                      color: Colors.white,
                                                     )),
+                                                Text(
+                                                    '${NumberFormat("#,###.##").format(lot.remainAmount)}',
+                                                    style: const TextStyle(
+                                                        fontSize: 15,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
                                               ],
                                             )
                                           : Container(

@@ -48,7 +48,7 @@ class _selling_nav_createCustomerState
             ],
           ),
           centerTitle: true,
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: Container(

@@ -27,7 +27,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main45.db');
+    _database = await _initDB('main49.db');
     return _database!;
   }
 
@@ -171,6 +171,7 @@ ${DealerFields.shopId} $integerType
   ${SellingFields.amount} $integerType,
   ${SellingFields.discountPercent} $integerType,
   ${SellingFields.total} $integerType,
+  ${SellingFields.profit} $integerType,
   ${SellingFields.speacialReq} $textType,
   ${SellingFields.isDelivered} $boolType,
   ${SellingFields.shopId} $integerType
@@ -212,7 +213,7 @@ ${DealerFields.shopId} $integerType
     final orderBy = '${ProfileFields.id} ASC';
     // final result = await db.rawQuery('SELECT * FROM $tableShops ORDER BY $orderBy');
     final result = await db.query(tableProfile, orderBy: orderBy);
-    print(result);
+
     return result.map((json) => Profile.fromJson(json)).toList();
   }
 
@@ -224,7 +225,6 @@ ${DealerFields.shopId} $integerType
         whereArgs: [id]);
 
     if (maps.isNotEmpty) {
-      print('Found -> ${maps}');
       return Profile.fromJson(maps.first);
     } else {
       return null;
@@ -269,7 +269,6 @@ ${DealerFields.shopId} $integerType
         whereArgs: [id]);
 
     if (maps.isNotEmpty) {
-      print('Found -> ${maps}');
       return Shop.fromJson(maps.first);
     } else {
       throw Exception('ID $id not found');
@@ -299,7 +298,7 @@ ${DealerFields.shopId} $integerType
         where: '${ProductFields.shopId} = ?',
         whereArgs: [shopId],
         orderBy: orderBy);
-    print(result);
+
     return result.map((json) => Product.fromJson(json)).toList();
   }
 
@@ -309,7 +308,7 @@ ${DealerFields.shopId} $integerType
 
     final result = await db.rawQuery(
         "SELECT * FROM $tableProduct WHERE ${ProductFields.prodName} LIKE '${name}%'");
-    print(result);
+
     return result.map((json) => Product.fromJson(json)).toList();
   }
 
@@ -320,7 +319,7 @@ ${DealerFields.shopId} $integerType
 
     final result = await db.rawQuery(
         "SELECT * FROM $tableProduct WHERE ${ProductFields.prodCategId} = ${categoryId} ORDER BY ${orderBy}");
-    print(result);
+
     return result.map((json) => Product.fromJson(json)).toList();
   }
 
@@ -357,7 +356,7 @@ ${DealerFields.shopId} $integerType
     final db = await instance.database;
     final result = await db.rawQuery(
         "SELECT ${ProductCategoryFields.prodCategName} FROM $tableProductCategory WHERE ${ProductCategoryFields.prodCategId} = ${prodId}");
-    print(result);
+
     return result.map((json) => ProductCategory.fromJson(json)).toList();
   }
 
@@ -369,7 +368,7 @@ ${DealerFields.shopId} $integerType
         where: '${ProductCategoryFields.shopId} = ?',
         orderBy: orderBy,
         whereArgs: [shopId]);
-    print(result);
+
     return result.map((json) => ProductCategory.fromJson(json)).toList();
   }
 
@@ -574,7 +573,7 @@ ${DealerFields.shopId} $integerType
             '${PurchasingFields.shopId} = ? and ${PurchasingFields.isReceive} = ?',
         whereArgs: [shopId, 0],
         orderBy: orderBy);
-    print('All Purchasing -> ${result}');
+
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
@@ -588,7 +587,7 @@ ${DealerFields.shopId} $integerType
             '${PurchasingFields.shopId} = ? and ${PurchasingFields.isReceive} = ?',
         whereArgs: [shopId, 1],
         orderBy: orderBy);
-    print('All Purchasing -> ${result}');
+
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
@@ -600,7 +599,7 @@ ${DealerFields.shopId} $integerType
         where: '${PurchasingFields.shopId} = ?',
         whereArgs: [shopId],
         orderBy: orderBy);
-    print('All Purchasing -> ${result}');
+
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
@@ -613,7 +612,7 @@ ${DealerFields.shopId} $integerType
         where: '${PurchasingFields.shopId} = ?',
         whereArgs: [shopId],
         orderBy: orderBy);
-    print('All Purchasing -> ${result}');
+
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
@@ -636,7 +635,7 @@ ${DealerFields.shopId} $integerType
 
     final result = await db.rawQuery(
         "SELECT * FROM $tablePurchasing WHERE ${PurchasingFields.isReceive} IS TRUE");
-    print(result);
+
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
 
@@ -802,7 +801,7 @@ ${DealerFields.shopId} $integerType
             '${SellingFields.shopId} = ? and ${SellingFields.isDelivered} = ?',
         whereArgs: [shopId, 0],
         orderBy: orderBy);
-    print('All Sellings -> ${result}');
+
     return result.map((json) => SellingModel.fromJson(json)).toList();
   }
 
@@ -815,7 +814,7 @@ ${DealerFields.shopId} $integerType
             '${SellingFields.shopId} = ? and ${SellingFields.isDelivered} = ?',
         whereArgs: [shopId, 1],
         orderBy: orderBy);
-    print('All Selling -> ${result}');
+
     return result.map((json) => SellingModel.fromJson(json)).toList();
   }
 
@@ -911,6 +910,21 @@ ${DealerFields.shopId} $integerType
   // 1.3 Customer
 
   // 1.4 Customer Address
+
+  Future<List<CustomerAddressModel>> readCustomerAddressWHERECustomer(
+      int cusAddressId) async {
+    final db = await instance.database;
+
+    final result = await db.query(tableCustomerAddress,
+        columns: CustomerAddressFields.values,
+        where: '${CustomerAddressFields.cAddreId} = ?',
+        whereArgs: [cusAddressId],
+        limit: 1);
+    print(result);
+
+    return result.map((json) => CustomerAddressModel.fromJson(json)).toList();
+  }
+
   Future<List<CustomerAddressModel>> readAllCustomerAddresses() async {
     final db = await instance.database;
     final orderBy = '${CustomerAddressFields.cusId} DESC';

@@ -178,19 +178,21 @@ class MyThemes {
 
     // Tabbar
     tabBarTheme: TabBarTheme(
-      unselectedLabelColor: Colors.white,
-      indicator: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                spreadRadius: 0,
-                blurRadius: 5,
-                offset: Offset(0, 3))
-          ],
-          borderRadius: BorderRadius.circular(15),
-          color: light_primary_accent_color),
-      indicatorSize: TabBarIndicatorSize.tab,
-    ),
+        labelStyle: TextStyle(fontSize: 12, fontFamily: 'NotoSansThai'),
+        unselectedLabelColor: Colors.white,
+        indicator: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 0,
+                  blurRadius: 5,
+                  offset: Offset(0, 3))
+            ],
+            borderRadius: BorderRadius.circular(15),
+            color: light_primary_accent_color),
+        indicatorSize: TabBarIndicatorSize.tab,
+        unselectedLabelStyle:
+            TextStyle(fontSize: 10, fontFamily: 'NotoSansThai')),
     // BottomAppBar
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       unselectedItemColor: Colors.white,

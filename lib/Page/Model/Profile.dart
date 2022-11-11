@@ -7,6 +7,7 @@ class ProfileFields {
   static final String name = 'name';
   static final String phone = 'phone';
   static final String image = 'image';
+
   static final String pin = 'pin';
 }
 

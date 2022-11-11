@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 
 import '../../../db/database.dart';
@@ -69,101 +70,39 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
               ],
             ),
           ),
-          content: Column(children: [
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Text(
-                    "ชื่อ",
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                ],
+          content: SingleChildScrollView(
+            child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "ชื่อ",
+                      style: TextStyle(fontSize: 15, color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            Container(
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  color: const Color.fromRGBO(56, 48, 77, 1.0),
-                  borderRadius: BorderRadius.circular(15)),
-              width: 400,
-              height: 70,
-              child: TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
-                  style: const TextStyle(color: Colors.white),
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    hintText: 'ชื่อตัวแทนจำหน่าย',
-                    filled: true,
-                    fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
-                    border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none),
-                    hintStyle:
-                        const TextStyle(color: Colors.grey, fontSize: 14),
-                    suffixIcon: nameController.text.isEmpty
-                        ? Container(
-                            width: 0,
-                          )
-                        : IconButton(
-                            onPressed: () => nameController.clear(),
-                            icon: const Icon(
-                              Icons.close_sharp,
-                              color: Colors.white,
-                            ),
-                          ),
-                  )),
-            ),
-            // Text & Container Text Field of ชื่อ - นามสกุล
-
-            // Text & Container Text Field of ที่อยู่
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Text(
-                    " ที่อยู่               ",
-                    style: TextStyle(fontSize: 15, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: const Color.fromRGBO(56, 48, 77, 1.0),
-                  borderRadius: BorderRadius.circular(15)),
-              width: 370,
-              height: 100,
-              child: SizedBox(
-                height: 120,
-                width: 100.0,
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 400,
+                height: 70,
                 child: TextFormField(
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
+                        return 'โปรดระบุ';
                       }
                       return null;
                     },
-                    keyboardType: TextInputType.multiline,
-                    maxLines: 10,
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
-                    controller: addressController,
+                    style: const TextStyle(color: Colors.white),
+                    controller: nameController,
                     decoration: InputDecoration(
-                      hintText: 'ที่อยู่ตัวแทนจำหน่าย',
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(8),
+                      hintText: 'ชื่อตัวแทนจำหน่าย',
                       filled: true,
                       fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
                       border: const OutlineInputBorder(
@@ -171,12 +110,12 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                           borderSide: BorderSide.none),
                       hintStyle:
                           const TextStyle(color: Colors.grey, fontSize: 14),
-                      suffixIcon: addressController.text.isEmpty
+                      suffixIcon: nameController.text.isEmpty
                           ? Container(
                               width: 0,
                             )
                           : IconButton(
-                              onPressed: () => addressController.clear(),
+                              onPressed: () => nameController.clear(),
                               icon: const Icon(
                                 Icons.close_sharp,
                                 color: Colors.white,
@@ -184,134 +123,198 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                             ),
                     )),
               ),
-            ),
-            // Text & Container Text Field of ที่อยู่
+              // Text & Container Text Field of ชื่อ - นามสกุล
 
-            // Text & Container Text Field of หมายเลขโทรศัพท์
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "หมายเลขเบอร์โทรศัพท์",
+              // Text & Container Text Field of ที่อยู่
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text(
+                      " ที่อยู่               ",
                       style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            Container(
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  color: const Color.fromRGBO(56, 48, 77, 1.0),
-                  borderRadius: BorderRadius.circular(15)),
-              width: 370,
-              height: 70,
-              child: TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'โปรดระบุ';
-                    }
-                    return null;
-                  },
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(10),
                   ],
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
-                  controller: phoneController,
-                  decoration: InputDecoration(
-                    hintText: 'เบอร์โทรศัพท์ตัวแทนจำหน่าย',
-                    filled: true,
-                    fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
-                    border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none),
-                    hintStyle:
-                        const TextStyle(color: Colors.grey, fontSize: 14),
-                    suffixIcon: phoneController.text.isEmpty
-                        ? Container(
-                            width: 0,
-                          )
-                        : IconButton(
-                            onPressed: () => phoneController.clear(),
-                            icon: const Icon(
-                              Icons.close_sharp,
-                              color: Colors.white,
-                            ),
-                          ),
-                  )),
-            ),
-            // Text & Container Text Field of หมายเลขโทรศัพท์
-
-            // ยกเลิก Button
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Wrap(
-                    spacing: 20,
-                    children: [
-                      ElevatedButton(
-                        style:
-                            ElevatedButton.styleFrom(primary: Colors.redAccent),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "ยกเลิก",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                      ),
-                      nameController.text.isNotEmpty &&
-                              addressController.text.isNotEmpty &&
-                              phoneController.text.isNotEmpty == true
-                          ? ElevatedButton(
-                              onPressed: () async {
-                                if (nameController.text.isNotEmpty &&
-                                    addressController.text.isNotEmpty &&
-                                    phoneController.text.isNotEmpty) {
-                                  final updatedDealer = dealer.copy(
-                                      dName: nameController.text,
-                                      dAddress: addressController.text,
-                                      dPhone: phoneController.text);
-
-                                  await DatabaseManager.instance
-                                      .updateDealer(updatedDealer);
-
-                                  Navigator.pop(context);
-                                } else if (nameController.text.isEmpty ||
-                                    nameController.text == null ||
-                                    nameController.text == '') {
-                                  _alertNullTextController('ชื่อ');
-                                } else if (addressController.text.isEmpty ||
-                                    addressController.text == null ||
-                                    addressController.text == '') {
-                                  _alertNullTextController('ที่อยู่');
-                                } else if (phoneController.text.isEmpty ||
-                                    phoneController.text == null ||
-                                    phoneController.text == '') {
-                                  _alertNullTextController('เบอร์โทรศัพท์');
-                                }
-                              },
-                              child: Text(
-                                "บันทึก",
-                                style: TextStyle(fontSize: 17),
-                              ),
-                            )
-                          : Container(
-                              width: 0,
-                            ),
-                    ],
-                  )
-                ],
+                ),
               ),
-            ),
-          ]),
+
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 370,
+                height: 100,
+                child: SizedBox(
+                  height: 120,
+                  width: 100.0,
+                  child: TextFormField(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.multiline,
+                      maxLines: 10,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                      controller: addressController,
+                      decoration: InputDecoration(
+                        hintText: 'ที่อยู่ตัวแทนจำหน่าย',
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(8),
+                        filled: true,
+                        fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
+                        border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide.none),
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
+                        suffixIcon: addressController.text.isEmpty
+                            ? Container(
+                                width: 0,
+                              )
+                            : IconButton(
+                                onPressed: () => addressController.clear(),
+                                icon: const Icon(
+                                  Icons.close_sharp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      )),
+                ),
+              ),
+              // Text & Container Text Field of ที่อยู่
+
+              // Text & Container Text Field of หมายเลขโทรศัพท์
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "หมายเลขเบอร์โทรศัพท์",
+                        style: TextStyle(fontSize: 15, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 370,
+                height: 70,
+                child: TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'โปรดระบุ';
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(color: Colors.white),
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      hintText: 'เบอร์โทรศัพท์ตัวแทนจำหน่าย',
+                      filled: true,
+                      fillColor: const Color.fromRGBO(56, 48, 77, 1.0),
+                      border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none),
+                      hintStyle:
+                          const TextStyle(color: Colors.grey, fontSize: 14),
+                      suffixIcon: phoneController.text.isEmpty
+                          ? Container(
+                              width: 0,
+                            )
+                          : IconButton(
+                              onPressed: () => phoneController.clear(),
+                              icon: const Icon(
+                                Icons.close_sharp,
+                                color: Colors.white,
+                              ),
+                            ),
+                    )),
+              ),
+              // Text & Container Text Field of หมายเลขโทรศัพท์
+
+              // ยกเลิก Button
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Wrap(
+                      spacing: 20,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.redAccent),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            "ยกเลิก",
+                            style: TextStyle(fontSize: 17),
+                          ),
+                        ),
+                        nameController.text.isNotEmpty &&
+                                addressController.text.isNotEmpty &&
+                                phoneController.text.isNotEmpty == true
+                            ? ElevatedButton(
+                                onPressed: () async {
+                                  if (nameController.text.isNotEmpty &&
+                                      addressController.text.isNotEmpty &&
+                                      phoneController.text.isNotEmpty) {
+                                    final updatedDealer = dealer.copy(
+                                        dName: nameController.text,
+                                        dAddress: addressController.text,
+                                        dPhone: phoneController.text);
+
+                                    await DatabaseManager.instance
+                                        .updateDealer(updatedDealer);
+
+                                    Navigator.pop(context);
+                                  } else if (nameController.text.isEmpty ||
+                                      nameController.text == null ||
+                                      nameController.text == '') {
+                                    _alertNullTextController('ชื่อ');
+                                  } else if (addressController.text.isEmpty ||
+                                      addressController.text == null ||
+                                      addressController.text == '') {
+                                    _alertNullTextController('ที่อยู่');
+                                  } else if (phoneController.text.isEmpty ||
+                                      phoneController.text == null ||
+                                      phoneController.text == '') {
+                                    _alertNullTextController('เบอร์โทรศัพท์');
+                                  }
+                                },
+                                child: Text(
+                                  "บันทึก",
+                                  style: TextStyle(fontSize: 17),
+                                ),
+                              )
+                            : Container(
+                                width: 0,
+                              ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ]),
+          ),
         );
       }),
     );
@@ -352,7 +355,7 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
             icon: Icon(Icons.add),
           )
         ],
-        backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -371,9 +374,20 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
           child: Column(children: [
             const SizedBox(height: 90),
             dealers.isEmpty
+                ? Container()
+                : Row(
+                    children: [
+                      const Spacer(),
+                      Text(
+                        'ทั้งหมด (${NumberFormat("#,###.##").format(dealers.length)})',
+                        style: TextStyle(color: Colors.grey, fontSize: 15),
+                      )
+                    ],
+                  ),
+            dealers.isEmpty
                 ? Container(
                     width: 440,
-                    height: 560,
+                    height: 550,
                     child: Center(
                         child: Text(
                       'ไม่มีตัวแทนจำหน่าย',
@@ -382,7 +396,7 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                   )
                 : Container(
                     width: 440,
-                    height: 560,
+                    height: 550,
                     child: RefreshIndicator(
                       onRefresh: refreshDealer,
                       child: ListView.builder(
@@ -390,99 +404,122 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                           itemCount: dealers.length,
                           itemBuilder: (context, index) {
                             final dealer = dealers[index];
-                            return Dismissible(
-                              background: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.redAccent,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.delete_forever,
-                                      color: Colors.white,
+                            return Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Dismissible(
+                                background: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.redAccent,
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.delete_forever,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                              direction: DismissDirection.endToStart,
-                              resizeDuration: Duration(seconds: 1),
-                              key: Key(dealers[index].dName),
-                              onDismissed: (direction) async {
-                                await DatabaseManager.instance
-                                    .deleteDealer(dealer.dealerId!);
-                                refreshDealer();
-                                setState(() {});
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  backgroundColor: Colors.redAccent,
-                                  content:
-                                      Text("ลบตัวแทนจำหน่าย ${dealer.dName}"),
-                                  duration: Duration(seconds: 2),
-                                ));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary:
-                                          const Color.fromRGBO(56, 54, 76, 1.0),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(15))),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    widget.update(dealer);
-                                  },
-                                  child: Row(children: [
-                                    Icon(Icons.person_pin_circle),
-                                    Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(dealer.dName,
-                                                  style: TextStyle(
-                                                      fontSize: 17,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white)),
-                                              SizedBox(
-                                                width: 10,
+                                direction: DismissDirection.endToStart,
+                                resizeDuration: Duration(seconds: 1),
+                                key: Key(dealers[index].dName),
+                                onDismissed: (direction) async {
+                                  await DatabaseManager.instance
+                                      .deleteDealer(dealer.dealerId!);
+                                  refreshDealer();
+                                  setState(() {});
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: Colors.redAccent,
+                                    content:
+                                        Text("ลบตัวแทนจำหน่าย ${dealer.dName}"),
+                                    duration: Duration(seconds: 2),
+                                  ));
+                                },
+                                child: Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: const Color.fromRGBO(
+                                            56, 54, 76, 1.0),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15))),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      widget.update(dealer);
+                                    },
+                                    child: Row(children: [
+                                      Icon(Icons.person_pin_circle),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 230,
+                                              child: Row(
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(dealer.dName,
+                                                        style: TextStyle(
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            fontSize: 17,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.white)),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(dealer.dPhone,
+                                                      style: TextStyle(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          fontSize: 17,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white)),
+                                                ],
                                               ),
-                                              Text(dealer.dPhone,
-                                                  style: TextStyle(
-                                                      fontSize: 17,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white)),
-                                            ],
-                                          ),
-                                          Wrap(children: [
-                                            Text('ที่อยู่ ${dealer.dAddress}',
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: Colors.white)),
-                                          ]),
-                                        ],
+                                            ),
+                                            Container(
+                                              width: 230,
+                                              child: Flexible(
+                                                child: Text(
+                                                    'ที่อยู่ ${dealer.dAddress}',
+                                                    style: TextStyle(
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        fontSize: 15,
+                                                        color: Colors.white)),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                        onPressed: () async {
-                                          await dialogEditDealer(dealer);
-                                          refreshDealer();
-                                          setState(() {});
-                                        },
-                                        icon: Icon(Icons.edit))
-                                  ]),
+                                      const Spacer(),
+                                      IconButton(
+                                          onPressed: () async {
+                                            await dialogEditDealer(dealer);
+                                            refreshDealer();
+                                            setState(() {});
+                                          },
+                                          icon: Icon(Icons.edit))
+                                    ]),
+                                  ),
                                 ),
                               ),
                             );

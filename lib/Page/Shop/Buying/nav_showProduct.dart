@@ -79,6 +79,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
   }
 
   final _formKey = GlobalKey<FormState>();
+  final _formAmountKey = GlobalKey<FormState>();
 
   Future refreshProducts() async {
     productModels = await DatabaseManager.instance
@@ -556,207 +557,216 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                               height: selectedItems.length > 1
                                   ? selectedItems.length * 90
                                   : 200,
-                              child: ListView.builder(
-                                  scrollDirection: Axis.vertical,
-                                  padding: const EdgeInsets.all(8),
-                                  itemCount: selectedItems.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    final indItem = selectedItems[index];
-                                    final _isSelected =
-                                        selectedItems.contains(indItem);
-                                    final found = selectedItems
-                                        .indexWhere((e) => e == indItem);
+                              child: Form(
+                                key: _formAmountKey,
+                                child: ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    padding: const EdgeInsets.all(8),
+                                    itemCount: selectedItems.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      final indItem = selectedItems[index];
+                                      final _isSelected =
+                                          selectedItems.contains(indItem);
+                                      final found = selectedItems
+                                          .indexWhere((e) => e == indItem);
 
-                                    var amount = 0;
-                                    amount = double.parse(
-                                            amountControllers[index]
-                                                    .text
-                                                    .isEmpty
-                                                ? '0'
-                                                : amountControllers[index].text)
-                                        .toInt();
+                                      var amount = 0;
+                                      amount = double.parse(
+                                              amountControllers[index]
+                                                      .text
+                                                      .isEmpty
+                                                  ? '0'
+                                                  : amountControllers[index]
+                                                      .text)
+                                          .toInt();
 
-                                    var subTotal = indItem.cost * amount;
+                                      var subTotal = indItem.cost * amount;
 
-                                    return InkWell(
-                                      onTap: () {
-                                        if (_isSelected == false) {
-                                          selectedItems.add(indItem);
-                                          amountControllers
-                                              .add(TextEditingController());
-                                        } else {
-                                          selectedItems.remove(indItem);
-                                          amountControllers.removeAt(found);
-                                        }
-                                        print(
-                                            'Controller Length : ${amountControllers.length}');
+                                      return InkWell(
+                                        onTap: () {
+                                          if (_isSelected == false) {
+                                            selectedItems.add(indItem);
+                                            amountControllers
+                                                .add(TextEditingController());
+                                          } else {
+                                            selectedItems.remove(indItem);
+                                            amountControllers.removeAt(found);
+                                          }
+                                          print(
+                                              'Controller Length : ${amountControllers.length}');
 
-                                        setState(() {});
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Container(
-                                            height: 80,
-                                            color:
-                                                Color.fromRGBO(66, 64, 87, 1.0),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  const SizedBox(width: 10),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          _isSelected
-                                                              ? Icon(
-                                                                  Icons
-                                                                      .check_box_rounded,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .backgroundColor,
-                                                                )
-                                                              : Icon(
-                                                                  Icons
-                                                                      .check_box_outline_blank,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .backgroundColor,
-                                                                ),
-                                                          Text(
-                                                            '${indItem.stProperty} ${(indItem.ndProperty)}',
-                                                            style: TextStyle(
-                                                                fontSize: 11,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                        width: 10,
-                                                      ),
-                                                      Text(
-                                                          'ต้นทุน ${NumberFormat("#,###.##").format(indItem.cost)}',
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontSize:
-                                                                      12)),
-                                                      Text(
-                                                          ' ราคา ${NumberFormat("#,###.##").format(indItem.price)}',
-                                                          style:
-                                                              const TextStyle(
+                                          setState(() {});
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: Container(
+                                              height: 120,
+                                              color: Color.fromRGBO(
+                                                  66, 64, 87, 1.0),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    const SizedBox(width: 10),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            _isSelected
+                                                                ? Icon(
+                                                                    Icons
+                                                                        .check_box_rounded,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .backgroundColor,
+                                                                  )
+                                                                : Icon(
+                                                                    Icons
+                                                                        .check_box_outline_blank,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .backgroundColor,
+                                                                  ),
+                                                            Text(
+                                                              '${indItem.stProperty} ${(indItem.ndProperty)}',
+                                                              style: TextStyle(
+                                                                  fontSize: 11,
                                                                   color: Colors
                                                                       .white,
-                                                                  fontSize:
-                                                                      12)),
-                                                    ],
-                                                  ),
-                                                  const Spacer(),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.end,
-                                                    children: [
-                                                      Text(
-                                                          ' (${NumberFormat("#,###.##").format(subTotal)})',
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                  fontSize:
-                                                                      12)),
-                                                      Container(
-                                                        child: SizedBox(
-                                                          width: 150,
-                                                          height: 40,
-                                                          child: TextField(
-                                                              keyboardType: TextInputType
-                                                                  .numberWithOptions(
-                                                                      decimal:
-                                                                          true),
-                                                              inputFormatters: <
-                                                                  TextInputFormatter>[
-                                                                FilteringTextInputFormatter
-                                                                    .allow(RegExp(
-                                                                        r'^\d+\.?\d*')),
-                                                                LengthLimitingTextInputFormatter(
-                                                                    6),
-                                                              ], // Only numbers can be entered
-                                                              onChanged:
-                                                                  ((value) {
-                                                                subTotal =
-                                                                    indItem.cost *
-                                                                        amount;
-
-                                                                setState(() {});
-                                                              }),
-                                                              controller:
-                                                                  amountControllers[
-                                                                      index],
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: Colors
-                                                                      .white),
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                filled: true,
-                                                                fillColor: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        46,
-                                                                        44,
-                                                                        62),
-                                                                border: OutlineInputBorder(
-                                                                    borderRadius: BorderRadius.only(
-                                                                        topLeft:
-                                                                            Radius.circular(
-                                                                                20),
-                                                                        topRight:
-                                                                            Radius.circular(
-                                                                                20),
-                                                                        bottomLeft:
-                                                                            Radius.circular(
-                                                                                20),
-                                                                        bottomRight:
-                                                                            Radius.circular(
-                                                                                20)),
-                                                                    borderSide:
-                                                                        BorderSide
-                                                                            .none),
-                                                                hintText:
-                                                                    'จำนวน',
-                                                                hintStyle: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        Text(
+                                                            'ต้นทุน ${NumberFormat("#,###.##").format(indItem.cost)}',
+                                                            style:
+                                                                const TextStyle(
                                                                     color: Colors
                                                                         .grey,
                                                                     fontSize:
-                                                                        12),
-                                                              )),
+                                                                        12)),
+                                                        Text(
+                                                            ' ราคา ${NumberFormat("#,###.##").format(indItem.price)}',
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        12)),
+                                                      ],
+                                                    ),
+                                                    const Spacer(),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Text(
+                                                            ' (${NumberFormat("#,###.##").format(subTotal)})',
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        12)),
+                                                        Container(
+                                                          child: SizedBox(
+                                                            width: 150,
+                                                            height: 80,
+                                                            child:
+                                                                TextFormField(
+                                                                    validator:
+                                                                        (value) {
+                                                                      if (value ==
+                                                                              null ||
+                                                                          value
+                                                                              .isEmpty) {
+                                                                        return 'โปรดระบุ';
+                                                                      }
+                                                                      return null;
+                                                                    },
+                                                                    keyboardType:
+                                                                        TextInputType.numberWithOptions(
+                                                                            decimal:
+                                                                                true),
+                                                                    inputFormatters: <
+                                                                        TextInputFormatter>[
+                                                                      FilteringTextInputFormatter
+                                                                          .allow(
+                                                                              RegExp(r'^\d+\.?\d*')),
+                                                                      LengthLimitingTextInputFormatter(
+                                                                          6),
+                                                                    ], // Only numbers can be entered
+                                                                    onChanged:
+                                                                        ((value) {
+                                                                      subTotal =
+                                                                          indItem.cost *
+                                                                              amount;
+
+                                                                      setState(
+                                                                          () {});
+                                                                    }),
+                                                                    controller:
+                                                                        amountControllers[
+                                                                            index],
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .white),
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      filled:
+                                                                          true,
+                                                                      fillColor:
+                                                                          Color.fromARGB(
+                                                                              255,
+                                                                              46,
+                                                                              44,
+                                                                              62),
+                                                                      border: OutlineInputBorder(
+                                                                          borderRadius: BorderRadius.only(
+                                                                              topLeft: Radius.circular(20),
+                                                                              topRight: Radius.circular(20),
+                                                                              bottomLeft: Radius.circular(20),
+                                                                              bottomRight: Radius.circular(20)),
+                                                                          borderSide: BorderSide.none),
+                                                                      hintText:
+                                                                          'จำนวน',
+                                                                      hintStyle: const TextStyle(
+                                                                          color: Colors
+                                                                              .grey,
+                                                                          fontSize:
+                                                                              12),
+                                                                    )),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  }),
+                                      );
+                                    }),
+                              ),
                             ),
                           ],
                         ),
@@ -902,13 +912,15 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                _formKey.currentState!.save();
+                              if (_formAmountKey.currentState!.validate()) {
+                                _formAmountKey.currentState!.save();
 
                                 for (var i = 0; i < selectedItems.length; i++) {
                                   final puritem = PurchasingItemsModel(
-                                    amount:
-                                        int.parse(amountControllers[i].text),
+                                    amount: double.parse(amountControllers[i]
+                                            .text
+                                            .replaceAll(RegExp('[^0-9-]'), ''))
+                                        .toInt(),
                                     prodId: widget.product.prodId!,
                                     prodModelId: selectedItems[i].prodModelId!,
                                     total:
@@ -972,7 +984,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                 selectedItems.clear();
                                 amountControllers.clear();
                                 Navigator.pop(context);
-                              }
+                              } else {}
                             },
                             child: Text(
                               "บันทึก",

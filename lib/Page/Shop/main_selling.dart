@@ -32,6 +32,7 @@ class _SellingPageState extends State<SellingPage> {
   List<CustomerModel> customers = [];
   List<CustomerAddressModel> addresses = [];
   List<ProductLot> productLots = [];
+
   TextEditingController searchDealerController = new TextEditingController();
   @override
   void initState() {
@@ -44,10 +45,12 @@ class _SellingPageState extends State<SellingPage> {
     productLots = await DatabaseManager.instance.readAllProductLots();
     selllings = await DatabaseManager.instance
         .readAlSellingsORDERBYPresent(widget.shop.shopid!);
-    addresses = await DatabaseManager.instance
-        .readCustomerAllAddress(widget.shop.shopid!);
+
+
     customers = await DatabaseManager.instance
         .readAllCustomerInShop(widget.shop.shopid!);
+    addresses = await DatabaseManager.instance.readAllCustomerAddresses();
+    print('Customers -> [${customers.length}]');
 
     setState(() {});
   }
@@ -421,22 +424,20 @@ class _SellingPageState extends State<SellingPage> {
                                         itemCount: selllings.length,
                                         itemBuilder: (context, index) {
                                           final selling = selllings[index];
-                                          var _customerText;
-                                          var _phoneText;
-                                          var _addressText;
+                                          var _customer;
+                                          var _address;
 
-                                          _getCustomerInfo() {
+                                          _getCustomerInfo() async {
                                             for (var customer in customers) {
                                               if (customer.cusId ==
                                                   selling.customerId) {
-                                                _customerText = customer;
-                                              }
-                                            }
-                                            for (var address in addresses) {
-                                              if (address.cAddreId ==
-                                                  selling.cAddreId) {
-                                                _phoneText = address;
-                                                _addressText = address;
+                                                _customer = customer;
+                                                for (var address in addresses) {
+                                                  if (address.cAddreId ==
+                                                      selling.cAddreId) {
+                                                    _address = address;
+                                                  }
+                                                }
                                               }
                                             }
                                           }
@@ -488,7 +489,7 @@ class _SellingPageState extends State<SellingPage> {
                                                     child: Row(
                                                   children: [
                                                     Text(
-                                                        "ลบรายการสั่งซื้อ ${_customerText.cName}"),
+                                                        "ลบรายการสั่งซื้อ ${_customer.cName}"),
                                                     Text(
                                                         ' ยอด ${NumberFormat("#,###.##").format(selling.total)}',
                                                         style: const TextStyle(
@@ -544,15 +545,14 @@ class _SellingPageState extends State<SellingPage> {
                                             },
                                             child: TextButton(
                                               onPressed: () async {
-                                                await Navigator
-                                                        .of(context)
+                                                await Navigator.of(context)
                                                     .push(MaterialPageRoute(
                                                         builder: (context) =>
                                                             SellingNavEdit(
                                                                 customer:
-                                                                    _customerText,
+                                                                    _customer,
                                                                 customerAddress:
-                                                                    _addressText,
+                                                                    _address,
                                                                 shop:
                                                                     widget.shop,
                                                                 selling:
@@ -618,6 +618,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                                               onPressed: () async {
                                                                                                 await dialogConfirmDelete();
                                                                                                 selectedSelling.clear();
+                                                                                                isSelectedSelling = false;
                                                                                                 refreshSellings();
                                                                                                 Navigator.pop(context);
                                                                                               },
@@ -645,8 +646,10 @@ class _SellingPageState extends State<SellingPage> {
                                                                                                     await DatabaseManager.instance.updateSelling(updatedSelling);
                                                                                                   }
                                                                                                 }
+                                                                                                isSelectedSelling = false;
                                                                                                 setState(() {});
                                                                                                 refreshSellings();
+
                                                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                                                                   backgroundColor: Theme.of(context).backgroundColor,
                                                                                                   behavior: SnackBarBehavior.floating,
@@ -710,7 +713,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                                                                 color: Theme.of(context).backgroundColor,
                                                                                                               )),
                                                                                                           Text(
-                                                                                                            '${_customerText.cName}',
+                                                                                                            '${_customer.cName}',
                                                                                                             style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
                                                                                                           ),
                                                                                                           Row(
@@ -791,11 +794,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                     .start,
                                                             children: <Widget>[
                                                               Text(
-                                                                _customerText ==
-                                                                        null
-                                                                    ? 'กำลังแสดง...'
-                                                                    : _customerText
-                                                                        .cName!,
+                                                                _customer
+                                                                    .cName!,
                                                                 style: const TextStyle(
                                                                     fontWeight:
                                                                         FontWeight
@@ -813,11 +813,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                     size: 14,
                                                                   ),
                                                                   Text(
-                                                                    _phoneText ==
-                                                                            null
-                                                                        ? 'กำลังแสดง...'
-                                                                        : _phoneText
-                                                                            .cPhone!,
+                                                                    _address
+                                                                        .cPhone!,
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,
@@ -827,11 +824,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                _addressText ==
-                                                                        null
-                                                                    ? 'กำลังแสดงผล'
-                                                                    : _addressText
-                                                                        .cAddress,
+                                                                _address
+                                                                    .cAddress!,
                                                                 style: const TextStyle(
                                                                     fontSize:
                                                                         12,

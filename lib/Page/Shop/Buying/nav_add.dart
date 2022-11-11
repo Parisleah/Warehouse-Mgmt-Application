@@ -116,7 +116,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
@@ -198,26 +198,48 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 height: 10,
               ),
 
-              Container(
-                height: 70,
-                decoration: BoxDecoration(
-                    color: Color.fromRGBO(56, 48, 77, 1.0),
-                    borderRadius: BorderRadius.circular(15)),
-                child: GestureDetector(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                            builder: (context) => BuyingNavChooseDealer(
-                                  shop: widget.shop,
-                                  update: _updateDealer,
-                                )));
-                  }),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => BuyingNavChooseDealer(
+                                shop: widget.shop,
+                                update: _updateDealer,
+                              )));
+                },
+                child: Container(
+                  height: _dealer.dName == 'ยังไม่ระบุตัวแทนจำหน่าย' ? 80 : 100,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(56, 48, 77, 1.0),
+                      borderRadius: BorderRadius.circular(15)),
                   child: Row(children: [
                     Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: Text(_dealer.dName,
-                          style: TextStyle(fontSize: 15, color: Colors.grey)),
+                      child: Container(
+                        width: 270,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(_dealer.dName,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey,
+                                    overflow: TextOverflow.ellipsis,
+                                  )),
+                            ),
+                            Flexible(
+                              child: Text(_dealer.dAddress,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey,
+                                    overflow: TextOverflow.ellipsis,
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const Spacer(),
                     Icon(Icons.arrow_forward_ios, color: Colors.white),
@@ -639,6 +661,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                           context,
                           new MaterialPageRoute(
                               builder: (context) => ChooseShippingNav(
+                                    shop: widget.shop,
                                     update: _updateShipping,
                                   )));
                     },
@@ -658,6 +681,9 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 width: 400,
                 height: 70,
                 child: TextField(
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(7),
+                    ],
                     onChanged: (text) {
                       if (shipPricController.text != null &&
                           shipPricController.text != '') {
@@ -665,7 +691,11 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                             totalPrice,
                             amount,
                             double.parse(
-                              shipPricController.text,
+                              shipPricController.text == null &&
+                                      shipPricController.text == ''
+                                  ? '0'
+                                  : shipPricController.text
+                                      .replaceAll(RegExp('[^0-9]'), ''),
                             ).toInt(),
                             noShippingPrice);
                       }

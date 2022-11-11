@@ -610,6 +610,8 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                               onPressed: () async {
                                                                                                 await dialogConfirmDelete();
                                                                                                 selectedPurchasings.clear();
+                                                                                                isSelectedPurchasing = false;
+                                                                                                Navigator.pop(context);
                                                                                                 refreshPurchasings();
                                                                                               },
                                                                                               child: Icon(
@@ -637,6 +639,8 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                   }
                                                                                                 }
                                                                                                 setState(() {});
+                                                                                                selectedPurchasings.clear();
+                                                                                                isSelectedPurchasing = false;
                                                                                                 refreshPurchasings();
                                                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                                                                   backgroundColor: Theme.of(context).backgroundColor,
@@ -675,7 +679,14 @@ class _BuyingPageState extends State<BuyingPage> {
 
                                                                                             itemCount: selectedPurchasings.length,
                                                                                             itemBuilder: (BuildContext context, int index) {
-                                                                                              final indItem = selectedPurchasings[index];
+                                                                                              final selectedItemInd = selectedPurchasings[index];
+                                                                                              var _selectedDealer;
+
+                                                                                              for (var dealer in dealers) {
+                                                                                                if (dealer.dealerId == selectedItemInd.dealerId) {
+                                                                                                  _selectedDealer = dealer;
+                                                                                                }
+                                                                                              }
 
                                                                                               // ??????asdsd
                                                                                               return Padding(
@@ -692,7 +703,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                         children: [
                                                                                                           IconButton(
                                                                                                               onPressed: () {
-                                                                                                                selectedPurchasings.remove(indItem);
+                                                                                                                selectedPurchasings.remove(selectedItemInd);
                                                                                                                 Navigator.pop(context);
                                                                                                                 setState(() {});
                                                                                                               },
@@ -700,14 +711,19 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                                 Icons.check_box_rounded,
                                                                                                                 color: Theme.of(context).backgroundColor,
                                                                                                               )),
-                                                                                                          Text(
-                                                                                                            '${_dealer.dName}',
-                                                                                                            style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                                          Container(
+                                                                                                            width: 80,
+                                                                                                            child: Flexible(
+                                                                                                              child: Text(
+                                                                                                                '${_selectedDealer.dName}',
+                                                                                                                style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                                              ),
+                                                                                                            ),
                                                                                                           ),
                                                                                                           Row(
                                                                                                             mainAxisAlignment: MainAxisAlignment.center,
                                                                                                             children: [
-                                                                                                              indItem.isReceive == true
+                                                                                                              selectedItemInd.isReceive == true
                                                                                                                   ? Icon(
                                                                                                                       Icons.check_circle,
                                                                                                                       color: Colors.greenAccent,
@@ -719,7 +735,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                                       size: 15,
                                                                                                                     ),
                                                                                                               Text(
-                                                                                                                '${NumberFormat("#,###.##").format(indItem.total)} ฿',
+                                                                                                                '${NumberFormat("#,###.##").format(selectedItemInd.total)} ฿',
                                                                                                                 style: TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold),
                                                                                                               ),
                                                                                                             ],

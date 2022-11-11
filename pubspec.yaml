@@ -109,3 +109,5 @@ flutter:
     - assets/images/
     - assets/images/products/
     - assets/images/profiles/
+    - assets/Icons/WhiteSellingIcon.png
+    - assets/Icons/WhiteBuyingIcon.png

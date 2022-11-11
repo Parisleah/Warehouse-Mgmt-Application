@@ -129,7 +129,7 @@ class _AddImagePageState extends State<AddImagePage> {
                           ),
                         ),
                         SizedBox(
-                          width: 10,
+                          height: 10,
                         ),
                         Container(
                           decoration: BoxDecoration(

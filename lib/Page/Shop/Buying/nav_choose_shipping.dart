@@ -1,13 +1,17 @@
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_create_shipping.dart';
 
 import '../../Component/TextField/CustomTextField.dart';
 
 class ChooseShippingNav extends StatefulWidget {
+  final Shop shop;
   final ValueChanged<String> update;
 
-  const ChooseShippingNav({super.key, required this.update});
+  const ChooseShippingNav(
+      {super.key, required this.shop, required this.update});
   @override
   State<ChooseShippingNav> createState() => _ChooseShippingNavState();
 }
@@ -92,7 +96,22 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
           ],
         ),
         centerTitle: true,
-        actions: [],
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (context) => CreateShippingPage(
+                            shop: widget.shop!,
+                          )));
+            },
+            icon: const Icon(
+              Icons.add,
+              size: 30,
+            ),
+          )
+        ],
         backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
       ),
       body: SingleChildScrollView(

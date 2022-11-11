@@ -256,269 +256,276 @@ class _SellingNavCreateCustomerAddressState
             ],
           ),
           centerTitle: true,
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
-      body: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(10),
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-          colors: [
-            Color.fromRGBO(29, 29, 65, 1.0),
-            Color.fromRGBO(31, 31, 31, 1.0),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        )),
-        child: Column(children: [
-          SizedBox(height: 90),
-          // Text & Container Text Field of ชื่อ - นามสกุล
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.person_pin_circle,
-                color: Colors.white,
-                size: 25,
-              ),
-              Text(
-                'คุณ ${widget.customer.cName}',
-                style: TextStyle(fontSize: 25, color: Colors.white),
-              ),
+      body: SingleChildScrollView(
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(10),
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+            colors: [
+              Color.fromRGBO(29, 29, 65, 1.0),
+              Color.fromRGBO(31, 31, 31, 1.0),
             ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                'รายการที่อยู่ (${cusAddresses.length})',
-                style: TextStyle(color: Colors.grey, fontSize: 15),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-            width: 400,
-            height: (MediaQuery.of(context).size.height) * 0.70,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'เลือกที่อยู่',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                      Spacer(),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await dialogCreateCusAddress(
-                              cusPhoneController, cusAddressController);
-                          refreshCustomerAddresses();
-                        },
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 25,
-                            ),
-                            Text(
-                              'เพิ่ม',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 15),
-                            )
-                          ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          )),
+          child: Column(children: [
+            SizedBox(height: 90),
+            // Text & Container Text Field of ชื่อ - นามสกุล
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.person_pin_circle,
+                  color: Colors.white,
+                  size: 25,
+                ),
+                Text(
+                  'คุณ ${widget.customer.cName}',
+                  style: TextStyle(fontSize: 25, color: Colors.white),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  'รายการที่อยู่ (${cusAddresses.length})',
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(15)),
+              width: 400,
+              height: (MediaQuery.of(context).size.height),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'เลือกที่อยู่',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
-                      )
-                    ],
-                  ),
-                  cusAddresses.isEmpty
-                      ? Container(
-                          height: (MediaQuery.of(context).size.height * 0.5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Center(
-                            child: Text(
-                              'ไม่มีที่อยู่',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 25),
-                            ),
-                          ))
-                      : Container(
-                          decoration: BoxDecoration(
-                              // color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.circular(15)),
-                          height: 370,
-                          child: ListView.builder(
-                              padding: EdgeInsets.zero,
-                              itemCount: cusAddresses.length,
-                              itemBuilder: (context, index) {
-                                final addresss = cusAddresses[index];
+                        Spacer(),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await dialogCreateCusAddress(
+                                cusPhoneController, cusAddressController);
+                            refreshCustomerAddresses();
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 25,
+                              ),
+                              Text(
+                                'เพิ่ม',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    cusAddresses.isEmpty
+                        ? Container(
+                            height: (MediaQuery.of(context).size.height * 0.5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Center(
+                              child: Text(
+                                'ไม่มีที่อยู่',
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 25),
+                              ),
+                            ))
+                        : Container(
+                            decoration: BoxDecoration(
+                                // color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 400,
+                            child: ListView.builder(
+                                padding: EdgeInsets.zero,
+                                itemCount: cusAddresses.length,
+                                itemBuilder: (context, index) {
+                                  final addresss = cusAddresses[index];
 
-                                return Dismissible(
-                                  key: UniqueKey(),
-                                  onDismissed: (direction) async {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor: Colors.redAccent,
-                                      content: Container(
-                                          child: Row(
-                                        children: [
-                                          Text(" ลบที่อยู่"),
-                                          Text(
-                                            ' ${addresss.cAddress}',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white),
+                                  return Dismissible(
+                                    key: UniqueKey(),
+                                    onDismissed: (direction) async {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: Colors.redAccent,
+                                        content: Container(
+                                            child: Row(
+                                          children: [
+                                            Text(" ลบที่อยู่"),
+                                            Text(
+                                              ' ${addresss.cAddress}',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            ),
+                                          ],
+                                        )),
+                                        duration: Duration(seconds: 5),
+                                      ));
+                                      cusAddresses.remove(addresss);
+                                      await DatabaseManager.instance
+                                          .deleteCustomerAddress(
+                                              addresss.cAddreId!);
+                                      refreshCustomerAddresses();
+                                      setState(() {});
+                                    },
+                                    background: Container(
+                                      margin: EdgeInsets.only(
+                                          left: 0,
+                                          top: 10,
+                                          right: 10,
+                                          bottom: 10),
+                                      decoration: BoxDecoration(
+                                          color: Colors.redAccent,
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: <Widget>[
+                                          Icon(
+                                            Icons.delete_forever,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(
+                                            width: 20,
                                           ),
                                         ],
-                                      )),
-                                      duration: Duration(seconds: 5),
-                                    ));
-                                    cusAddresses.remove(addresss);
-                                    await DatabaseManager.instance
-                                        .deleteCustomerAddress(
-                                            addresss.cAddreId!);
-                                    refreshCustomerAddresses();
-                                    setState(() {});
-                                  },
-                                  background: Container(
-                                    margin: EdgeInsets.only(
-                                        left: 0,
-                                        top: 10,
-                                        right: 10,
-                                        bottom: 10),
-                                    decoration: BoxDecoration(
-                                        color: Colors.redAccent,
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Icon(
-                                          Icons.delete_forever,
-                                          color: Colors.white,
-                                        ),
-                                        SizedBox(
-                                          width: 20,
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                  direction: DismissDirection.endToStart,
-                                  resizeDuration: Duration(seconds: 1),
-                                  child: TextButton(
-                                    onPressed: () {
-                                      widget.update(addresss);
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
-                                    },
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 0.0, horizontal: 0.0),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Container(
-                                          height: 80,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .background,
-                                          child: Row(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          widget.customer.cName,
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
+                                    direction: DismissDirection.endToStart,
+                                    resizeDuration: Duration(seconds: 1),
+                                    child: TextButton(
+                                      onPressed: () {
+                                        widget.update(addresss);
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 0.0, horizontal: 0.0),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: Container(
+                                            height: 80,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .background,
+                                            child: Row(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: <Widget>[
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            widget
+                                                                .customer.cName,
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            addresss.cPhone,
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Column(
+                                                        children: [
+                                                          Text(
+                                                              addresss.cAddress,
+                                                              style: const TextStyle(
                                                                   color: Colors
-                                                                      .white),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Text(
-                                                          addresss.cPhone,
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Column(
-                                                      children: [
-                                                        Text(addresss.cAddress,
-                                                            style:
-                                                                const TextStyle(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    fontSize:
-                                                                        12)),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                                      .grey,
+                                                                  fontSize:
+                                                                      12)),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                              Spacer(),
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    elevation: 0,
-                                                    primary:
-                                                        Colors.transparent),
-                                                onPressed: () async {
-                                                  await dialogEditCusAddress(
-                                                    addresss,
-                                                  );
-                                                  refreshCustomerAddresses();
-                                                },
-                                                child: const Icon(Icons.edit,
-                                                    color: Color.fromARGB(
-                                                        255, 205, 205, 205)),
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              )
-                                            ],
+                                                Spacer(),
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          elevation: 0,
+                                                          primary: Colors
+                                                              .transparent),
+                                                  onPressed: () async {
+                                                    await dialogEditCusAddress(
+                                                      addresss,
+                                                    );
+                                                    refreshCustomerAddresses();
+                                                  },
+                                                  child: const Icon(Icons.edit,
+                                                      color: Color.fromARGB(
+                                                          255, 205, 205, 205)),
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                )
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }),
-                        ),
-                ],
+                                  );
+                                }),
+                          ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
     );
   }

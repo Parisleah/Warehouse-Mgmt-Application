@@ -51,10 +51,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   void initState() {
     super.initState();
     refreshProductCategorys();
-
     setState(() {});
-    print(
-        'Welcome to ${widget.shop.name} -> Product Categorys -> ${productCategorys.length}');
     productNameController.addListener(() => setState(() {}));
     productCategoryNameController.addListener(() => setState(() {}));
     productDescriptionController.addListener(() => setState(() {}));
@@ -68,24 +65,19 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     cController.addListener(() => setState(() {}));
   }
 
-  // Product
+  var productCategory = ProductCategory(prodCategName: 'เลือกหมวดหมู่สินค้า');
   bool _validate = false;
   bool isDialogChooseFst = false;
   bool isDelete_ndProp = false;
-
+  bool isFoundNullCost = false;
+  bool isFoundNullPrice = false;
   String stPropName = 'สี';
   String ndPropName = 'ขนาด';
-  var productCategory = ProductCategory(prodCategName: 'เลือกหมวดหมู่สินค้า');
   List<ProductCategory> productCategorys = [];
-
   List<ProductModel> productModels = [];
   List<ProductModel_stProperty> stPropsList = [];
   List<ProductModel_ndProperty> ndPropsList = [];
   List<ProductLot> productLots = [];
-
-  bool isFoundNullCost = false;
-  bool isFoundNullPrice = false;
-
   List stPropertySelecteds = [];
   List ndPropertySelecteds = [];
 
@@ -176,56 +168,27 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         () {},
       );
       if (productModels.isEmpty) {
-        print('Product Models is Empty');
       } else {
-        print(
-            '===================================================================\n MODEL');
-        // Insert Product Models -> Database
         for (var model in productModels) {
-          // Inserted Get Product Models ID
           final modelInserted =
               await DatabaseManager.instance.createProductModel(model);
-          print(
-              'MODEL INSERTED ->${modelInserted.prodModelId} ${modelInserted.prodModelname} ${modelInserted.stProperty} ${modelInserted.ndProperty}  ${modelInserted.cost} ${modelInserted.price} WHERE PRODUCT ID = ${modelInserted.prodId}');
-          // Insert Product 1st Property -> Database
-          print(
-              '===================================================================\n 1st PROPERTY ');
+
           for (var st in stPropsList) {
             final new_st = ProductModel_stProperty(
                 pmstPropName: st.pmstPropName,
                 prodModelId: modelInserted.prodModelId);
-            print(
-                '${st.pmstPropName}   Product 1st Property (AFTER) ->${st.pmstPropId} ${new_st.pmstPropName} , ${new_st.prodModelId}');
+
             final get1stId =
                 await DatabaseManager.instance.create1stProperty(new_st);
-            print(
-                'INSERTED | 1st Property -> [${get1stId.pmstPropId}, ${get1stId.pmstPropName}, ${get1stId.prodModelId}]');
           }
 
-          print(
-              'Product 1st Property ALL (${stPropsList.length}) : ${stPropsList}');
-          print(
-              '=======================================================================================================================================');
-
-          // Insert Product 2nd Property -> Database
-          print(
-              '===================================================================\n 2nd PROPERTY ');
           for (var nd in ndPropsList) {
             final new_nd = ProductModel_ndProperty(
                 pmndPropName: nd.pmndPropName,
                 prodModelId: modelInserted.prodModelId);
-            print(
-                '${nd.pmndPropName}   Product 1st Property (AFTER) ->${nd.pmndPropId} ${new_nd.pmndPropName} , ${new_nd.prodModelId}');
             final get2ndId =
                 await DatabaseManager.instance.create2ndProperty(new_nd);
-            print(
-                'INSERTED | 2nd Property -> [${get2ndId.pmndPropId}, ${get2ndId.pmndPropName}, ${get2ndId.prodModelId}]');
           }
-
-          print(
-              'Product 2nd Property ALL (${ndPropsList.length}) : ${ndPropsList}');
-          print(
-              '===================================================================\n 2nd PROPERTY');
         }
       }
       Navigator.pop(context);
@@ -242,8 +205,11 @@ class _ProductNavAddState extends State<ProductNavAdd> {
               prodModelname: '${stPropName},${ndPropName}',
               stProperty: '${st.pmstPropName}',
               ndProperty: '${nd.pmndPropName}',
-              cost: int.parse(editCostControllers[i].text),
-              price: int.parse(editPriceControllers[i].text));
+              cost: int.parse(
+                  editCostControllers[i].text.replaceAll(RegExp('[^0-9]'), '')),
+              price: int.parse(editPriceControllers[i]
+                  .text
+                  .replaceAll(RegExp('[^0-9]'), '')));
           productModels.add(model);
           editCostControllers.add(TextEditingController());
           editPriceControllers.add(TextEditingController());
@@ -300,6 +266,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     setState(() {});
   }
 
+  // Dialog Zone
   // ราคาทั้งหมด
   Future<void> dialogEdit_PropCostPrice() async {
     final _costformKey = GlobalKey<FormState>();
@@ -794,7 +761,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                 width: 10,
                               ),
                               Container(
-                                width: 300,
+                                width: 280,
                                 child: Row(
                                   children: [
                                     Text(
@@ -1345,7 +1312,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                  width: 300,
+                                  width: 280,
                                   child: Row(
                                     children: [
                                       SizedBox(
@@ -1446,7 +1413,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                           borderRadius:
                                               BorderRadius.circular(10)),
                                       height: 60,
-                                      width: 200,
+                                      width: 180,
                                       child: CustomTextField.textField(
                                         context,
                                         'ระบุ${stPropName}',
@@ -1708,7 +1675,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                       BorderRadius.circular(
                                                           10)),
                                               height: 60,
-                                              width: 200,
+                                              width: 180,
                                               child: CustomTextField.textField(
                                                 context,
                                                 'ระบุ${ndPropName}',
@@ -2281,6 +2248,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                 runSpacing: 10,
                 children: [
                   Container(
+                    height: 90,
+                  ),
+                  Container(
                     height: 200,
                     width: 200,
                     decoration: BoxDecoration(
@@ -2547,10 +2517,10 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                     ),
                                                   ],
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 amountOfProd == 0
                                                     ? Row(
-                                                        children: [
+                                                        children: const [
                                                           Icon(
                                                             Icons
                                                                 .numbers_outlined,

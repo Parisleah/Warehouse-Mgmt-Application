@@ -11,6 +11,7 @@ class SellingFields {
     amount,
     discountPercent,
     total,
+    profit,
     speacialReq,
     isDelivered,
     shopId
@@ -25,6 +26,8 @@ class SellingFields {
   static final String amount = 'amount';
   static final String discountPercent = 'discountPercent';
   static final String total = 'total';
+static final String profit = 'profit';
+
   static final String speacialReq = 'speacialReq';
   static final String isDelivered = 'isDelivered';
   static final String shopId = 'shopId';
@@ -40,6 +43,7 @@ class SellingModel {
   final int amount;
   final int discountPercent;
   final int total;
+  final int profit;
   final String? speacialReq;
   final bool isDelivered;
   final int? shopId;
@@ -54,6 +58,7 @@ class SellingModel {
       required this.amount,
       required this.discountPercent,
       required this.total,
+      required this.profit,
       required this.speacialReq,
       required this.isDelivered,
       required this.shopId});
@@ -67,6 +72,7 @@ class SellingModel {
     int? amount,
     int? discountPercent,
     int? total,
+    int? profit,
     String? speacialReq,
     bool? isDelivered,
     int? shopId,
@@ -81,6 +87,7 @@ class SellingModel {
           amount: amount ?? this.amount,
           discountPercent: discountPercent ?? this.discountPercent,
           total: total ?? this.total,
+          profit: profit ?? this.profit,
           speacialReq: speacialReq ?? this.speacialReq,
           isDelivered: isDelivered ?? this.isDelivered,
           shopId: shopId ?? this.shopId);
@@ -94,6 +101,7 @@ class SellingModel {
         amount: json[SellingFields.amount] as int,
         discountPercent: json[SellingFields.discountPercent] as int,
         total: json[SellingFields.total] as int,
+        profit: json[SellingFields.profit] as int,
         speacialReq: json[SellingFields.speacialReq] as String,
         isDelivered: json[SellingFields.isDelivered] == 1,
         shopId: json[SellingFields.shopId] as int,
@@ -109,6 +117,7 @@ class SellingModel {
         SellingFields.speacialReq: speacialReq,
         SellingFields.discountPercent: discountPercent,
         SellingFields.total: total,
+        SellingFields.profit: profit,
         SellingFields.isDelivered: isDelivered ? 1 : 0,
         SellingFields.shopId: shopId,
       };

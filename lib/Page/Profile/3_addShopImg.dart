@@ -98,7 +98,6 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.background,
                           borderRadius: BorderRadius.circular(15)),
                       child: Row(
                         children: [

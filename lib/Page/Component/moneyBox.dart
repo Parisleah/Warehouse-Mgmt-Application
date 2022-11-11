@@ -57,12 +57,15 @@ class MoneyBox extends StatelessWidget {
                   // )
                 ],
               ),
-              Text(
-                title,
-                style: TextStyle(
-                    fontSize: 15,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    fontWeight: FontWeight.bold),
+              Flexible(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 15,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               Center(
                 child: Text(

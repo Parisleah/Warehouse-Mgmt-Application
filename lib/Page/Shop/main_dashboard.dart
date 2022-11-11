@@ -49,6 +49,13 @@ class _DashboardPageState extends State<DashboardPage> {
     Color.fromARGB(255, 255, 40, 40),
     Color.fromARGB(255, 135, 97, 0)
   ];
+  List<Color> profitGradientColors = [
+    Color.fromARGB(255, 40, 255, 126),
+    Color.fromARGB(255, 0, 116, 60)
+  ];
+  bool isShowPurchasing = true;
+  bool isShowSelling = true;
+  bool isShowProfit = true;
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
   final dfToday = new DateFormat('hh:mm');
 
@@ -131,15 +138,17 @@ class _DashboardPageState extends State<DashboardPage> {
   _calculateDashboard(_sale, _cost, _profit) {
     _cost = 0;
     _sale = 0;
+    _profit = 0;
     for (var purchasing in purchasings) {
       _cost += purchasing.total;
     }
     for (var selling in sellings) {
       _sale += selling.total;
+      _profit += selling.profit;
     }
     cost = _cost;
     sale = _sale;
-    profit = _sale - _cost;
+    profit = _profit;
   }
 
   List<FlSpot> gatherPurData() {
@@ -259,7 +268,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height * 2.2,
+            height: MediaQuery.of(context).size.height * 2.5,
             decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
@@ -400,12 +409,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(
-                                            Icons.circle,
-                                            color: Color.fromARGB(
-                                                255, 255, 40, 40),
-                                            size: 15,
-                                          ),
+                                          IconButton(
+                                              onPressed: () {
+                                                isShowSelling = !isShowSelling;
+                                                setState(() {});
+                                              },
+                                              icon: Icon(
+                                                Icons.circle,
+                                                color: Color.fromARGB(
+                                                    255, 255, 40, 40),
+                                                size: 15,
+                                              )),
                                           Text(
                                             ' ยอดขาย',
                                             style: TextStyle(
@@ -426,12 +440,18 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ),
                                       Row(
                                         children: [
-                                          Icon(
-                                            Icons.circle,
-                                            color: Color.fromARGB(
-                                                255, 141, 106, 225),
-                                            size: 15,
-                                          ),
+                                          IconButton(
+                                              onPressed: () {
+                                                isShowPurchasing =
+                                                    !isShowPurchasing;
+                                                setState(() {});
+                                              },
+                                              icon: Icon(
+                                                Icons.circle,
+                                                color: Color.fromARGB(
+                                                    255, 141, 106, 225),
+                                                size: 15,
+                                              )),
                                           Text(
                                             ' ต้นทุน',
                                             style: TextStyle(
@@ -452,12 +472,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ),
                                       Row(
                                         children: [
-                                          Icon(
-                                            Icons.circle,
-                                            color: Color.fromARGB(
-                                                255, 40, 255, 108),
-                                            size: 15,
-                                          ),
+                                          IconButton(
+                                              onPressed: () {
+                                                isShowProfit = !isShowProfit;
+                                                setState(() {});
+                                              },
+                                              icon: Icon(
+                                                Icons.circle,
+                                                color: Color.fromARGB(
+                                                    255, 40, 255, 108),
+                                                size: 15,
+                                              )),
                                           Text(
                                             ' กำไร',
                                             style: TextStyle(
@@ -467,7 +492,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(
-                                            ' ${NumberFormat("#,###,###.##").format(profit < 0 ? 0 : profit)} ฿',
+                                            profit < 0
+                                                ? ' 0'
+                                                : ' ${NumberFormat("#,###,###.##").format(profit)} ฿',
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: Color.fromARGB(
@@ -575,12 +602,12 @@ class _DashboardPageState extends State<DashboardPage> {
                                           // 2. Display เป็นเดือนกว้างๆ Sep Oct Nov Dec
                                           case 0:
                                             return '0';
-                                          case 1000:
-                                            return '500';
-                                          case 3000:
-                                            return '750';
+                                          case 5000:
+                                            return '${_maxPurchasing > _maxSelling ? (_maxPurchasing / 6).toInt() : (_maxSelling / 6).toInt()}';
                                           case 10000:
-                                            return '1500';
+                                            return '${_maxPurchasing > _maxSelling ? (_maxPurchasing / 4).toInt() : (_maxSelling / 4).toInt()}';
+                                          case 15000:
+                                            return '${_maxPurchasing > _maxSelling ? (_maxPurchasing / 2).toInt() : (_maxSelling / 2).toInt()}';
                                           case 20000:
                                             return '${_maxPurchasing > _maxSelling ? _maxPurchasing : _maxSelling}';
                                         }
@@ -595,12 +622,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                   minX: 0,
                                   lineBarsData: [
                                     LineChartBarData(
-                                        spots: purchasings
-                                            .map((point) => FlSpot(
-                                                point.orderedDate.day
-                                                    .toDouble(),
-                                                point.total.toDouble()))
-                                            .toList(),
+                                        spots: isShowPurchasing
+                                            ? purchasings
+                                                .map((point) => FlSpot(
+                                                    point.orderedDate.day
+                                                        .toDouble(),
+                                                    point.total.toDouble()))
+                                                .toList()
+                                            : null,
                                         isCurved: true,
                                         colors: [
                                           Theme.of(context).backgroundColor,
@@ -613,12 +642,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 .map((e) => e.withOpacity(0.8))
                                                 .toList())),
                                     LineChartBarData(
-                                        spots: sellings
-                                            .map((point) => FlSpot(
-                                                point.orderedDate.day
-                                                    .toDouble(),
-                                                point.total.toDouble()))
-                                            .toList(),
+                                        spots: isShowSelling
+                                            ? sellings
+                                                .map((point) => FlSpot(
+                                                    point.orderedDate.day
+                                                        .toDouble(),
+                                                    point.total.toDouble()))
+                                                .toList()
+                                            : null,
                                         isCurved: true,
                                         colors: [
                                           Color.fromARGB(255, 244, 112, 112),
@@ -628,7 +659,27 @@ class _DashboardPageState extends State<DashboardPage> {
                                             gradientFrom: Offset(0, 1),
                                             show: true,
                                             colors: sellingGradientColors
-                                                .map((e) => e.withOpacity(0.8))
+                                                .map((e) => e.withOpacity(0.0))
+                                                .toList())),
+                                    LineChartBarData(
+                                        spots: isShowProfit
+                                            ? sellings
+                                                .map((point) => FlSpot(
+                                                    point.orderedDate.day
+                                                        .toDouble(),
+                                                    point.profit.toDouble()))
+                                                .toList()
+                                            : null,
+                                        isCurved: true,
+                                        colors: [
+                                          Color.fromARGB(255, 24, 255, 167),
+                                        ],
+                                        barWidth: 2,
+                                        belowBarData: BarAreaData(
+                                            gradientFrom: Offset(0, 1),
+                                            show: true,
+                                            colors: profitGradientColors
+                                                .map((e) => e.withOpacity(0.0))
                                                 .toList()))
                                   ])),
                             ),
@@ -642,146 +693,146 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  sellings.isEmpty && products.isEmpty
-                      ? Container()
-                      : Container(
-                          height: 300,
-                          // decoration: BoxDecoration(
-                          //   boxShadow: [
-                          //     BoxShadow(
-                          //         color: Theme.of(context).colorScheme.primary,
-                          //         spreadRadius: 2,
-                          //         blurRadius: 5,
-                          //         offset: Offset(0, 4))
-                          //   ],
-                          //   gradient: LinearGradient(
-                          //     colors: [
-                          //       Color.fromRGBO(29, 29, 65, 1.0),
-                          //       Theme.of(context).backgroundColor,
-                          //     ],
-                          //     begin: Alignment.bottomLeft,
-                          //     end: Alignment.topRight,
-                          //     stops: [0.1, 0.8],
-                          //     tileMode: TileMode.clamp,
-                          //   ),
-                          //   borderRadius: BorderRadius.circular(20),
-                          // ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      "สินค้าขายดี",
-                                      style: TextStyle(
-                                          fontSize: 20, color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 220,
-                                  child: PageView.builder(
-                                      itemCount: products.length,
-                                      pageSnapping: true,
-                                      controller: _pageController,
-                                      onPageChanged: (page) {
-                                        setState(() {
-                                          activePage = page;
-                                        });
-                                      },
-                                      itemBuilder: (context, pagePosition) {
-                                        return Container(
-                                          margin: EdgeInsets.all(10),
-                                          child: Column(
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    child: Container(
-                                                      width: 300,
-                                                      height: 175,
-                                                      child: Image.file(
-                                                        File(products[
-                                                                pagePosition]
-                                                            .prodImage!),
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    top: 0.0,
-                                                    right: 0.0,
-                                                    child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                                color: Colors
-                                                                    .black
-                                                                    .withOpacity(
-                                                                        0.7),
-                                                                spreadRadius: 0,
-                                                                blurRadius: 5,
-                                                                offset: Offset(
-                                                                    0, 4))
-                                                          ],
-                                                          color:
-                                                              Colors.redAccent,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(3.0),
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .sell_rounded,
-                                                                color: Colors
-                                                                    .white,
-                                                                size: 15,
-                                                              ),
-                                                              Text(
-                                                                'ขายดี',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 9,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        )),
-                                                  )
-                                                ],
-                                              ),
-                                              Text(
-                                                  '${products[pagePosition].prodName}'),
-                                            ],
-                                          ),
-                                        );
-                                      }),
-                                ),
-                              ),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: productIndicators(
-                                      products.length, activePage))
-                            ],
-                          ),
-                        ),
+                  // sellings.isEmpty && products.isEmpty
+                  //     ? Container()
+                  //     : Container(
+                  //         height: 300,
+                  //         // decoration: BoxDecoration(
+                  //         //   boxShadow: [
+                  //         //     BoxShadow(
+                  //         //         color: Theme.of(context).colorScheme.primary,
+                  //         //         spreadRadius: 2,
+                  //         //         blurRadius: 5,
+                  //         //         offset: Offset(0, 4))
+                  //         //   ],
+                  //         //   gradient: LinearGradient(
+                  //         //     colors: [
+                  //         //       Color.fromRGBO(29, 29, 65, 1.0),
+                  //         //       Theme.of(context).backgroundColor,
+                  //         //     ],
+                  //         //     begin: Alignment.bottomLeft,
+                  //         //     end: Alignment.topRight,
+                  //         //     stops: [0.1, 0.8],
+                  //         //     tileMode: TileMode.clamp,
+                  //         //   ),
+                  //         //   borderRadius: BorderRadius.circular(20),
+                  //         // ),
+                  //         child: Column(
+                  //           children: [
+                  //             Row(
+                  //               children: [
+                  //                 Padding(
+                  //                   padding: const EdgeInsets.all(10.0),
+                  //                   child: Text(
+                  //                     "สินค้าขายดี",
+                  //                     style: TextStyle(
+                  //                         fontSize: 20, color: Colors.white),
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //             ClipRRect(
+                  //               borderRadius: BorderRadius.circular(20),
+                  //               child: SizedBox(
+                  //                 width: MediaQuery.of(context).size.width,
+                  //                 height: 220,
+                  //                 child: PageView.builder(
+                  //                     itemCount: products.length,
+                  //                     pageSnapping: true,
+                  //                     controller: _pageController,
+                  //                     onPageChanged: (page) {
+                  //                       setState(() {
+                  //                         activePage = page;
+                  //                       });
+                  //                     },
+                  //                     itemBuilder: (context, pagePosition) {
+                  //                       return Container(
+                  //                         margin: EdgeInsets.all(10),
+                  //                         child: Column(
+                  //                           children: [
+                  //                             Stack(
+                  //                               children: [
+                  //                                 ClipRRect(
+                  //                                   borderRadius:
+                  //                                       BorderRadius.circular(
+                  //                                           10),
+                  //                                   child: Container(
+                  //                                     width: 300,
+                  //                                     height: 175,
+                  //                                     child: Image.file(
+                  //                                       File(products[
+                  //                                               pagePosition]
+                  //                                           .prodImage!),
+                  //                                       fit: BoxFit.cover,
+                  //                                     ),
+                  //                                   ),
+                  //                                 ),
+                  //                                 Positioned(
+                  //                                   top: 0.0,
+                  //                                   right: 0.0,
+                  //                                   child: Container(
+                  //                                       decoration:
+                  //                                           BoxDecoration(
+                  //                                         boxShadow: [
+                  //                                           BoxShadow(
+                  //                                               color: Colors
+                  //                                                   .black
+                  //                                                   .withOpacity(
+                  //                                                       0.7),
+                  //                                               spreadRadius: 0,
+                  //                                               blurRadius: 5,
+                  //                                               offset: Offset(
+                  //                                                   0, 4))
+                  //                                         ],
+                  //                                         color:
+                  //                                             Colors.redAccent,
+                  //                                         borderRadius:
+                  //                                             BorderRadius
+                  //                                                 .circular(10),
+                  //                                       ),
+                  //                                       child: Padding(
+                  //                                         padding:
+                  //                                             const EdgeInsets
+                  //                                                 .all(3.0),
+                  //                                         child: Row(
+                  //                                           children: [
+                  //                                             Icon(
+                  //                                               Icons
+                  //                                                   .sell_rounded,
+                  //                                               color: Colors
+                  //                                                   .white,
+                  //                                               size: 15,
+                  //                                             ),
+                  //                                             Text(
+                  //                                               'ขายดี',
+                  //                                               style:
+                  //                                                   TextStyle(
+                  //                                                 fontSize: 9,
+                  //                                                 color: Colors
+                  //                                                     .white,
+                  //                                               ),
+                  //                                             )
+                  //                                           ],
+                  //                                         ),
+                  //                                       )),
+                  //                                 )
+                  //                               ],
+                  //                             ),
+                  //                             Text(
+                  //                                 '${products[pagePosition].prodName}'),
+                  //                           ],
+                  //                         ),
+                  //                       );
+                  //                     }),
+                  //               ),
+                  //             ),
+                  //             Row(
+                  //                 mainAxisAlignment: MainAxisAlignment.center,
+                  //                 children: productIndicators(
+                  //                     products.length, activePage))
+                  //           ],
+                  //         ),
+                  //       ),
                   const SizedBox(
                     height: 10,
                   ),
@@ -946,18 +997,18 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: sellingIndicators(sellings.length)),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: 140,
-                    width: 450,
-                    child: PieChartSample2(),
-                  ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  // Container(
+                  //   height: 140,
+                  //   width: 450,
+                  //   child: PieChartSample2(),
+                  // ),
 
-                  SizedBox(
-                    height: 50,
-                  ),
+                  // SizedBox(
+                  //   height: 50,
+                  // ),
                 ],
               ),
             ),
