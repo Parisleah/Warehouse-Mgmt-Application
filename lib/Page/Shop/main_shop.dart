@@ -665,7 +665,7 @@ class _ShopPageState extends State<ShopPage> {
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 15),
                                     ),
-                                    // ChangeThemeButtonWidget(),
+                                    ChangeThemeButtonWidget(),
                                     Spacer(),
                                     IconButton(
                                         onPressed: (() {

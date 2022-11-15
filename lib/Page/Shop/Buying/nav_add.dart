@@ -6,11 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryRate.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit_deliveryCompany.dart';
 
 import '../../../db/database.dart';
 import '../../Model/Shop.dart';
@@ -29,11 +32,14 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   List<PurchasingItemsModel> carts = [];
   List<Product> products = [];
   List<ProductModel> models = [];
+
   DateTime date = DateTime.now();
   final df = new DateFormat('dd-MM-yyyy');
   DealerModel _dealer =
       DealerModel(dName: 'ยังไม่ระบุตัวแทนจำหน่าย', dAddress: '', dPhone: '');
-  String _shipping = 'ระบุการจัดส่ง';
+  DeliveryCompanyModel _shipping =
+      DeliveryCompanyModel(dcName: 'ระบุการจัดส่ง');
+  var totalWeight = 0;
   var shippingCost = 0;
   var totalPrice = 0;
   var noShippingPrice = 0;
@@ -71,7 +77,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
     });
   }
 
-  _updateShipping(shipping) {
+  _updateShipping(DeliveryCompanyModel shipping) async {
     setState(() {
       _shipping = shipping;
     });
@@ -82,19 +88,118 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
     print('Cart (${carts.length}) -> ${carts}');
   }
 
-  _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice) {
+  dialogAlertWeightNotInRange(DeliveryCompanyModel company) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (dContext, DialogSetState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: Flexible(
+              child: Container(
+                width: 150,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ต้องเพิ่มช่วงน้ำของ ?',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      ' ${company.dcName} ?',
+                      style: TextStyle(
+                          overflow: TextOverflow.ellipsis, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            content: const Text(
+              '"น้ำหนักรวม" ไม่อยู่ในช่วง',
+              style: TextStyle(color: Colors.grey),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.redAccent),
+                child: const Text('ไม่'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ElevatedButton(
+                child: const Text('ใช่'),
+                onPressed: () async {
+                  await Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => EditShippingPage(
+                                shop: widget.shop!,
+                                company: company,
+                              )));
+
+                  setState(() {});
+
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice,
+      oldTotalWeight, _newshipping) async {
     oldTotal = 0;
     oldAmount = 0;
     oldNoShippingPrice = 0;
+    oldTotalWeight = 0;
+
     for (var i in carts) {
       oldTotal += i.total;
       oldAmount += i.amount;
+      for (var model in models) {
+        if (model.prodModelId == i.prodModelId) {
+          oldTotalWeight += (model.weight * i.amount).toInt();
+        }
+      }
+    }
+
+    List<DeliveryRateModel> deliveryRates = [];
+    print('Delivery Rates (${deliveryRates.length})');
+
+    if (carts.isNotEmpty) {
+      if (_shipping.dcName != 'ระบุการจัดส่ง') {
+        deliveryRates = await DatabaseManager.instance
+            .readDeliveryRatesWHEREdcId(_newshipping.dcId!);
+        for (var rate in deliveryRates) {
+          if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
+                  totalWeight.toInt() &&
+              oldTotalWeight.toInt() <=
+                  double.parse(rate.weightRange.split('-')[1]).toInt()) {
+            shippingCost = rate.cost;
+          }
+        }
+        if (shippingCost == 0) {
+          dialogAlertWeightNotInRange(_shipping);
+        }
+      } else {
+        shippingCost = 0;
+      }
+    } else {
+      shippingCost = 0;
     }
 
     totalPrice = oldTotal + oldShippingPrice;
     amount = oldAmount;
-    shippingCost = oldShippingPrice;
+    totalWeight = oldTotalWeight;
+    // shippingCost = oldShippingPrice;
     noShippingPrice = oldTotal;
+
     setState(() {});
   }
 
@@ -153,7 +258,10 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                       children: [
                         Icon(Icons.calendar_month),
                         Spacer(),
-                        Text('${date.day}/${date.month}/${date.year}')
+                        Text(
+                          '${date.day}/${date.month}/${date.year}',
+                          style: TextStyle(color: Colors.grey),
+                        )
                       ],
                     ),
                   ),
@@ -289,8 +397,8 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                       shop: widget.shop,
                                       update: _addProductInCart,
                                     )));
-                        _calculate(
-                            totalPrice, amount, shippingCost, noShippingPrice);
+                        _calculate(totalPrice, amount, shippingCost,
+                            noShippingPrice, totalWeight, _shipping);
                         setState(() {});
                       },
                       child: Row(
@@ -404,6 +512,13 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                               ));
                                               carts.remove(purchasing);
                                               setState(() {});
+                                              _calculate(
+                                                  totalPrice,
+                                                  amount,
+                                                  shippingCost,
+                                                  noShippingPrice,
+                                                  totalWeight,
+                                                  _shipping);
                                             },
                                             background: Container(
                                               margin: EdgeInsets.only(
@@ -594,8 +709,22 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                             width: 10,
                           )
                         : Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              Text(
+                                'น้ำหนักรวม ',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                  '${NumberFormat("#,###.##").format(totalWeight)}',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Theme.of(context).backgroundColor,
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                ' กรัม',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              const Spacer(),
                               Text(
                                 'ทั้งหมด ',
                                 style: const TextStyle(color: Colors.white),
@@ -645,25 +774,30 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 width: 400,
                 height: 70,
                 child: Row(children: [
-                  Padding(
+                  const Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: const Text("การจัดส่ง",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
-                  Spacer(),
-                  Text(_shipping,
+                  const Spacer(),
+                  Text(_shipping.dcName,
                       style: TextStyle(fontSize: 15, color: Colors.grey)),
                   IconButton(
                     icon: const Icon(Icons.arrow_forward_ios,
                         color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      await Navigator.push(
                           context,
                           new MaterialPageRoute(
                               builder: (context) => ChooseShippingNav(
                                     shop: widget.shop,
                                     update: _updateShipping,
                                   )));
+
+                      _calculate(totalPrice, amount, shippingCost,
+                          noShippingPrice, totalWeight, _shipping);
+
+                      setState(() {});
                     },
                   ),
                 ]),
@@ -673,68 +807,98 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 height: 10,
               ),
               // Container of ค่าจัดส่ง
+              // Container(
+              //   padding: const EdgeInsets.all(5),
+              //   decoration: BoxDecoration(
+              //       color: const Color.fromRGBO(56, 48, 77, 1.0),
+              //       borderRadius: BorderRadius.circular(15)),
+              //   width: 400,
+              //   height: 70,
+              //   child: TextField(
+              //       inputFormatters: [
+              //         LengthLimitingTextInputFormatter(7),
+              //       ],
+              //       onChanged: (text) {
+              //         if (shipPricController.text != null &&
+              //             shipPricController.text != '') {
+              //           _calculate(
+              //               totalPrice,
+              //               amount,
+              //               double.parse(
+              //                 shipPricController.text == null &&
+              //                         shipPricController.text == ''
+              //                     ? '0'
+              //                     : shipPricController.text
+              //                         .replaceAll(RegExp('[^0-9]'), ''),
+              //               ).toInt(),
+              //               noShippingPrice,
+              //               totalWeight);
+              //         }
+              //       },
+              //       textAlign: TextAlign.end,
+              //       // inputFormatters: [DecimalFormatter()],
+              //       keyboardType: TextInputType.number,
+              //       //-----------------------------------------------------
+              //       style: const TextStyle(color: Colors.grey),
+              //       controller: shipPricController,
+              //       decoration: InputDecoration(
+              //         filled: true,
+              //         fillColor: Colors.transparent,
+              //         border: const OutlineInputBorder(
+              //             borderRadius: BorderRadius.all(Radius.circular(10)),
+              //             borderSide: BorderSide.none),
+              //         hintText: "ใส่ค่าจัดส่ง",
+              //         hintStyle:
+              //             const TextStyle(color: Colors.grey, fontSize: 14),
+              //         prefixIcon:
+              //             const Icon(Icons.local_shipping, color: Colors.white),
+              //         suffixIcon: !shipPricController.text.isEmpty
+              //             ? IconButton(
+              //                 onPressed: () {
+              //                   shipPricController.clear();
+              //                   shippingCost = 0;
+              //                   _calculate(totalPrice, amount, shippingCost,
+              //                       noShippingPrice, totalWeight);
+              //                   setState(() {});
+              //                 },
+              //                 icon: const Icon(
+              //                   Icons.close_sharp,
+              //                   color: Colors.white,
+              //                 ),
+              //               )
+              //             : null,
+              //       )),
+              // ),
+              // Container of ค่าจัดส่ง
+              // const SizedBox(
+              //   height: 10,
+              // ),
+
+              // Container of ค่าจัดส่ง self-gen
               Container(
-                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                     color: const Color.fromRGBO(56, 48, 77, 1.0),
                     borderRadius: BorderRadius.circular(15)),
                 width: 400,
                 height: 70,
-                child: TextField(
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(7),
-                    ],
-                    onChanged: (text) {
-                      if (shipPricController.text != null &&
-                          shipPricController.text != '') {
-                        _calculate(
-                            totalPrice,
-                            amount,
-                            double.parse(
-                              shipPricController.text == null &&
-                                      shipPricController.text == ''
-                                  ? '0'
-                                  : shipPricController.text
-                                      .replaceAll(RegExp('[^0-9]'), ''),
-                            ).toInt(),
-                            noShippingPrice);
-                      }
-                    },
-                    textAlign: TextAlign.end,
-                    // inputFormatters: [DecimalFormatter()],
-                    keyboardType: TextInputType.number,
-                    //-----------------------------------------------------
-                    style: const TextStyle(color: Colors.grey),
-                    controller: shipPricController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide.none),
-                      hintText: "ใส่ค่าจัดส่ง",
-                      hintStyle:
-                          const TextStyle(color: Colors.grey, fontSize: 14),
-                      prefixIcon:
-                          const Icon(Icons.local_shipping, color: Colors.white),
-                      suffixIcon: !shipPricController.text.isEmpty
-                          ? IconButton(
-                              onPressed: () {
-                                shipPricController.clear();
-                                shippingCost = 0;
-                                _calculate(totalPrice, amount, shippingCost,
-                                    noShippingPrice);
-                                setState(() {});
-                              },
-                              icon: const Icon(
-                                Icons.close_sharp,
-                                color: Colors.white,
-                              ),
-                            )
-                          : null,
-                    )),
+                child: Row(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: const Text("ค่าจัดส่ง",
+                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                        '${NumberFormat("#,###,###,###").format(shippingCost)}',
+                        textAlign: TextAlign.left,
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
+                ]),
               ),
-              // Container of ค่าจัดส่ง
+              // Container of ค่าจัดส่ง self-gen
 
               const SizedBox(
                 height: 10,
@@ -923,7 +1087,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                 orderedDate: date,
                                 dealerId: _dealer.dealerId!,
                                 shippingCost: shippingCost,
-                                shippingMedthod: _shipping,
+                                deliveryCompanyId: _shipping.dcId!,
                                 amount: amount,
                                 total: totalPrice,
                                 isReceive: isReceived,

@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryRate.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_ndProperty.dart';
@@ -27,7 +30,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main49.db');
+    _database = await _initDB('main53.db');
     return _database!;
   }
 
@@ -52,6 +55,9 @@ class DatabaseManager {
       await db.execute(createTableSellingItem);
       await db.execute(createTableCustomer);
       await db.execute(createTableCustomerAddress);
+
+      await db.execute(createTableDeliveryCompany);
+      await db.execute(createTableDeliveryRate);
     });
   }
 
@@ -59,6 +65,7 @@ class DatabaseManager {
   static const boolType = 'BOOLEAN NOT NULL';
   static const integerType = 'INTEGER';
   static const textType = 'TEXT';
+  static const doubleType = 'REAL';
 
   static final createTableProfile = """
   CREATE TABLE IF NOT EXISTS $tableProfile (
@@ -104,6 +111,7 @@ class DatabaseManager {
   ${ProductModelFields.ndProperty} $textType,
   ${ProductModelFields.cost} $integerType,
   ${ProductModelFields.price} $integerType,
+  ${ProductModelFields.weight} $doubleType,
   ${ProductModelFields.prodId} $integerType
       );""";
   static final createTableProductModel_stProperty = """
@@ -135,7 +143,7 @@ class DatabaseManager {
   ${PurchasingFields.purId} $idType,
   ${PurchasingFields.orderedDate} $textType,
   ${PurchasingFields.dealerId} $integerType,
-  ${PurchasingFields.shippingMedthod} $textType,
+  ${PurchasingFields.deliveryCompanyId} $integerType,
   ${PurchasingFields.shippingCost} $integerType,
   ${PurchasingFields.amount} $integerType,
   ${PurchasingFields.total} $integerType,
@@ -166,7 +174,7 @@ ${DealerFields.shopId} $integerType
   ${SellingFields.orderedDate} $textType,
   ${SellingFields.customerId} $integerType,
   ${SellingFields.cAddreId} $integerType,
-  ${SellingFields.shipping} $textType,
+  ${SellingFields.deliveryCompanyId} $integerType,
   ${SellingFields.shippingCost} $integerType,
   ${SellingFields.amount} $integerType,
   ${SellingFields.discountPercent} $integerType,
@@ -198,6 +206,21 @@ ${DealerFields.shopId} $integerType
   ${CustomerAddressFields.cAddress} $textType,
   ${CustomerAddressFields.cPhone} $textType,
   ${CustomerAddressFields.cusId} $integerType
+      );""";
+  // New
+
+  static final createTableDeliveryCompany = """
+  CREATE TABLE IF NOT EXISTS $tableDeliveryCompany (  
+  ${DeliveryCompanyFields.dcId} $idType,
+  ${DeliveryCompanyFields.dcName} $textType,
+  ${DeliveryCompanyFields.shopId} $integerType
+      );""";
+  static final createTableDeliveryRate = """
+  CREATE TABLE IF NOT EXISTS $tableDeliveryRate (
+  ${DeliveryRateFields.rId} $idType,
+  ${DeliveryRateFields.weightRange} $textType,
+  ${DeliveryRateFields.cost} $integerType,
+  ${DeliveryRateFields.dcId} $integerType
       );""";
 
   // Profile
@@ -550,19 +573,63 @@ ${DealerFields.shopId} $integerType
   // Product lot
 
   // Purchasing
-  // Future<List<PurchasingModel>> readAllPurchasingCosts(int shopId) async {
-  //   final db = await instance.database;
-  //   final orderBy = '${PurchasingFields.purId} DESC';
-  //   final result =
-  //       await db.rawQuery("SELECT total, orderedDate FROM purchasing");
+  Future<List<PurchasingModel>> readPurchasingsWHEREisReceivedANDToday(
+      int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingFields.orderedDate} DESC';
+    final result = await db.rawQuery(
+        "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} == date('now')");
+    var cnt = 0;
 
-  //   if (result != null) {
-  //     print('Puchasing -> ${result}');
-  //   } else {
-  //     print('Puchasing = Null');
-  //   }
-  //   return result.map((json) => PurchasingModel.fromJson(json)).toList();
-  // }
+    print(
+        '--------------------------------------------------------------------');
+    print('Received Date Time ');
+    print('Date ${DateFormat('yyyy-MM-dd').format(DateTime.now())}');
+
+    for (var pur
+        in result.map((json) => PurchasingModel.fromJson(json)).toList()) {
+      print(
+          '--------------------------------------------------------------------');
+      print('${cnt + 1}');
+      print('Unconvert : ${pur.orderedDate}');
+      print('Converted : ${DateFormat('yyyy-MM-dd').format(pur.orderedDate)}');
+      cnt++;
+    }
+
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
+
+  Future<List<PurchasingModel>> readPurchasingsWHEREisReceivedANDRangeDate(
+      String fromDate, String toDate, int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingFields.orderedDate} DESC';
+    // final result = await db.rawQuery(
+    //     "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} BETWEEN '${fromDate}' AND '${toDate}'");
+    // final result = await db.rawQuery(
+    //     "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} >= '${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}' AND ${PurchasingFields.orderedDate} <= '${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}' ORDER BY ${PurchasingFields.orderedDate} DESC");
+    final result = await db.rawQuery(
+        "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} BETWEEN date('${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}') AND date('${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}') ORDER BY ${orderBy}");
+    var cnt = 0;
+    print(
+        '----------------------------------Range----------------------------------');
+
+    print(
+        'Start [${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}] - [${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}]');
+
+    for (var pur
+        in result.map((json) => PurchasingModel.fromJson(json)).toList()) {
+      print(
+          '--------------------------------------------------------------------');
+      print('${cnt + 1} : Shop ${pur.shopId} ${pur.total}');
+      print('Unconvert : ${pur.orderedDate}');
+      print('Converted : ${DateFormat('yyyy-MM-dd').format(pur.orderedDate)}');
+
+      cnt++;
+    }
+
+    return result.map((json) => PurchasingModel.fromJson(json)).toList();
+  }
+
   Future<List<PurchasingModel>> readAllPurchasingsWHEREisNotReceived(
       int shopId) async {
     final db = await instance.database;
@@ -964,7 +1031,71 @@ ${DealerFields.shopId} $integerType
     return db.delete(tableCustomerAddress,
         where: '${CustomerAddressFields.cAddreId} = ?', whereArgs: [cAddreId]);
   }
+
   // 1.4 Customer Address
+  // New
+  // DeliveryCompany
+  Future<List<DeliveryCompanyModel>> readDeliveryCompanys(int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${DeliveryCompanyFields.dcId} DESC';
+    final result = await db.query(tableDeliveryCompany,
+        columns: DeliveryCompanyFields.values,
+        where: '${DeliveryCompanyFields.shopId} = ?',
+        whereArgs: [shopId],
+        orderBy: orderBy);
+
+    return result.map((json) => DeliveryCompanyModel.fromJson(json)).toList();
+  }
+
+  Future<DeliveryCompanyModel> createDeliveryCompany(
+      DeliveryCompanyModel company) async {
+    final db = await instance.database;
+    final id = await db.insert(tableDeliveryCompany, company.toJson());
+    return company.copy(dcId: id);
+  }
+
+  Future<int> updateDeliveryCompany(DeliveryCompanyModel company) async {
+    final db = await instance.database;
+    return db.update(tableDeliveryCompany, company.toJson(),
+        where: '${DeliveryCompanyFields.dcId} = ?', whereArgs: [company.dcId]);
+  }
+
+  Future<int> deleteDeliveryCompany(int dcId) async {
+    final db = await instance.database;
+    return db.delete(tableDeliveryCompany,
+        where: '${DeliveryCompanyFields.dcId} = ?', whereArgs: [dcId]);
+  }
+
+  // Delivery Rates
+  Future<List<DeliveryRateModel>> readDeliveryRatesWHEREdcId(int dcId) async {
+    final db = await instance.database;
+    final orderBy = '${DeliveryRateFields.dcId} DESC';
+    final result = await db.query(tableDeliveryRate,
+        columns: DeliveryRateFields.values,
+        where: '${DeliveryRateFields.dcId} = ?',
+        whereArgs: [dcId],
+        orderBy: orderBy);
+
+    return result.map((json) => DeliveryRateModel.fromJson(json)).toList();
+  }
+
+  Future<DeliveryRateModel> createDeliveryRate(DeliveryRateModel rate) async {
+    final db = await instance.database;
+    final id = await db.insert(tableDeliveryRate, rate.toJson());
+    return rate.copy(rId: id);
+  }
+
+  Future<int> updateDeliveryRate(DeliveryRateModel rate) async {
+    final db = await instance.database;
+    return db.update(tableDeliveryRate, rate.toJson(),
+        where: '${DeliveryRateFields.rId} = ?', whereArgs: [rate.rId]);
+  }
+
+  Future<int> deleteDeliveryRate(int rId) async {
+    final db = await instance.database;
+    return db.delete(tableDeliveryRate,
+        where: '${DeliveryRateFields.rId} = ?', whereArgs: [rId]);
+  }
 
   Future close() async {
     final db = await instance.database;

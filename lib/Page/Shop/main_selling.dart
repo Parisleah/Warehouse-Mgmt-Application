@@ -46,7 +46,6 @@ class _SellingPageState extends State<SellingPage> {
     selllings = await DatabaseManager.instance
         .readAlSellingsORDERBYPresent(widget.shop.shopid!);
 
-
     customers = await DatabaseManager.instance
         .readAllCustomerInShop(widget.shop.shopid!);
     addresses = await DatabaseManager.instance.readAllCustomerAddresses();

@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
 import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/Selling.dart';
@@ -39,7 +40,7 @@ class SellingNavEdit extends StatefulWidget {
 
 class _SellingNavEditState extends State<SellingNavEdit> {
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
-
+  DeliveryCompanyModel _shipping = DeliveryCompanyModel(dcName: '-');
   late var shippingCost = widget.selling.shippingCost;
   late var discountPercent = widget.selling.discountPercent;
   var noShippingPrice = 0;
@@ -56,6 +57,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
   List<CustomerAddressModel> addresses = [];
   List<SellingItemModel> sellingItems = [];
   List<ProductLot> productLots = [];
+  List<DeliveryCompanyModel> companys = [];
   _addProductInCart(SellingItemModel product) {
     sellingItems.add(product);
   }
@@ -77,6 +79,8 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     sellingItems = await DatabaseManager.instance
         .readAllSellingItemsWhereSellID(widget.selling.selId!);
     productLots = await DatabaseManager.instance.readAllProductLots();
+    companys = await DatabaseManager.instance
+        .readDeliveryCompanys(widget.shop.shopid!);
     for (var item in sellingItems) {
       showtotalPrice += item.total;
       noShippingPrice += item.total;
@@ -86,6 +90,12 @@ class _SellingNavEditState extends State<SellingNavEdit> {
         }
       }
     }
+    for (var company in companys) {
+      if (company.dcId == widget.selling.deliveryCompanyId) {
+        _shipping = company;
+      }
+    }
+
     setState(() {});
   }
 
@@ -693,7 +703,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   const Spacer(),
-                  Text(widget.selling.shipping!,
+                  Text('${_shipping.dcName}',
                       style: TextStyle(fontSize: 15, color: Colors.grey)),
                   const SizedBox(
                     width: 10,

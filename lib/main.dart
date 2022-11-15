@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Profile/NewUser/1_welcomePage.dart';
 import 'package:warehouse_mnmt/Page/Profile/NewUser/2_addName.dart';
+import 'package:warehouse_mnmt/Page/Profile/NormalUser/0_InputPin.dart';
 import 'package:warehouse_mnmt/Page/Shop/main_selling.dart';
 import 'package:warehouse_mnmt/Page/Shop/main_shop.dart';
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
@@ -42,11 +43,12 @@ class _MyAppState extends State<MyApp> {
   Future getProfile() async {
     profile = await DatabaseManager.instance.readProfile(1);
     setState(() {});
+    print('Welcome Found Profile !${profile?.name}');
   }
 
   _decideMainPage(profile) {
     if (profile != null) {
-      return AllShopPage(profile: profile);
+      return InputPinPage(profile: profile);
     } else {
       return const BuildingScreen();
     }

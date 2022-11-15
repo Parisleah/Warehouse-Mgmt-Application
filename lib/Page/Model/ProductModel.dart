@@ -8,6 +8,7 @@ class ProductModelFields {
     ndProperty,
     cost,
     price,
+    weight,
     prodId,
   ];
 
@@ -17,6 +18,7 @@ class ProductModelFields {
   static final String ndProperty = 'ndProperty';
   static final String cost = 'cost';
   static final String price = 'price';
+  static final String weight = 'weight';
   static final String prodId = 'prodId';
 }
 
@@ -27,6 +29,7 @@ class ProductModel {
   final String? ndProperty;
   final int cost;
   final int price;
+  final double weight;
   final int? prodId;
 
   ProductModel({
@@ -36,6 +39,7 @@ class ProductModel {
     this.ndProperty,
     required this.cost,
     required this.price,
+    required this.weight,
     this.prodId,
   });
   ProductModel copy({
@@ -45,6 +49,7 @@ class ProductModel {
     String? ndProperty,
     int? cost,
     int? price,
+    double? weight,
     int? prodId,
   }) =>
       ProductModel(
@@ -54,6 +59,7 @@ class ProductModel {
         ndProperty: ndProperty ?? this.ndProperty,
         cost: cost ?? this.cost,
         price: price ?? this.price,
+        weight: weight ?? this.weight,
         prodId: prodId ?? this.prodId,
       );
   static ProductModel fromJson(Map<String, Object?> json) => ProductModel(
@@ -63,6 +69,7 @@ class ProductModel {
         ndProperty: json[ProductModelFields.ndProperty] as String,
         cost: json[ProductModelFields.cost] as int,
         price: json[ProductModelFields.price] as int,
+        weight: json[ProductModelFields.weight] as double,
         prodId: json[ProductModelFields.prodId] as int,
       );
   Map<String, Object?> toJson() => {
@@ -72,6 +79,7 @@ class ProductModel {
         ProductModelFields.ndProperty: ndProperty,
         ProductModelFields.cost: cost,
         ProductModelFields.price: price,
+        ProductModelFields.weight: weight,
         ProductModelFields.prodId: prodId,
       };
 }

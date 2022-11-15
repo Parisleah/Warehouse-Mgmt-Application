@@ -42,7 +42,7 @@ class _AllShopPageState extends State<AllShopPage> {
 
   Future refreshProfile() async {
     profile = await DatabaseManager.instance.readProfile(1);
-    dialogWelcome(profile!);
+
     setState(() {});
   }
 
@@ -55,79 +55,6 @@ class _AllShopPageState extends State<AllShopPage> {
   void dispose() {
     DatabaseManager.instance.close();
     super.dispose();
-  }
-
-  dialogWelcome(Profile profile) async {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)), //this right here
-            child: SizedBox(
-              width: 300,
-              height: 350,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'ยินดีต้อนรับ',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 25,
-                        // fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Center(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.file(
-                          File(profile.image),
-                          width: 180,
-                          height: 180,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text('คุณ ${profile.name}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                )),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('เข้าสู่ร้านค้า'))
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
   }
 
   showAlertDeleteShop(Shop shop) async {
@@ -275,11 +202,10 @@ class _AllShopPageState extends State<AllShopPage> {
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () =>
                     Navigator.of(context).pop(true), // <-- SEE HERE
-                child: Text('ออก',
-                    style: TextStyle(color: Theme.of(context).backgroundColor)),
+                child: Text('ออก', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -413,21 +339,6 @@ class _AllShopPageState extends State<AllShopPage> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                // ElevatedButton(
-                                //     style: ElevatedButton.styleFrom(
-                                //         primary: Colors.redAccent,
-                                //         fixedSize: const Size(140, 30)),
-                                //     onPressed: () async {
-                                //       await DatabaseManager.instance
-                                //           .DropTableIfExistsThenReCreate();
-                                //     },
-                                //     child: const Text(
-                                //       'ลบตาราง Shop & Profile',
-                                //       style: TextStyle(fontSize: 10),
-                                //     )),
                               ],
                             ),
                       Padding(
@@ -477,186 +388,176 @@ class _AllShopPageState extends State<AllShopPage> {
                                         ],
                                       ),
                                     )
-                                  : shops.isEmpty
-                                      ? Center(
-                                          child: CircularProgressIndicator(
-                                            color: Theme.of(context)
-                                                .backgroundColor,
-                                            backgroundColor: Theme.of(context)
-                                                .backgroundColor,
-                                          ),
-                                        )
-                                      : Container(
-                                          height: 500.0,
-                                          child: RefreshIndicator(
-                                            onRefresh: refreshAllShops,
-                                            child: ListView.builder(
-                                                padding: EdgeInsets.zero,
-                                                itemCount: shops.length,
-                                                itemBuilder: (context, index) {
-                                                  final shop = shops[index];
-                                                  return TextButton(
-                                                    onPressed: () async {
-                                                      await Navigator.of(
-                                                              context)
-                                                          .push(
-                                                              MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          MyHomePage(
-                                                                            shop:
-                                                                                shop,
-                                                                          )));
-                                                      setState(() {
-                                                        refreshAllShops();
-                                                      });
-                                                    },
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          vertical: 0.0,
-                                                          horizontal: 0.0),
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
+                                  : Container(
+                                      height: 500.0,
+                                      child: RefreshIndicator(
+                                        onRefresh: refreshAllShops,
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.zero,
+                                            itemCount: shops.length,
+                                            itemBuilder: (context, index) {
+                                              final shop = shops[index];
+                                              return TextButton(
+                                                onPressed: () async {
+                                                  await Navigator.of(context)
+                                                      .push(MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              MyHomePage(
+                                                                shop: shop,
+                                                              )));
+                                                  setState(() {
+                                                    refreshAllShops();
+                                                  });
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      vertical: 0.0,
+                                                      horizontal: 0.0),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      boxShadow: const [
+                                                        BoxShadow(
+                                                            color: Colors.black,
+                                                            // color: Theme.of(context)
+                                                            //     .backgroundColor
+                                                            //     .withOpacity(0.5),
+                                                            spreadRadius: 2,
+                                                            blurRadius: 5,
+                                                            offset:
+                                                                Offset(0, 4))
+                                                      ],
+                                                    ),
+                                                    child: Column(
+                                                      children: [
+                                                        ClipRRect(
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(20),
-                                                          boxShadow: const [
-                                                            BoxShadow(
-                                                                color: Colors
-                                                                    .black,
-                                                                // color: Theme.of(context)
-                                                                //     .backgroundColor
-                                                                //     .withOpacity(0.5),
-                                                                spreadRadius: 2,
-                                                                blurRadius: 5,
-                                                                offset: Offset(
-                                                                    0, 4))
-                                                          ],
-                                                        ),
-                                                        child: Column(
-                                                          children: [
-                                                            ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              child: Container(
-                                                                height: 90,
-                                                                width: 400,
-                                                                // color: Theme.of(context)
-                                                                //     .colorScheme
-                                                                //     .background,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  gradient:
-                                                                      LinearGradient(
-                                                                    colors: [
-                                                                      Color.fromRGBO(
+                                                                  .circular(10),
+                                                          child: Container(
+                                                            height: 90,
+                                                            width: 400,
+                                                            // color: Theme.of(context)
+                                                            //     .colorScheme
+                                                            //     .background,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              gradient:
+                                                                  LinearGradient(
+                                                                colors: [
+                                                                  Color
+                                                                      .fromRGBO(
                                                                           29,
                                                                           29,
                                                                           65,
                                                                           1.0),
-                                                                      // Color.fromARGB(255, 90, 70, 136),
-                                                                      Theme.of(
-                                                                              context)
-                                                                          .backgroundColor,
-                                                                    ],
-                                                                    begin: Alignment
-                                                                        .bottomLeft,
-                                                                    end: Alignment
-                                                                        .topRight,
-                                                                    stops: [
-                                                                      0.1,
-                                                                      0.8
-                                                                    ],
-                                                                    tileMode:
-                                                                        TileMode
-                                                                            .clamp,
-                                                                  ),
-                                                                ),
-                                                                child: Row(
-                                                                  children: <
-                                                                      Widget>[
-                                                                    Container(
-                                                                      width: 90,
-                                                                      height:
-                                                                          90,
-                                                                      color: Color.fromRGBO(
+                                                                  // Color.fromARGB(255, 90, 70, 136),
+                                                                  Theme.of(
+                                                                          context)
+                                                                      .backgroundColor,
+                                                                ],
+                                                                begin: Alignment
+                                                                    .bottomLeft,
+                                                                end: Alignment
+                                                                    .topRight,
+                                                                stops: [
+                                                                  0.1,
+                                                                  0.8
+                                                                ],
+                                                                tileMode:
+                                                                    TileMode
+                                                                        .clamp,
+                                                              ),
+                                                            ),
+                                                            child: Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                Container(
+                                                                  width: 90,
+                                                                  height: 90,
+                                                                  color: Color
+                                                                      .fromRGBO(
                                                                           10,
                                                                           10,
                                                                           10,
                                                                           1.0),
 
-                                                                      child: Image
-                                                                          .file(
-                                                                        File(shop
-                                                                            .image),
-                                                                        width:
-                                                                            40,
-                                                                        height:
-                                                                            40,
-                                                                        fit: BoxFit
-                                                                            .cover,
-                                                                      ),
-                                                                      // decoration:
-                                                                      //     new BoxDecoration(
-                                                                      //         image:
-                                                                      //             new DecorationImage(
-                                                                      //   image: new AssetImage(
-                                                                      //       shop.image),
-                                                                      //   fit: BoxFit.fill,
-                                                                      // ))
-                                                                    ),
-                                                                    const SizedBox(
-                                                                        width:
-                                                                            10),
-                                                                    Expanded(
-                                                                      child:
-                                                                          Row(
-                                                                        children: [
-                                                                          Column(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.center,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children: <Widget>[
-                                                                              Text(
-                                                                                'ร้าน ${shop.name}',
-                                                                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-                                                                              ),
-                                                                              Text(
-                                                                                shop.phone,
-                                                                                style: const TextStyle(fontSize: 13, color: Colors.white),
-                                                                              ),
-                                                                            ],
+                                                                  child: Image
+                                                                      .file(
+                                                                    File(shop
+                                                                        .image),
+                                                                    width: 40,
+                                                                    height: 40,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  ),
+                                                                  // decoration:
+                                                                  //     new BoxDecoration(
+                                                                  //         image:
+                                                                  //             new DecorationImage(
+                                                                  //   image: new AssetImage(
+                                                                  //       shop.image),
+                                                                  //   fit: BoxFit.fill,
+                                                                  // ))
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 10),
+                                                                Expanded(
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: <
+                                                                            Widget>[
+                                                                          Text(
+                                                                            'ร้าน ${shop.name}',
+                                                                            style: const TextStyle(
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 18,
+                                                                                color: Colors.white),
                                                                           ),
-                                                                          const Spacer(),
-                                                                          IconButton(
-                                                                              onPressed: () {
-                                                                                showAlertDeleteShop(shop);
-                                                                              },
-                                                                              icon: const Icon(
-                                                                                Icons.more_vert_outlined,
-                                                                                color: Colors.white,
-                                                                                size: 25,
-                                                                              )),
+                                                                          Text(
+                                                                            shop.phone,
+                                                                            style:
+                                                                                const TextStyle(fontSize: 13, color: Colors.white),
+                                                                          ),
                                                                         ],
                                                                       ),
-                                                                    ),
-                                                                  ],
+                                                                      const Spacer(),
+                                                                      IconButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            showAlertDeleteShop(shop);
+                                                                          },
+                                                                          icon:
+                                                                              const Icon(
+                                                                            Icons.more_vert_outlined,
+                                                                            color:
+                                                                                Colors.white,
+                                                                            size:
+                                                                                25,
+                                                                          )),
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                              ),
+                                                              ],
                                                             ),
-                                                          ],
+                                                          ),
                                                         ),
-                                                      ),
+                                                      ],
                                                     ),
-                                                  );
-                                                }),
-                                          ),
-                                        )
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    )
                             ],
                           ),
                         ),

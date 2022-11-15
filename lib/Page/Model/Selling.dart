@@ -6,7 +6,7 @@ class SellingFields {
     orderedDate,
     customerId,
     cAddreId,
-    shipping,
+    deliveryCompanyId,
     shippingCost,
     amount,
     discountPercent,
@@ -21,12 +21,12 @@ class SellingFields {
   static final String orderedDate = 'orderedDate';
   static final String customerId = 'customerId';
   static final String cAddreId = 'cAddreId';
-  static final String shipping = 'shipping';
+  static final String deliveryCompanyId = 'deliveryCompanyId';
   static final String shippingCost = 'shippingCost';
   static final String amount = 'amount';
   static final String discountPercent = 'discountPercent';
   static final String total = 'total';
-static final String profit = 'profit';
+  static final String profit = 'profit';
 
   static final String speacialReq = 'speacialReq';
   static final String isDelivered = 'isDelivered';
@@ -38,7 +38,7 @@ class SellingModel {
   final DateTime orderedDate;
   final int customerId;
   final int cAddreId;
-  final String? shipping;
+  final int? deliveryCompanyId;
   final int shippingCost;
   final int amount;
   final int discountPercent;
@@ -53,7 +53,7 @@ class SellingModel {
       required this.orderedDate,
       required this.customerId,
       required this.cAddreId,
-      required this.shipping,
+      required this.deliveryCompanyId,
       required this.shippingCost,
       required this.amount,
       required this.discountPercent,
@@ -82,7 +82,7 @@ class SellingModel {
           orderedDate: orderedDate ?? this.orderedDate,
           customerId: customerId ?? this.customerId,
           cAddreId: cAddreId ?? this.cAddreId,
-          shipping: shipping ?? this.shipping,
+          deliveryCompanyId: deliveryCompanyId ?? this.deliveryCompanyId,
           shippingCost: shippingCost ?? this.shippingCost,
           amount: amount ?? this.amount,
           discountPercent: discountPercent ?? this.discountPercent,
@@ -96,7 +96,7 @@ class SellingModel {
         orderedDate: DateTime.parse(json[SellingFields.orderedDate] as String),
         customerId: json[SellingFields.customerId] as int,
         cAddreId: json[SellingFields.cAddreId] as int,
-        shipping: json[SellingFields.shipping] as String,
+        deliveryCompanyId: json[SellingFields.deliveryCompanyId] as int,
         shippingCost: json[SellingFields.shippingCost] as int,
         amount: json[SellingFields.amount] as int,
         discountPercent: json[SellingFields.discountPercent] as int,
@@ -111,7 +111,7 @@ class SellingModel {
         SellingFields.orderedDate: orderedDate.toIso8601String(),
         SellingFields.customerId: customerId,
         SellingFields.cAddreId: cAddreId,
-        SellingFields.shipping: shipping,
+        SellingFields.deliveryCompanyId: deliveryCompanyId,
         SellingFields.shippingCost: shippingCost,
         SellingFields.amount: amount,
         SellingFields.speacialReq: speacialReq,

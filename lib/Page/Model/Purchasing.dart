@@ -5,7 +5,7 @@ class PurchasingFields {
     purId,
     orderedDate,
     dealerId,
-    shippingMedthod,
+    deliveryCompanyId,
     shippingCost,
     amount,
     total,
@@ -16,7 +16,7 @@ class PurchasingFields {
   static final String purId = '_purId';
   static final String orderedDate = 'orderedDate';
   static final String dealerId = 'dealerId';
-  static final String shippingMedthod = 'shippingMedthod';
+  static final String deliveryCompanyId = 'deliveryCompanyId';
   static final String shippingCost = 'shippingCost';
   static final String amount = 'amount';
   static final String total = 'total';
@@ -28,7 +28,7 @@ class PurchasingModel {
   final int? purId;
   final DateTime orderedDate;
   final int dealerId;
-  final String? shippingMedthod;
+  final int? deliveryCompanyId;
   final int shippingCost;
   final int amount;
   final int total;
@@ -39,7 +39,7 @@ class PurchasingModel {
       {this.purId,
       required this.orderedDate,
       required this.dealerId,
-      required this.shippingMedthod,
+      required this.deliveryCompanyId,
       required this.shippingCost,
       required this.amount,
       required this.total,
@@ -60,7 +60,7 @@ class PurchasingModel {
           purId: purId ?? this.purId,
           orderedDate: orderedDate ?? this.orderedDate,
           dealerId: dealerId ?? this.dealerId,
-          shippingMedthod: shippingMedthod ?? this.shippingMedthod,
+          deliveryCompanyId: deliveryCompanyId ?? this.deliveryCompanyId,
           shippingCost: shippingCost ?? this.shippingCost,
           amount: amount ?? this.amount,
           total: total ?? this.total,
@@ -71,7 +71,7 @@ class PurchasingModel {
         orderedDate:
             DateTime.parse(json[PurchasingFields.orderedDate] as String),
         dealerId: json[PurchasingFields.dealerId] as int,
-        shippingMedthod: json[PurchasingFields.shippingMedthod] as String,
+        deliveryCompanyId: json[PurchasingFields.deliveryCompanyId] as int,
         shippingCost: json[PurchasingFields.shippingCost] as int,
         amount: json[PurchasingFields.amount] as int,
         total: json[PurchasingFields.total] as int,
@@ -82,7 +82,7 @@ class PurchasingModel {
         PurchasingFields.purId: purId,
         PurchasingFields.orderedDate: orderedDate.toIso8601String(),
         PurchasingFields.dealerId: dealerId,
-        PurchasingFields.shippingMedthod: shippingMedthod,
+        PurchasingFields.deliveryCompanyId: deliveryCompanyId,
         PurchasingFields.shippingCost: shippingCost,
         PurchasingFields.amount: amount,
         PurchasingFields.total: total,

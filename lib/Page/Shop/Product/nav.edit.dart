@@ -180,6 +180,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
             ndProperty: '${nd.pmndPropName}',
             cost: int.parse(editCostControllers[i].text),
             price: int.parse(editPriceControllers[i].text),
+            weight: 0,
             prodId: widget.product.prodId!);
         await DatabaseManager.instance.createProductModel(model);
 
@@ -356,6 +357,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
               stProperty: '${st.pmstPropName}',
               ndProperty: '${nd.pmndPropName}',
               cost: 0,
+              weight: 0,
               price: 0);
           productModels.add(model);
           editCostControllers.add(TextEditingController());
@@ -368,6 +370,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
             prodModelname: '${st.pmstPropName}',
             stProperty: '${st.pmstPropName}',
             cost: 0,
+            weight: 0,
             price: 0);
         productModels.add(model);
         editCostControllers.add(TextEditingController());
@@ -1350,6 +1353,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
               stProperty: '${st.pmstPropName}',
               ndProperty: '${nd.pmndPropName}',
               cost: 0,
+              weight: 0,
               price: 0);
           productModels.add(model);
           editCostControllers.add(TextEditingController());
@@ -1361,6 +1365,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
             stProperty: '${st.pmstPropName}',
             ndProperty: '',
             cost: 0,
+            weight: 0,
             price: 0);
         productModels.add(model);
         editCostControllers.add(TextEditingController());
@@ -2433,6 +2438,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
               stProperty: '${st.pmstPropName}',
               ndProperty: '${nd.pmndPropName}',
               cost: 0,
+              weight: 0,
               price: 0);
           productModels.add(model);
           editCostControllers.add(TextEditingController());
@@ -2444,6 +2450,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
             stProperty: '${st.pmstPropName}',
             ndProperty: '',
             cost: 0,
+            weight: 0,
             price: 0);
         productModels.add(model);
         editCostControllers.add(TextEditingController());
@@ -3057,7 +3064,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           child: Padding(
                                             padding: const EdgeInsets.all(5.0),
                                             child: Container(
-                                              height: 100,
+                                              height: 120,
                                               decoration: BoxDecoration(
                                                   color: Theme.of(context)
                                                       .colorScheme
@@ -3146,7 +3153,8 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                       Text(
                                                         'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
                                                         style: TextStyle(
-                                                            color: Colors.grey),
+                                                            color: Colors.grey,
+                                                            fontSize: 12),
                                                       ),
                                                       const SizedBox(
                                                         width: 10,
@@ -3154,8 +3162,14 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                       Text(
                                                         'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
                                                         style: TextStyle(
-                                                            color:
-                                                                Colors.white),
+                                                            color: Colors.grey,
+                                                            fontSize: 12),
+                                                      ),
+                                                      Text(
+                                                        'น้ำหนัก ${NumberFormat("#,###,###.##").format(productModel.weight)} กรัม',
+                                                        style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 12),
                                                       ),
                                                     ],
                                                   ),

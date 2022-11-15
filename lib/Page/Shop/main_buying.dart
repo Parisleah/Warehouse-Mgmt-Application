@@ -134,7 +134,9 @@ class _BuyingPageState extends State<BuyingPage> {
                         for (var lot in productLots) {
                           if (item.purId == lot.purId) {
                             final updatedLot = lot.copy(
-                                remainAmount: lot.remainAmount - item.amount);
+                                remainAmount: lot.remainAmount - item.amount < 0
+                                    ? 0
+                                    : lot.remainAmount - item.amount);
                             await DatabaseManager.instance
                                 .updateProductLot(updatedLot);
                           }
@@ -487,8 +489,13 @@ class _BuyingPageState extends State<BuyingPage> {
                                                     if (item.purId ==
                                                         lot.purId) {
                                                       final updatedLot = lot.copy(
-                                                          remainAmount:
-                                                              lot.remainAmount -
+                                                          remainAmount: lot
+                                                                          .remainAmount -
+                                                                      item
+                                                                          .amount <
+                                                                  0
+                                                              ? 0
+                                                              : lot.remainAmount -
                                                                   item.amount);
                                                       await DatabaseManager
                                                           .instance

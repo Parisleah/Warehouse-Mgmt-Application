@@ -1,14 +1,18 @@
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryRate.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_create_shipping.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit_deliveryCompany.dart';
+import 'package:warehouse_mnmt/db/database.dart';
 
 import '../../Component/TextField/CustomTextField.dart';
 
 class ChooseShippingNav extends StatefulWidget {
   final Shop shop;
-  final ValueChanged<String> update;
+  final ValueChanged<DeliveryCompanyModel> update;
 
   const ChooseShippingNav(
       {super.key, required this.shop, required this.update});
@@ -17,6 +21,20 @@ class ChooseShippingNav extends StatefulWidget {
 }
 
 class _ChooseShippingNavState extends State<ChooseShippingNav> {
+  List<DeliveryCompanyModel> companys = [];
+  @override
+  void initState() {
+    super.initState();
+    refreshPage();
+  }
+
+  Future refreshPage() async {
+    companys = await DatabaseManager.instance
+        .readDeliveryCompanys(widget.shop.shopid!);
+
+    setState(() {});
+  }
+
   TextEditingController controller = TextEditingController();
   bool _validate = false;
   Future<void> dialog(TextEditingController controller) async {
@@ -57,7 +75,7 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
               ElevatedButton(
                 child: const Text('ยืนยัน'),
                 onPressed: () {
-                  widget.update(controller.text);
+                  // widget.update(controller.text);
                   Navigator.of(dContext).pop();
                   Navigator.of(context).pop();
                 },
@@ -72,15 +90,6 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
   @override
   Widget build(BuildContext context) {
     bool _validate = false;
-
-    List<String> shippingList = [
-      "Flash Express",
-      "Kerry Express",
-      "J&T Express",
-      "ไปรษณีย์ธรรมดา",
-      "ไปรษณีย์ด่วนพิเศษ (EMS)",
-      "อื่นๆ",
-    ];
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -98,13 +107,15 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                   context,
                   new MaterialPageRoute(
                       builder: (context) => CreateShippingPage(
                             shop: widget.shop!,
                           )));
+              refreshPage();
+              setState(() {});
             },
             icon: const Icon(
               Icons.add,
@@ -132,51 +143,122 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
             const SizedBox(
               height: 80,
             ),
-            Container(
-              width: 440,
-              height: 510,
-              child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: shippingList.length,
-                  itemBuilder: (context, index) {
-                    final shipping = shippingList[index];
-                    return // Choose Customer Button
-                        Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            primary: const Color.fromRGBO(56, 54, 76, 1.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15))),
-                        onPressed: () {
-                          if (shipping == 'อื่นๆ') {
-                            dialog(controller);
-                          } else {
-                            Navigator.of(context).pop();
-                            widget.update(shipping);
-                          }
-                        },
-                        child: Row(children: [
-                          Padding(
-                            padding: const EdgeInsets.all(25.0),
-                            child: Text(shipping,
-                                style: TextStyle(
-                                    fontSize: 15, color: Colors.white)),
-                          ),
-                          const Spacer(),
-                          // IconButton(
-                          //   onPressed: () {},
-                          //   icon: Icon(
-                          //     Icons.delete,
-                          //     color: Colors.white,
-                          //   ),
-                          // )
-                        ]),
+            companys.isEmpty
+                ? Expanded(
+                    child: Container(
+                      child: Center(
+                        child: Text(
+                          'ไม่มีการจัดส่ง',
+                          style: TextStyle(color: Colors.grey, fontSize: 25),
+                        ),
                       ),
-                    );
-                    // Choose Customer Button;
-                  }),
-            ),
+                    ),
+                  )
+                : Container(
+                    width: 440,
+                    height: 510,
+                    child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: companys.length,
+                        itemBuilder: (context, index) {
+                          final company = companys[index];
+                          List<DeliveryRateModel> rates = [];
+                          return // Choose Customer Button
+                              Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Dismissible(
+                              key: UniqueKey(),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) async {
+                                rates = await DatabaseManager.instance
+                                    .readDeliveryRatesWHEREdcId(company.dcId!);
+                                for (var rate in rates) {
+                                  await DatabaseManager.instance
+                                      .deleteDeliveryRate(rate.rId!);
+                                }
+                                await DatabaseManager.instance
+                                    .deleteDeliveryCompany(company.dcId!);
+
+                                refreshPage();
+                                setState(() {});
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  behavior: SnackBarBehavior.floating,
+                                  backgroundColor: Colors.redAccent,
+                                  content: Text("ลบ ${company.dcName}"),
+                                  duration: Duration(seconds: 1),
+                                ));
+                              },
+                              background: Container(
+                                margin: EdgeInsets.only(
+                                    left: 0, top: 10, right: 10, bottom: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.redAccent,
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.delete_forever,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    primary:
+                                        const Color.fromRGBO(56, 54, 76, 1.0),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15))),
+                                onPressed: () {
+                                  //  if (shipping == 'อื่นๆ') {
+                                  //   dialog(controller);
+                                  // } else {
+                                  //   Navigator.of(context).pop();
+                                  //   widget.update(shipping);
+                                  // }
+                                  Navigator.of(context).pop();
+                                  widget.update(company);
+                                  refreshPage();
+                                },
+                                child: Row(children: [
+                                  Icon(Icons.local_shipping_rounded),
+                                  Padding(
+                                    padding: const EdgeInsets.all(25.0),
+                                    child: Text(company.dcName,
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.white)),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: () async {
+                                      await Navigator.push(
+                                          context,
+                                          new MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditShippingPage(
+                                                    shop: widget.shop!,
+                                                    company: company,
+                                                  )));
+                                      refreshPage();
+                                    },
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ]),
+                              ),
+                            ),
+                          );
+                          // Choose Customer Button;
+                        }),
+                  ),
           ]),
         ),
       ),

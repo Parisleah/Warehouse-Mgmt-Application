@@ -73,7 +73,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
             end: Alignment.bottomCenter,
           )),
           child: Column(children: [
-            SizedBox(height: 80),
+            const SizedBox(height: 90),
             // Text & Container Text Field of ชื่อ - นามสกุล
             Padding(
               padding: const EdgeInsets.all(5.0),
@@ -122,6 +122,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                             icon: const Icon(
                               Icons.close_sharp,
                               color: Colors.white,
+                              size: 20,
                             ),
                           ),
                   )),
@@ -185,6 +186,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                               icon: const Icon(
                                 Icons.close_sharp,
                                 color: Colors.white,
+                                size: 20,
                               ),
                             ),
                     )),
@@ -246,6 +248,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                             icon: const Icon(
                               Icons.close_sharp,
                               color: Colors.white,
+                              size: 20,
                             ),
                           ),
                   )),

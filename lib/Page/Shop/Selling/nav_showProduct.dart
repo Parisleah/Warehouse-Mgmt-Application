@@ -1052,7 +1052,11 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                                     '') {
                                                               if (double.parse(amountControllers[
                                                                               index]
-                                                                          .text)
+                                                                          .text
+                                                                          .replaceAll(
+                                                                              RegExp(
+                                                                                  '[^0-9]'),
+                                                                              ''))
                                                                       .toInt() >
                                                                   getLastestLot
                                                                       .remainAmount) {
@@ -1220,11 +1224,17 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                 amount:
                                                     double.parse(
                                                             amountControllers[i]
-                                                                .text)
+                                                                .text
+                                                        .replaceAll(
+                                                            RegExp('[^0-9]'),
+                                                            ''))
                                                         .toInt(),
                                                 total: double.parse(
                                                             amountControllers[i]
-                                                                .text)
+                                                                .text
+                                                            .replaceAll(
+                                                                RegExp('[^0-9]'),
+                                                                ''))
                                                         .toInt() *
                                                     ddModelSelectedItems[i]
                                                         .price);

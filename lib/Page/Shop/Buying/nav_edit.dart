@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
@@ -38,11 +39,12 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
   List<ProductLot> productLots = [];
   List<ProductModel> models = [];
   List<DealerModel> dealers = [];
+  List<DeliveryCompanyModel> companys = [];
 
   DateTime date = DateTime.now();
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
 
-  String _shipping = 'ระบุการจัดส่ง';
+  DeliveryCompanyModel _shipping = DeliveryCompanyModel(dcName: '-');
   late var shippingCost = widget.purchasing.shippingCost;
   late var totalPrice = widget.purchasing.total;
   late var noShippingPrice = widget.purchasing.total - shippingCost;
@@ -63,6 +65,13 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
     productLots = await DatabaseManager.instance.readAllProductLots();
     models = await DatabaseManager.instance.readAllProductModels();
     dealers = await DatabaseManager.instance.readAllDealers();
+    companys = await DatabaseManager.instance
+        .readDeliveryCompanys(widget.shop.shopid!);
+    for (var company in companys) {
+      if (company.dcId == widget.purchasing.deliveryCompanyId) {
+        _shipping = company;
+      }
+    }
 
     setState(() {});
   }
@@ -107,7 +116,9 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                       for (var lot in productLots) {
                         if (item.purId == lot.purId) {
                           final updatedLot = lot.copy(
-                              remainAmount: lot.remainAmount - item.amount);
+                              remainAmount: lot.remainAmount - item.amount < 0
+                                  ? 0
+                                  : lot.remainAmount - item.amount);
                           await DatabaseManager.instance
                               .updateProductLot(updatedLot);
                         }
@@ -196,7 +207,11 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                       if (item.purId == lot.purId) {
                                         final updatedLot = lot.copy(
                                             remainAmount:
-                                                lot.remainAmount - item.amount);
+                                                lot.remainAmount - item.amount <
+                                                        0
+                                                    ? 0
+                                                    : lot.remainAmount -
+                                                        item.amount);
                                         await DatabaseManager.instance
                                             .updateProductLot(updatedLot);
                                       }
@@ -205,7 +220,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                         .deletePurchasingItem(item.purItemsId!);
                                   }
                                 } else {
-                                  print('else Purchjasing');
+                                  print('else Purchasing');
                                   for (var item in purchasingItems) {
                                     await DatabaseManager.instance
                                         .deletePurchasingItem(item.purItemsId!);
@@ -569,7 +584,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
-                  Text(widget.purchasing.shippingMedthod!,
+                  Text('${_shipping.dcName}',
                       style: TextStyle(fontSize: 15, color: Colors.grey)),
                 ]),
               ),
