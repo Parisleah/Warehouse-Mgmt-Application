@@ -227,6 +227,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   double.parse(rate.weightRange.split('-')[1]).toInt()) {
             shippingCost = rate.cost;
             print('Shipping : ${shippingCost}');
+          } else if (rate.weightRange == 'only-one') {
+            shippingCost = rate.cost;
           }
         }
         if (shippingCost == 0) {
@@ -920,8 +922,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
               ),
               // Container of การจัดส่ง
               GestureDetector(
-                onTap: (() {
-                  Navigator.push(
+                onTap: (() async {
+                  await Navigator.push(
                       context,
                       new MaterialPageRoute(
                           builder: (context) => ChooseShippingNav(
@@ -1149,7 +1151,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: const Text("ราคารวม",
+                    child: const Text("ราคาสินค้า + ภาษี (7%)",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),
@@ -1393,7 +1395,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                          '${NumberFormat("#,###,###,###.##").format(showtotalPrice)}',
+                          '${NumberFormat("#,###,###,###.##").format(showtotalPrice + shippingCost)}',
                           textAlign: TextAlign.left,
                           style: const TextStyle(
                               fontSize: 15, color: Colors.grey)),
@@ -1627,7 +1629,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                               content: Row(
                                 children: [
                                   Text(
-                                      "ทำรายการเสร็จสิ้น ยอด${NumberFormat("#,###,###.##").format(createSelling.total)}"),
+                                      "ทำรายการเสร็จสิ้น ยอด ${NumberFormat("#,###,###.##").format(createSelling.total)}"),
                                   Text(
                                     " ${df.format(date)}",
                                     style: TextStyle(color: Colors.grey),

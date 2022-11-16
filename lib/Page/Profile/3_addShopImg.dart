@@ -8,6 +8,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:warehouse_mnmt/Page/Component/Dialog/CustomDialog.dart';
 import 'package:warehouse_mnmt/Page/Model/Profile.dart';
+import 'package:warehouse_mnmt/Page/Profile/4_addDeliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Profile/AllShop.dart';
 
 import '../../../main.dart';
@@ -43,29 +44,6 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
     profilePhoneController.addListener(() => setState(() {}));
   }
 
-  _addNewShop() {
-    print("สร้าง ${widget.shopName} Successfully!!");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Theme.of(context).backgroundColor,
-        content: Text("สร้าง ${widget.shopName} เสร็จสิ้น! "),
-        duration: Duration(seconds: 1),
-      ),
-    );
-
-    int count = 0;
-    Navigator.of(
-      context,
-    ).popUntil((_) => count++ >= 4);
-  }
-
-  Future addShop(Shop shop) async {
-    print(
-        "Add New Shop -> ID [${shop.shopid}, ${shop.name}, ${shop.phone}], Where ${shop.profileId} ${widget.profile.name}");
-    await DatabaseManager.instance.createShop(shop);
-  }
-
   Future getImage() async {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) return;
@@ -79,114 +57,19 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
     return imageTemporary;
   }
 
-  showAlert(Shop shop) async {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)), //this right here
-            child: SizedBox(
-              width: 300,
-              height: 360,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.done,
-                            color: Colors.greenAccent,
-                            size: 50,
-                          ),
-                          Text(
-                            'สร้างโปรไฟล์เสร็จแล้ว',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 25,
-                              // fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.file(
-                        _image!,
-                        width: 180,
-                        height: 180,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(shop.name,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                )),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(shop.phone,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                )),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(80, 40)),
-                        onPressed: () {
-                          addShop(shop);
-                          _addNewShop();
-
-                          // addShop();
-                        },
-                        child: Text('ยืนยัน'))
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(
+          '3/4',
+          style: TextStyle(fontSize: 15, color: Colors.grey),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -206,7 +89,7 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: const Text(
-                  "รูปร้านค้า",
+                  "เลือกรูปร้านค้า",
                   style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
@@ -356,7 +239,13 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                           profileId: widget.profile.id == null
                               ? 1
                               : widget.profile.id!);
-                      showAlert(shop);
+                      Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                              builder: (context) => AddShopDeliveryCompanyPage(
+                                    profile: widget.profile,
+                                    shop: shop,
+                                  )));
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -368,7 +257,7 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                       );
                     }
                   },
-                  child: Text('ยืนยัน'))
+                  child: Text('ถัดไป'))
             ]),
           ),
         ),

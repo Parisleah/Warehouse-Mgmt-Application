@@ -65,13 +65,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
     productLots = await DatabaseManager.instance.readAllProductLots();
     models = await DatabaseManager.instance.readAllProductModels();
     dealers = await DatabaseManager.instance.readAllDealers();
-    companys = await DatabaseManager.instance
-        .readDeliveryCompanys(widget.shop.shopid!);
-    for (var company in companys) {
-      if (company.dcId == widget.purchasing.deliveryCompanyId) {
-        _shipping = company;
-      }
-    }
 
     setState(() {});
   }
@@ -564,7 +557,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "การจัดส่ง",
+                    "ค่าจัดส่ง",
                     style: TextStyle(fontSize: 25, color: Colors.white),
                   ),
                 ],
@@ -572,26 +565,26 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
               // Container of รายการสินค้า
 
               // Container of การจัดส่ง
-              Container(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                width: 400,
-                height: 30,
-                child: Row(children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: const Text("วิธีจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                  ),
-                  Spacer(),
-                  Text('${_shipping.dcName}',
-                      style: TextStyle(fontSize: 15, color: Colors.grey)),
-                ]),
-              ),
-              // Container of การจัดส่ง
-              const SizedBox(
-                height: 10,
-              ),
+              // Container(
+              //   decoration:
+              //       BoxDecoration(borderRadius: BorderRadius.circular(15)),
+              //   width: 400,
+              //   height: 30,
+              //   child: Row(children: [
+              //     Padding(
+              //       padding: const EdgeInsets.only(left: 20),
+              //       child: const Text("วิธีจัดส่ง",
+              //           style: TextStyle(fontSize: 15, color: Colors.white)),
+              //     ),
+              //     Spacer(),
+              //     Text('${_shipping.dcName}',
+              //         style: TextStyle(fontSize: 15, color: Colors.grey)),
+              //   ]),
+              // ),
+              // // Container of การจัดส่ง
+              // const SizedBox(
+              //   height: 10,
+              // ),
               // Container of ค่าจัดส่ง
               Container(
                 decoration:

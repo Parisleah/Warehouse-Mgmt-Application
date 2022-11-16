@@ -152,8 +152,13 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
     );
   }
 
-  _calculate(oldTotal, oldAmount, oldShippingPrice, oldNoShippingPrice,
-      oldTotalWeight, _newshipping) async {
+  _calculate(
+    oldTotal,
+    oldAmount,
+    oldShippingPrice,
+    oldNoShippingPrice,
+    oldTotalWeight,
+  ) async {
     oldTotal = 0;
     oldAmount = 0;
     oldNoShippingPrice = 0;
@@ -169,35 +174,35 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
       }
     }
 
-    List<DeliveryRateModel> deliveryRates = [];
-    print('Delivery Rates (${deliveryRates.length})');
+    // List<DeliveryRateModel> deliveryRates = [];
+    // print('Delivery Rates (${deliveryRates.length})');
 
-    if (carts.isNotEmpty) {
-      if (_shipping.dcName != 'ระบุการจัดส่ง') {
-        deliveryRates = await DatabaseManager.instance
-            .readDeliveryRatesWHEREdcId(_newshipping.dcId!);
-        for (var rate in deliveryRates) {
-          if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
-                  totalWeight.toInt() &&
-              oldTotalWeight.toInt() <=
-                  double.parse(rate.weightRange.split('-')[1]).toInt()) {
-            shippingCost = rate.cost;
-          }
-        }
-        if (shippingCost == 0) {
-          dialogAlertWeightNotInRange(_shipping);
-        }
-      } else {
-        shippingCost = 0;
-      }
-    } else {
-      shippingCost = 0;
-    }
+    // if (carts.isNotEmpty) {
+    //   if (_shipping.dcName != 'ระบุการจัดส่ง') {
+    //     deliveryRates = await DatabaseManager.instance
+    //         .readDeliveryRatesWHEREdcId(_newshipping.dcId!);
+    //     for (var rate in deliveryRates) {
+    //       if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
+    //               totalWeight.toInt() &&
+    //           oldTotalWeight.toInt() <=
+    //               double.parse(rate.weightRange.split('-')[1]).toInt()) {
+    //         shippingCost = rate.cost;
+    //       }
+    //     }
+    //     if (shippingCost == 0) {
+    //       dialogAlertWeightNotInRange(_shipping);
+    //     }
+    //   } else {
+    //     shippingCost = 0;
+    //   }
+    // } else {
+    //   shippingCost = 0;
+    // }
 
     totalPrice = oldTotal + oldShippingPrice;
     amount = oldAmount;
     totalWeight = oldTotalWeight;
-    // shippingCost = oldShippingPrice;
+    shippingCost = oldShippingPrice;
     noShippingPrice = oldTotal;
 
     setState(() {});
@@ -398,7 +403,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                       update: _addProductInCart,
                                     )));
                         _calculate(totalPrice, amount, shippingCost,
-                            noShippingPrice, totalWeight, _shipping);
+                            noShippingPrice, totalWeight);
                         setState(() {});
                       },
                       child: Row(
@@ -513,12 +518,12 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                               carts.remove(purchasing);
                                               setState(() {});
                                               _calculate(
-                                                  totalPrice,
-                                                  amount,
-                                                  shippingCost,
-                                                  noShippingPrice,
-                                                  totalWeight,
-                                                  _shipping);
+                                                totalPrice,
+                                                amount,
+                                                shippingCost,
+                                                noShippingPrice,
+                                                totalWeight,
+                                              );
                                             },
                                             background: Container(
                                               margin: EdgeInsets.only(
@@ -757,147 +762,152 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "การจัดส่ง",
+                    "ค่าจัดส่ง",
                     style: TextStyle(fontSize: 25, color: Colors.white),
                   ),
                 ],
               ),
               // Container of รายการสินค้า
-              const SizedBox(
-                height: 10,
-              ),
+              // const SizedBox(
+              //   height: 10,
+              // ),
               // Container of การจัดส่ง
-              Container(
-                decoration: BoxDecoration(
-                    color: const Color.fromRGBO(56, 48, 77, 1.0),
-                    borderRadius: BorderRadius.circular(15)),
-                width: 400,
-                height: 70,
-                child: Row(children: [
-                  const Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: const Text("การจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                  ),
-                  const Spacer(),
-                  Text(_shipping.dcName,
-                      style: TextStyle(fontSize: 15, color: Colors.grey)),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.white),
-                    onPressed: () async {
-                      await Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) => ChooseShippingNav(
-                                    shop: widget.shop,
-                                    update: _updateShipping,
-                                  )));
-
-                      _calculate(totalPrice, amount, shippingCost,
-                          noShippingPrice, totalWeight, _shipping);
-
-                      setState(() {});
-                    },
-                  ),
-                ]),
-              ),
-              // Container of การจัดส่ง
-              const SizedBox(
-                height: 10,
-              ),
-              // Container of ค่าจัดส่ง
               // Container(
-              //   padding: const EdgeInsets.all(5),
               //   decoration: BoxDecoration(
               //       color: const Color.fromRGBO(56, 48, 77, 1.0),
               //       borderRadius: BorderRadius.circular(15)),
               //   width: 400,
               //   height: 70,
-              //   child: TextField(
-              //       inputFormatters: [
-              //         LengthLimitingTextInputFormatter(7),
-              //       ],
-              //       onChanged: (text) {
-              //         if (shipPricController.text != null &&
-              //             shipPricController.text != '') {
-              //           _calculate(
-              //               totalPrice,
-              //               amount,
-              //               double.parse(
-              //                 shipPricController.text == null &&
-              //                         shipPricController.text == ''
-              //                     ? '0'
-              //                     : shipPricController.text
-              //                         .replaceAll(RegExp('[^0-9]'), ''),
-              //               ).toInt(),
-              //               noShippingPrice,
-              //               totalWeight);
-              //         }
+              //   child: Row(children: [
+              //     const Padding(
+              //       padding: const EdgeInsets.all(20.0),
+              //       child: const Text("การจัดส่ง",
+              //           style: TextStyle(fontSize: 15, color: Colors.white)),
+              //     ),
+              //     const Spacer(),
+              //     Text(_shipping.dcName,
+              //         style: TextStyle(fontSize: 15, color: Colors.grey)),
+              //     IconButton(
+              //       icon: const Icon(Icons.arrow_forward_ios,
+              //           color: Colors.white),
+              //       onPressed: () async {
+              //         await Navigator.push(
+              //             context,
+              //             new MaterialPageRoute(
+              //                 builder: (context) => ChooseShippingNav(
+              //                       shop: widget.shop,
+              //                       update: _updateShipping,
+              //                     )));
+
+              //         _calculate(totalPrice, amount, shippingCost,
+              //             noShippingPrice, totalWeight);
+
+              //         setState(() {});
               //       },
-              //       textAlign: TextAlign.end,
-              //       // inputFormatters: [DecimalFormatter()],
-              //       keyboardType: TextInputType.number,
-              //       //-----------------------------------------------------
-              //       style: const TextStyle(color: Colors.grey),
-              //       controller: shipPricController,
-              //       decoration: InputDecoration(
-              //         filled: true,
-              //         fillColor: Colors.transparent,
-              //         border: const OutlineInputBorder(
-              //             borderRadius: BorderRadius.all(Radius.circular(10)),
-              //             borderSide: BorderSide.none),
-              //         hintText: "ใส่ค่าจัดส่ง",
-              //         hintStyle:
-              //             const TextStyle(color: Colors.grey, fontSize: 14),
-              //         prefixIcon:
-              //             const Icon(Icons.local_shipping, color: Colors.white),
-              //         suffixIcon: !shipPricController.text.isEmpty
-              //             ? IconButton(
-              //                 onPressed: () {
-              //                   shipPricController.clear();
-              //                   shippingCost = 0;
-              //                   _calculate(totalPrice, amount, shippingCost,
-              //                       noShippingPrice, totalWeight);
-              //                   setState(() {});
-              //                 },
-              //                 icon: const Icon(
-              //                   Icons.close_sharp,
-              //                   color: Colors.white,
-              //                 ),
-              //               )
-              //             : null,
-              //       )),
+              //     ),
+              //   ]),
               // ),
+              // Container of การจัดส่ง
+              const SizedBox(
+                height: 10,
+              ),
+              // Container of ค่าจัดส่ง
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    color: const Color.fromRGBO(56, 48, 77, 1.0),
+                    borderRadius: BorderRadius.circular(15)),
+                width: 400,
+                height: 70,
+                child: TextField(
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(7),
+                    ],
+                    onChanged: (text) {
+                      if (shipPricController.text != null &&
+                          shipPricController.text != '') {
+                        _calculate(
+                            totalPrice,
+                            amount,
+                            double.parse(
+                              shipPricController.text == null &&
+                                      shipPricController.text == ''
+                                  ? '0'
+                                  : shipPricController.text
+                                      .replaceAll(RegExp('[^0-9]'), ''),
+                            ).toInt(),
+                            noShippingPrice,
+                            totalWeight);
+                      }
+                    },
+                    textAlign: TextAlign.end,
+                    // inputFormatters: [DecimalFormatter()],
+                    keyboardType: TextInputType.number,
+                    //-----------------------------------------------------
+                    style: const TextStyle(color: Colors.grey),
+                    controller: shipPricController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none),
+                      hintText: "ใส่ค่าจัดส่ง",
+                      hintStyle:
+                          const TextStyle(color: Colors.grey, fontSize: 14),
+                      prefixIcon:
+                          const Icon(Icons.local_shipping, color: Colors.white),
+                      suffixIcon: !shipPricController.text.isEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                shipPricController.clear();
+                                shippingCost = 0;
+                                _calculate(
+                                  totalPrice,
+                                  amount,
+                                  shippingCost,
+                                  noShippingPrice,
+                                  totalWeight,
+                                );
+                                setState(() {});
+                              },
+                              icon: const Icon(
+                                Icons.close_sharp,
+                                color: Colors.white,
+                              ),
+                            )
+                          : null,
+                    )),
+              ),
               // Container of ค่าจัดส่ง
               // const SizedBox(
               //   height: 10,
               // ),
 
               // Container of ค่าจัดส่ง self-gen
-              Container(
-                decoration: BoxDecoration(
-                    color: const Color.fromRGBO(56, 48, 77, 1.0),
-                    borderRadius: BorderRadius.circular(15)),
-                width: 400,
-                height: 70,
-                child: Row(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: const Text("ค่าจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                  ),
-                  Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                        '${NumberFormat("#,###,###,###").format(shippingCost)}',
-                        textAlign: TextAlign.left,
-                        style:
-                            const TextStyle(fontSize: 15, color: Colors.grey)),
-                  ),
-                ]),
-              ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //       color: const Color.fromRGBO(56, 48, 77, 1.0),
+              //       borderRadius: BorderRadius.circular(15)),
+              //   width: 400,
+              //   height: 70,
+              //   child: Row(children: [
+              //     Padding(
+              //       padding: const EdgeInsets.all(20.0),
+              //       child: const Text("ค่าจัดส่ง",
+              //           style: TextStyle(fontSize: 15, color: Colors.white)),
+              //     ),
+              //     Spacer(),
+              //     Padding(
+              //       padding: const EdgeInsets.all(20.0),
+              //       child: Text(
+              //           '${NumberFormat("#,###,###,###").format(shippingCost)}',
+              //           textAlign: TextAlign.left,
+              //           style:
+              //               const TextStyle(fontSize: 15, color: Colors.grey)),
+              //     ),
+              //   ]),
+              // ),
               // Container of ค่าจัดส่ง self-gen
 
               const SizedBox(
@@ -1087,7 +1097,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                 orderedDate: date,
                                 dealerId: _dealer.dealerId!,
                                 shippingCost: shippingCost,
-                                deliveryCompanyId: _shipping.dcId!,
+                               
                                 amount: amount,
                                 total: totalPrice,
                                 isReceive: isReceived,

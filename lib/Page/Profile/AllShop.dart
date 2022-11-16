@@ -184,39 +184,43 @@ class _AllShopPageState extends State<AllShopPage> {
         });
   }
 
-  Future<bool> _onWillPop() async {
-    return (await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)),
-            title: new Text('คุณแน่ใจ ?'),
-            content: new Text('ต้องการออกจากแอปพลิเคชัน'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(false), //<-- SEE HERE
-                child: Text(
-                  'ไม่',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(true), // <-- SEE HERE
-                child: Text('ออก', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-        )) ??
-        false;
-  }
+  // Future<bool> _onWillPop() async {
+  //   return (await showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+  //           shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(30.0)),
+  //           title: new Text('คุณแน่ใจ ?'),
+  //           content: new Text('ต้องการออกจากแอปพลิเคชัน'),
+  //           actions: <Widget>[
+  //             TextButton(
+  //               onPressed: () =>
+  //                   Navigator.of(context).pop(false), //<-- SEE HERE
+  //               child: Text(
+  //                 'ไม่',
+  //                 style: TextStyle(color: Colors.white),
+  //               ),
+  //             ),
+  //             ElevatedButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(true);
+  //               }, // <-- SEE HERE
+  //               child: Text('ออก', style: TextStyle(color: Colors.white)),
+  //             ),
+  //           ],
+  //         ),
+  //       )) ??
+  //       false;
+  // }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onWillPop,
+      onWillPop: () async {
+        Navigator.of(context).pop(false);
+        return false;
+      },
       child: Scaffold(
         body: SingleChildScrollView(
           child: Container(

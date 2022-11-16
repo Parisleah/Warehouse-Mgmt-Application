@@ -622,17 +622,19 @@ class _CreateShippingPageState extends State<CreateShippingPage> {
                                   Expanded(
                                     child: ElevatedButton(
                                         onPressed: () {
-                                          var cost = 50;
+                                          var cost = 32;
                                           final rate = DeliveryRateModel(
                                               weightRange: deliveryRates.isEmpty
-                                                  ? '0.0-500.0'
-                                                  : '${double.parse(endControllers.last.text)}-${double.parse(endControllers.last.text) * 2}',
+                                                  ? '0.0-50.0'
+                                                  : '${double.parse(endControllers.last.text)}-${double.parse(endControllers.last.text)}',
                                               cost: costControllers.isEmpty
                                                   ? cost
                                                   : int.parse(costControllers
                                                           .last.text) +
-                                                      int.parse(costControllers
-                                                          .last.text));
+                                                      (int.parse(costControllers
+                                                                  .last.text) /
+                                                              5)
+                                                          .toInt());
                                           TextEditingController
                                               startController =
                                               TextEditingController(

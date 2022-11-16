@@ -30,7 +30,7 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main53.db');
+    _database = await _initDB('main54.db');
     return _database!;
   }
 
@@ -143,7 +143,7 @@ class DatabaseManager {
   ${PurchasingFields.purId} $idType,
   ${PurchasingFields.orderedDate} $textType,
   ${PurchasingFields.dealerId} $integerType,
-  ${PurchasingFields.deliveryCompanyId} $integerType,
+
   ${PurchasingFields.shippingCost} $integerType,
   ${PurchasingFields.amount} $integerType,
   ${PurchasingFields.total} $integerType,

@@ -82,7 +82,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     companys = await DatabaseManager.instance
         .readDeliveryCompanys(widget.shop.shopid!);
     for (var item in sellingItems) {
-      showtotalPrice += item.total;
       noShippingPrice += item.total;
       for (var model in models) {
         if (item.prodModelId == model.prodModelId) {
@@ -802,7 +801,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: const Text("ราคารวม",
+                    child: const Text("ราคาสินค้า + ภาษี (7%)",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
                   Spacer(),

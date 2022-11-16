@@ -210,6 +210,17 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                   ),
                 ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'ลืมรหัส ?',
+                        style: TextStyle(color: Colors.redAccent),
+                      )),
+                ],
               )
             ],
           ),
@@ -233,25 +244,61 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   var invalidCount = 0;
+  Future _forgotPinWarningDialog() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: new Text('คุณลืมรหัส ?'),
+            content: new Text('หากผิดเกิน 5 ครั้งระบบจะระงับการใช้งาน 5 นาที'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(false), //<-- SEE HERE
+                child: Text(
+                  'ไม่',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                }, // <-- SEE HERE
+                child: Text('ออก', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
 
-  validationProfilePin(pin) {
+  validationProfilePin(pin) async {
     if (invalidCount <= 5) {
       if (pin == widget.profile.pin) {
-        Navigator.push(
+        await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => AllShopPage(
                       profile: widget.profile,
                     )));
+        Navigator.of(context).pop(true);
+      } else if (invalidCount == 3) {
+        _forgotPinWarningDialog();
+        
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).backgroundColor,
-          content: Text("รหัสไม่ถูกต้อง"),
-          duration: Duration(seconds: 2),
-        ));
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   behavior: SnackBarBehavior.floating,
+        //   backgroundColor: Theme.of(context).backgroundColor,
+        //   content: Text("รหัสไม่ถูกต้อง"),
+        //   duration: Duration(seconds: 2),
+        // ));
+        for (var i = 0; i < 6; i++) {
+          clearPin();
+        }
         print(invalidCount);
-        setPin(pinIndex, '');
+
         invalidCount++;
       }
     } else {

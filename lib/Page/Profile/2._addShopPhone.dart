@@ -60,6 +60,16 @@ class _AddShopPhonePageState extends State<AddShopPhonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(
+          '2/4',
+          style: TextStyle(fontSize: 15, color: Colors.grey),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(

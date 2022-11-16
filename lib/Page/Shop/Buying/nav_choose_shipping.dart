@@ -21,7 +21,11 @@ class ChooseShippingNav extends StatefulWidget {
 }
 
 class _ChooseShippingNavState extends State<ChooseShippingNav> {
-  List<DeliveryCompanyModel> companys = [];
+  List<DeliveryCompanyModel> companys = [
+    DeliveryCompanyModel(
+      dcName: 'รับสินค้าเอง',
+    )
+  ];
   @override
   void initState() {
     super.initState();

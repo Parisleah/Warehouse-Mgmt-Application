@@ -293,9 +293,18 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                 borderRadius: BorderRadius.circular(30.0)),
             title: Row(
               children: [
-                Text(
-                  'กำหนดน้ำหนักทั้งหมด',
-                  style: TextStyle(color: Colors.white),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'กำหนดน้ำหนักทั้งหมด',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      '(ไม่ต้องเลือกหากตั้งการกำหนดทั้งหมด)',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ],
                 ),
                 Spacer(),
                 IconButton(
