@@ -33,11 +33,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
             child: Column(mainAxisAlignment: MainAxisAlignment.center,
                 // ignore: prefer_const_literals_to_create_immutables
                 children: [
-                  Icon(
-                    Icons.warehouse,
-                    size: 90,
-                    color: Colors.white,
-                  ),
+                  Container(
+                      width: 150,
+                      height: 150,
+                      child: Image.asset('assets/Icons/Warehouse.png')),
+
                   // เริ่มสร้างร้านค้าของคุณ text
                   Text('เริ่มสร้างร้านค้าของคุณ',
                       style: TextStyle(

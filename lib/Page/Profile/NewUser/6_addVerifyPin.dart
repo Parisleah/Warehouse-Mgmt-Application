@@ -88,6 +88,7 @@ class _OtpScreenState extends State<OtpScreen> {
   );
 
   int pinIndex = 0;
+  bool isWrong = false;
 
   @override
   Widget build(BuildContext context) {
@@ -266,13 +267,18 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   Future addProfile(pin) async {
-    
     final profile = Profile(
         name: widget.profileName,
         phone: widget.profilePhone,
         image: widget.profileImg,
+        loginDateTime: null,
+        isDisable: false,
         pin: pin);
     await DatabaseManager.instance.createProfile(profile);
+    int count = 0;
+    Navigator.of(
+      context,
+    ).popUntil((_) => count++ >= 6);
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -285,15 +291,12 @@ class _OtpScreenState extends State<OtpScreen> {
     if (oldPin == veriPin) {
       addProfile(veriPin);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.redAccent,
-          content: Text("รหัสไม่ตรงกัน"),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      for (var i = 0; i < 6; i++) {
+        clearPin();
+      }
+      isWrong = true;
       clearPin();
+      setState(() {});
     }
   }
 
@@ -355,14 +358,27 @@ class _OtpScreenState extends State<OtpScreen> {
   buildSecurityText() {
     // ignore: prefer_const_constructors
     return Container(
-      child: const Text(
-        "ยืนยัน PIN",
-        // ignore: prefer_const_constructors
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 21.0,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Column(
+        children: [
+          const Text(
+            "ยืนยัน PIN",
+            // ignore: prefer_const_constructors
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 21.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          isWrong
+              ? Text("รหัสไม่ตรงกัน",
+                  // ignore: prefer_const_constructors
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold,
+                  ))
+              : Container(),
+        ],
       ),
     );
   }

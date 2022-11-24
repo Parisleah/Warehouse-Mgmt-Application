@@ -21,7 +21,7 @@ import '../../Model/Selling_item.dart';
 
 class SellingNavShowProd extends StatefulWidget {
   final Product product;
-  final ProductCategory prodCategory;
+  final ProductCategory? prodCategory;
   final int? productTotalAmount;
   final ValueChanged<SellingItemModel> update;
 
@@ -29,7 +29,7 @@ class SellingNavShowProd extends StatefulWidget {
     Key? key,
     required this.update,
     required this.product,
-    required this.prodCategory,
+    this.prodCategory,
     this.productTotalAmount,
   }) : super(key: key);
 
@@ -281,7 +281,9 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Text(
-                          widget.prodCategory.prodCategName,
+                          widget.prodCategory?.prodCategName == null
+                              ? 'ไม่มีหมวดหมู่สินค้า'
+                              : widget.prodCategory!.prodCategName,
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.normal,
@@ -820,10 +822,13 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                   }
                                 }
                                 var amount = 0;
-                                amount = int.parse(
-                                    amountControllers[index].text.isEmpty
-                                        ? '0'
-                                        : amountControllers[index].text);
+                                if (amountControllers[index].text != '-' &&
+                                    amountControllers[index].text.isNotEmpty) {
+                                  amount = int.parse(
+                                      amountControllers[index].text.isEmpty
+                                          ? '0'
+                                          : amountControllers[index].text);
+                                }
 
                                 var subTotal = selectedModel.price * amount;
 
@@ -905,6 +910,44 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                         ),
                                                       ),
                                                       Positioned(
+                                                        bottom: 0.0,
+                                                        right: 0.0,
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.7),
+                                                                  spreadRadius:
+                                                                      0,
+                                                                  blurRadius: 5,
+                                                                  offset:
+                                                                      Offset(
+                                                                          0, 4))
+                                                            ],
+                                                            color: Colors
+                                                                .redAccent,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30),
+                                                          ),
+                                                          child: Text(
+                                                            '${NumberFormat("#,###.##").format(amount)} ชิ้น',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Positioned(
                                                         top: 0.0,
                                                         right: 0.0,
                                                         child: Container(
@@ -955,21 +998,20 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                   children: [
                                                     Row(
                                                       children: [
-                                                        Text(
-                                                          '${selectedModel.stProperty} ${selectedModel.ndProperty} ',
-                                                          style: TextStyle(
-                                                              fontSize: 15,
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        Text(
-                                                          'x ${NumberFormat("#,###.##").format(amount)} ชิ้น',
-                                                          style: TextStyle(
-                                                            fontSize: 15,
-                                                            color: Colors.white,
+                                                        Container(
+                                                          width: 150,
+                                                          child: Text(
+                                                            '${selectedModel.stProperty} ${selectedModel.ndProperty} ',
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: TextStyle(
+                                                                fontSize: 15,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
                                                           ),
                                                         ),
                                                       ],
@@ -1011,14 +1053,14 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                                         .start,
                                                                 children: [
                                                                   Text(
-                                                                      'ล็อตที่ ${NumberFormat("#,###.##").format(getLastestLot.prodLotId)} (คงเหลือ ${NumberFormat("#,###.##").format(getLastestLot.remainAmount)})',
+                                                                      'ล็อตที่ (วันที่ ${df.format(getLastestLot.orderedTime!)})',
                                                                       style: const TextStyle(
                                                                           color: Colors
                                                                               .white,
                                                                           fontSize:
                                                                               12)),
                                                                   Text(
-                                                                      '(วันที่ ${df.format(getLastestLot.orderedTime!)})',
+                                                                      '(คงเหลือ ${NumberFormat("#,###.##").format(getLastestLot.remainAmount)})',
                                                                       style: TextStyle(
                                                                           color: Theme.of(context)
                                                                               .backgroundColor,
@@ -1043,13 +1085,21 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                           },
                                                           onChanged: ((value) {
                                                             if (amountControllers[
+                                                                        index]
+                                                                    .text
+                                                                    .isNotEmpty &&
+                                                                amountControllers[
                                                                             index]
                                                                         .text !=
                                                                     null &&
                                                                 amountControllers[
                                                                             index]
                                                                         .text !=
-                                                                    '') {
+                                                                    '' &&
+                                                                amountControllers[
+                                                                            index]
+                                                                        .text !=
+                                                                    '-') {
                                                               if (double.parse(amountControllers[
                                                                               index]
                                                                           .text
@@ -1212,32 +1262,27 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                         oldTotalAmount += double.parse(
                                                 amountControllers[i].text)
                                             .toInt();
-                                        final createdSellingItem =
-                                            SellingItemModel(
-                                                prodId: widget.product.prodId,
-                                                prodModelId: ddModelSelectedItems[
-                                                        i]
-                                                    .prodModelId,
-                                                prodLotId:
-                                                    ddLotSelectedItems[i]
-                                                        .prodLotId!,
-                                                amount:
-                                                    double.parse(
-                                                            amountControllers[i]
-                                                                .text
+                                        final createdSellingItem = SellingItemModel(
+                                            prodId: widget.product.prodId,
+                                            prodModelId: ddModelSelectedItems[i]
+                                                .prodModelId,
+                                            prodLotId: ddLotSelectedItems[i]
+                                                .prodLotId!,
+                                            amount: double.parse(
+                                                    amountControllers[i]
+                                                        .text
                                                         .replaceAll(
                                                             RegExp('[^0-9]'),
                                                             ''))
-                                                        .toInt(),
-                                                total: double.parse(
-                                                            amountControllers[i]
-                                                                .text
+                                                .toInt(),
+                                            total: double.parse(
+                                                        amountControllers[i]
+                                                            .text
                                                             .replaceAll(
                                                                 RegExp('[^0-9]'),
                                                                 ''))
-                                                        .toInt() *
-                                                    ddModelSelectedItems[i]
-                                                        .price);
+                                                    .toInt() *
+                                                ddModelSelectedItems[i].price);
                                         widget.update(createdSellingItem);
                                         final updateAmountSelectedProductLot =
                                             ddLotSelectedItems[i].copy(

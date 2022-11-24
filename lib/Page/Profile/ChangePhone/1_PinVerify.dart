@@ -79,6 +79,7 @@ class _OtpScreenState extends State<OtpScreen> {
   );
 
   int pinIndex = 0;
+  bool isWrong = false;
 
   @override
   Widget build(BuildContext context) {
@@ -241,26 +242,24 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
-  validation(Profile profile, strPin) {
+  validation(Profile profile, strPin) async {
     if (profile.pin == strPin) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: Colors.greenAccent,
-        content: Text("ถูกต้อง"),
-        duration: Duration(seconds: 3),
-      ));
-      Navigator.push(
+      await Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => ChangeNewPhonePage(
                     profile: widget.profile,
                   )));
+      for (var i = 0; i < 6; i++) {
+        clearPin();
+      }
+      setState(() {});
     } else {
-      clearPin();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: Colors.redAccent,
-        content: Text("รหัสไม่ถูกต้อง"),
-        duration: Duration(seconds: 3),
-      ));
+      for (var i = 0; i < 6; i++) {
+        clearPin();
+      }
+      setState(() {});
+      isWrong = true;
     }
   }
 
@@ -276,7 +275,6 @@ class _OtpScreenState extends State<OtpScreen> {
     });
     if (pinIndex == 6) {
       print(strPin);
-
       validation(widget.profile, strPin);
     }
   }
@@ -339,14 +337,27 @@ class _OtpScreenState extends State<OtpScreen> {
   buildSecurityText() {
     // ignore: prefer_const_constructors
     return Container(
-      child: const Text(
-        "ใส่ PIN",
-        // ignore: prefer_const_constructors
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 21.0,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Column(
+        children: [
+          const Text(
+            "ใส่ PIN",
+            // ignore: prefer_const_constructors
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 21.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          isWrong
+              ? Text("รหัสไม่ตรงกัน",
+                  // ignore: prefer_const_constructors
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold,
+                  ))
+              : Container(),
+        ],
       ),
     );
   }

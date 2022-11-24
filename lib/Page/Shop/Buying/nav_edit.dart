@@ -44,7 +44,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
   DateTime date = DateTime.now();
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
 
-  DeliveryCompanyModel _shipping = DeliveryCompanyModel(dcName: '-');
   late var shippingCost = widget.purchasing.shippingCost;
   late var totalPrice = widget.purchasing.total;
   late var noShippingPrice = widget.purchasing.total - shippingCost;
@@ -64,7 +63,8 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
         await DatabaseManager.instance.readAllProducts(widget.shop.shopid!);
     productLots = await DatabaseManager.instance.readAllProductLots();
     models = await DatabaseManager.instance.readAllProductModels();
-    dealers = await DatabaseManager.instance.readAllDealers();
+    dealers =
+        await DatabaseManager.instance.readAllDealers(widget.shop.shopid!);
 
     setState(() {});
   }
@@ -285,7 +285,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                   ),
                   Spacer(),
                   Text(
-                    '${df.format(widget.purchasing.orderedDate)}',
+                    '${DateFormat('H:m:s, y-MMM-d').format(widget.purchasing.orderedDate)}',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ]),
@@ -666,7 +666,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                   width: 0,
                                 )
                               : Text(
-                                  'สินค้า(${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                  'สินค้า(${NumberFormat("#,###,###,###.##").format(noShippingPrice + shippingCost)})',
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                       fontSize: 15, color: Colors.grey)),
@@ -686,7 +686,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Text(
-                            '${NumberFormat("#,###,###,###.##").format(totalPrice)}',
+                            '${NumberFormat("#,###,###,###.##").format(totalPrice + shippingCost)}',
                             textAlign: TextAlign.left,
                             style: const TextStyle(
                                 fontSize: 15, color: Colors.grey)),

@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:warehouse_mnmt/Page/Component/change_theme_btn.dart';
+import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
 
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
+import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit_deliveryCompany.dart';
 
 import 'package:warehouse_mnmt/main.dart';
 
@@ -31,11 +33,13 @@ class _ShopPageState extends State<ShopPage> {
   bool isChange = false;
   Shop? shop;
   ThemeMode themeMode = ThemeMode.dark;
+  DeliveryCompanyModel? company;
   bool get isDark => themeMode == ThemeMode.dark;
   @override
   void initState() {
     refreshShop();
     shop = widget.shop;
+
     super.initState();
     shopNameController.addListener(() => setState(() {}));
     shopPhoneController.addListener(() => setState(() {}));
@@ -56,6 +60,8 @@ class _ShopPageState extends State<ShopPage> {
 
   Future refreshShop() async {
     shop = await DatabaseManager.instance.readShop(widget.shop.shopid!);
+    company = await DatabaseManager.instance
+        .readDeliveryCompanysOnlyOne(widget.shop.dcId!);
     setState(() {});
   }
 
@@ -433,6 +439,8 @@ class _ShopPageState extends State<ShopPage> {
                                                       inputFormatters: [
                                                         LengthLimitingTextInputFormatter(
                                                             10),
+                                                        FilteringTextInputFormatter
+                                                            .digitsOnly
                                                       ],
                                                       controller:
                                                           shopPhoneController,
@@ -678,43 +686,6 @@ class _ShopPageState extends State<ShopPage> {
                                   ],
                                 ),
                               ),
-                              content: Container(
-                                height: 220,
-                                child: Column(
-                                  children: [
-                                    RadioListTile(
-                                      title: Text("สว่าง"),
-                                      value: "light",
-                                      groupValue: gender,
-                                      onChanged: (value) {
-                                        menuDialogSetState(() {
-                                          gender = value.toString();
-                                        });
-                                      },
-                                    ),
-                                    RadioListTile(
-                                      title: Text("มืด"),
-                                      value: "dark",
-                                      groupValue: gender,
-                                      onChanged: (value) {
-                                        menuDialogSetState(() {
-                                          gender = value.toString();
-                                        });
-                                      },
-                                    ),
-                                    // RadioListTile(
-                                    //   title: Text(""),
-                                    //   value: "other",
-                                    //   groupValue: gender,
-                                    //   onChanged: (value) {
-                                    //     menuDialogSetState(() {
-                                    //       gender = value.toString();
-                                    //     });
-                                    //   },
-                                    // )
-                                  ],
-                                ),
-                              ),
                             );
                           }),
                         ),
@@ -790,8 +761,8 @@ class _ShopPageState extends State<ShopPage> {
                           borderRadius: BorderRadius.circular(20),
                           child: Image.file(
                             File(shop!.image),
-                            width: 170,
-                            height: 170,
+                            width: (MediaQuery.of(context).size.width / 2),
+                            height: (MediaQuery.of(context).size.width / 2),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -878,6 +849,57 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                   const SizedBox(
                     height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      await Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                              builder: (context) => EditShippingPage(
+                                    shop: widget.shop!,
+                                    company: company!,
+                                  )));
+                      refreshShop();
+                    },
+                    child: Container(
+                      height: 80,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .background
+                              .withOpacity(1.0),
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(0.0),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.settings),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text('ตั้งค่าอัตราการขนส่ง',
+                                        style: TextStyle(color: Colors.white)),
+                                    Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Text(' ${company?.dcName}',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(color: Colors.grey)),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                  ]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

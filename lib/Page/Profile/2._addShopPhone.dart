@@ -133,6 +133,7 @@ class _AddShopPhonePageState extends State<AddShopPhonePage> {
                     // maxLength: length,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.digitsOnly
                     ],
                     controller: shopPhoneController,
                     //-----------------------------------------------------

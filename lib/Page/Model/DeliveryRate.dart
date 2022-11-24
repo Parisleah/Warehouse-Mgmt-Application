@@ -14,6 +14,8 @@ class DeliveryRateModel {
   final String weightRange;
   final int cost;
   final int? dcId;
+
+  
   DeliveryRateModel({
     this.rId,
     required this.weightRange,

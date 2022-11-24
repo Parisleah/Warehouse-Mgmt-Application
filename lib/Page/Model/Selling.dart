@@ -96,7 +96,7 @@ class SellingModel {
         orderedDate: DateTime.parse(json[SellingFields.orderedDate] as String),
         customerId: json[SellingFields.customerId] as int,
         cAddreId: json[SellingFields.cAddreId] as int,
-        deliveryCompanyId: json[SellingFields.deliveryCompanyId] as int,
+        deliveryCompanyId: json[SellingFields.deliveryCompanyId] as int?,
         shippingCost: json[SellingFields.shippingCost] as int,
         amount: json[SellingFields.amount] as int,
         discountPercent: json[SellingFields.discountPercent] as int,

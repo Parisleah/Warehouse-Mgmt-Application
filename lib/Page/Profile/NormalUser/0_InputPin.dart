@@ -6,6 +6,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:warehouse_mnmt/Page/Model/Profile.dart';
 import 'package:warehouse_mnmt/Page/Profile/AllShop.dart';
 import 'package:warehouse_mnmt/Page/Profile/NormalUser/DisableWrongPin.dart';
+import 'package:warehouse_mnmt/Page/Profile/NormalUser/ForgetPassword/1_PhoneVerify.dart';
+import 'package:warehouse_mnmt/db/database.dart';
 
 class InputPinPage extends StatefulWidget {
   Profile profile;
@@ -68,8 +70,17 @@ class _OtpScreenState extends State<OtpScreen> {
     // ignore: prefer_const_constructors
     borderSide: BorderSide(color: Colors.transparent),
   );
+  Profile? profile;
+  void initState() {
+    super.initState();
+    refreshProfile();
+  }
 
   int pinIndex = 0;
+  bool isWrong = false;
+  Future refreshProfile() async {
+    profile = await DatabaseManager.instance.readProfile(widget.profile.id!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +226,14 @@ class _OtpScreenState extends State<OtpScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => ForgetPin_VerifyPhonePage(
+                                      profile: widget.profile,
+                                    )));
+                      },
                       child: Text(
                         'ลืมรหัส ?',
                         style: TextStyle(color: Colors.redAccent),
@@ -255,8 +273,7 @@ class _OtpScreenState extends State<OtpScreen> {
             content: new Text('หากผิดเกิน 5 ครั้งระบบจะระงับการใช้งาน 5 นาที'),
             actions: <Widget>[
               TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(false), //<-- SEE HERE
+                onPressed: () => Navigator.pop(context), //<-- SEE HERE
                 child: Text(
                   'ไม่',
                   style: TextStyle(color: Colors.white),
@@ -264,9 +281,14 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(true);
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) => ForgetPin_VerifyPhonePage(
+                                profile: widget.profile,
+                              )));
                 }, // <-- SEE HERE
-                child: Text('ออก', style: TextStyle(color: Colors.white)),
+                child: Text('ลืมรหัส', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -275,7 +297,7 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   validationProfilePin(pin) async {
-    if (invalidCount <= 5) {
+    if (invalidCount != 5) {
       if (pin == widget.profile.pin) {
         await Navigator.push(
             context,
@@ -286,7 +308,13 @@ class _OtpScreenState extends State<OtpScreen> {
         Navigator.of(context).pop(true);
       } else if (invalidCount == 3) {
         _forgotPinWarningDialog();
-        
+        for (var i = 0; i < 6; i++) {
+          clearPin();
+        }
+        setState(() {
+          isWrong = true;
+          invalidCount++;
+        });
       } else {
         // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         //   behavior: SnackBarBehavior.floating,
@@ -297,16 +325,33 @@ class _OtpScreenState extends State<OtpScreen> {
         for (var i = 0; i < 6; i++) {
           clearPin();
         }
-        print(invalidCount);
 
-        invalidCount++;
+        setState(() {
+          isWrong = true;
+          invalidCount++;
+        });
+        print('Wrong : ${invalidCount}');
       }
     } else {
-      Navigator.push(
+      DateTime date = DateTime.now();
+
+      Duration addDuration = Duration(seconds: 20);
+
+      final addedDuration = widget.profile!
+          .copy(isDisable: true, loginDateTime: date.add(addDuration));
+
+      await DatabaseManager.instance.updateProfile(addedDuration);
+
+      await refreshProfile();
+
+      print(
+          'Start isDisable ${profile!.isDisable} Widget loginDateTime ${widget.profile!.loginDateTime} loginDateTime ${profile!.loginDateTime}');
+
+      await Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => DisableWrongPinPage(
-                    profile: widget.profile,
+                    profile: profile!,
                   )));
     }
   }
@@ -419,30 +464,30 @@ class _OtpScreenState extends State<OtpScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          // Text(
+          //   "${widget.profile.loginDateTime}",
+          //   // ignore: prefer_const_constructors
+          //   style: TextStyle(
+          //     color: Colors.white,
+          //     fontSize: 21.0,
+          //     fontWeight: FontWeight.bold,
+          //   ),
+          // ),
+          isWrong
+              ? invalidCount == 5
+                  ? Text(
+                      "ครั้งสุดท้าย",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    )
+                  : Text(
+                      "เบอร์โทรศัพท์ไม่ถูกต้อง ${invalidCount}",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    )
+              : Container(),
         ],
       ),
     );
   }
-
-  // buildExitButton() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.end,
-  //     children: <Widget>[
-  //       Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: MaterialButton(
-  //           onPressed: (){},
-  //           height: 50.0,
-  //           minWidth: 50.0,
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(50.0),
-  //           ),
-  //           child: Icon(Icons.clear, color: Colors.white),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }
 
 class PINNumber extends StatelessWidget {

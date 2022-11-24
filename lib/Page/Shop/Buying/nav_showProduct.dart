@@ -23,12 +23,12 @@ import '../../Model/ProductModel_stProperty.dart';
 
 class BuyingNavShowProd extends StatefulWidget {
   final Product product;
-  final ProductCategory prodCategory;
+  final ProductCategory? prodCategory;
   final int? productTotalAmount;
   final ValueChanged<PurchasingItemsModel> update;
   BuyingNavShowProd({
     Key? key,
-    required this.prodCategory,
+    this.prodCategory,
     this.productTotalAmount,
     required this.update,
     required this.product,
@@ -216,7 +216,9 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Text(
-                          widget.prodCategory.prodCategName,
+                          widget.prodCategory == null
+                              ? 'ไม่มีหมวดหมู่สินค้า'
+                              : widget.prodCategory!.prodCategName,
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.normal,
@@ -539,7 +541,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                         decoration: BoxDecoration(
                             // color: const Color.fromRGBO(56, 48, 77, 1.0),
                             borderRadius: BorderRadius.circular(15)),
-                        width: 350,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -553,7 +554,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                               decoration: BoxDecoration(
                                   // color: const Color.fromRGBO(56, 48, 77, 1.0),
                                   borderRadius: BorderRadius.circular(15)),
-                              width: 350,
                               height: selectedItems.length > 1
                                   ? selectedItems.length * 90
                                   : 200,
@@ -782,7 +782,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                   decoration: BoxDecoration(
                       // color: const Color.fromRGBO(56, 48, 77, 1.0),
                       borderRadius: BorderRadius.circular(15)),
-                  width: 350,
+                  height: 350,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -795,16 +795,32 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                         decoration: BoxDecoration(
                             // color: Color.fromARGB(255, 45, 37, 63),
                             borderRadius: BorderRadius.circular(15)),
-                        width: 350,
-                        height: selectedItems.isEmpty ? 50 : 150,
+                        height: 150,
                         child: selectedItems.isEmpty
-                            ? Expanded(
+                            ? Container(
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .background
+                                        .withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(10)),
                                 child: Center(
-                                    child: Text(
-                                'โปรดเลือกแบบสินค้า',
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 20),
-                              )))
+                                    child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.note_alt_outlined,
+                                      color: Colors.grey,
+                                      size: 20,
+                                    ),
+                                    Text(
+                                      'โปรดเลือกแบบสินค้า',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 13),
+                                    ),
+                                  ],
+                                )),
+                              )
                             : ListView.builder(
                                 scrollDirection: Axis.vertical,
                                 padding: const EdgeInsets.all(8),
@@ -823,68 +839,67 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                   var totalPrice = indItem.cost * amount;
 
                                   return Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(width: 10),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  '${NumberFormat("#,###.##").format(index + 1)}. ${indItem.stProperty} ${(indItem.ndProperty)}',
-                                                  style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                Text(
-                                                    ' ต้นทุน (${NumberFormat("#,###.##").format(indItem.cost)}) x ${NumberFormat("#,###.##").format(amount)}',
-                                                    style: const TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 12)),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const Spacer(),
-                                        Text(
-                                            ' ราคา ${NumberFormat("#,###.##").format(totalPrice)}',
-                                            style: const TextStyle(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Container(
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background
+                                              .withOpacity(0.9),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Row(children: [
+                                          Text(
+                                            '${NumberFormat("#,###.##").format(index + 1)}. ${indItem.stProperty} ${(indItem.ndProperty)}',
+                                            style: TextStyle(
+                                                fontSize: 11,
                                                 color: Colors.white,
-                                                fontSize: 12)),
-                                      ],
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                              ' ต้นทุน (${NumberFormat("#,###.##").format(indItem.cost)}) x ${NumberFormat("#,###.##").format(amount)}',
+                                              style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12)),
+                                          Spacer(),
+                                          Text(
+                                              '${NumberFormat("#,###.##").format(indItem.cost * amount)}',
+                                              style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12)),
+                                        ]),
+                                      ),
                                     ),
                                   );
                                 }),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "รวมทั้งหมด",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 15),
-                            ),
-                            Text(
-                              " (จำนวน ${NumberFormat("#,###,###.##").format(_calculateTotalAmount(allTotalAmount))} ชิ้น)",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 15),
-                            ),
-                            Spacer(),
-                            Text(
-                              "${NumberFormat("#,###,###.##").format(_calculateTotal(allTotal))}",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 15),
-                            ),
-                          ],
+                      Container(
+                        height: 150,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                "รวมทั้งหมด",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15),
+                              ),
+                              Text(
+                                "(จำนวน ${NumberFormat("#,###,###.##").format(_calculateTotalAmount(allTotalAmount))} ชิ้น)",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 15),
+                              ),
+                              Spacer(),
+                              Text(
+                                "${NumberFormat("#,###,###.##").format(_calculateTotal(allTotal))}",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 15),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -892,7 +907,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

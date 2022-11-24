@@ -30,7 +30,7 @@ class _SellingNavCreateCustomerAddressState
   final cusPhoneController = TextEditingController();
   final cusAddressController = TextEditingController();
   List<CustomerAddressModel> cusAddresses = [];
-
+  late CustomerModel customer = widget.customer;
   void initState() {
     super.initState();
     cusPhoneController.addListener(() => setState(() {}));
@@ -42,6 +42,12 @@ class _SellingNavCreateCustomerAddressState
   Future refreshCustomerAddresses() async {
     cusAddresses = await DatabaseManager.instance
         .readCustomerAllAddress(widget.customer.cusId!);
+    setState(() {});
+  }
+
+  Future refreshCustomerInfo() async {
+    customer =
+        await DatabaseManager.instance.readCustomer(widget.customer.cusId!);
     setState(() {});
   }
 
@@ -238,6 +244,78 @@ class _SellingNavCreateCustomerAddressState
     );
   }
 
+  Future<void> dialogEditCusName() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (dContext, DialogSetState) {
+          final CusNameController = TextEditingController(text: customer.cName);
+          return AlertDialog(
+            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: Container(
+              width: 150,
+              child: Row(
+                children: [
+                  const Text(
+                    'แก้ไขชื่อ',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Spacer(),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: Colors.grey,
+                      ))
+                ],
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  CustomTextField.textField(
+                    dContext,
+                    '${customer.cName}',
+                    isNumber: true,
+                    _validate,
+                    length: 10,
+                    textController: CusNameController,
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text('บันทึก'),
+                onPressed: () async {
+                  await DatabaseManager.instance.updateCustomer(
+                      customer.copy(dName: CusNameController.text));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Theme.of(context).backgroundColor,
+                      behavior: SnackBarBehavior.floating,
+                      content: Text("อัพเดต"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  refreshCustomerInfo();
+                  refreshCustomerAddresses();
+
+                  Navigator.of(dContext).pop();
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -284,8 +362,17 @@ class _SellingNavCreateCustomerAddressState
                   size: 25,
                 ),
                 Text(
-                  'คุณ ${widget.customer.cName}',
+                  'คุณ ${customer.cName}',
                   style: TextStyle(fontSize: 25, color: Colors.white),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      elevation: 0, primary: Colors.transparent),
+                  onPressed: () {
+                    dialogEditCusName();
+                  },
+                  child: const Icon(Icons.edit,
+                      color: Color.fromARGB(255, 205, 205, 205)),
                 ),
               ],
             ),
@@ -454,8 +541,7 @@ class _SellingNavCreateCustomerAddressState
                                                       Row(
                                                         children: [
                                                           Text(
-                                                            widget
-                                                                .customer.cName,
+                                                            customer.cName,
                                                             style: const TextStyle(
                                                                 fontWeight:
                                                                     FontWeight

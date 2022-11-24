@@ -43,7 +43,8 @@ class _BuyingPageState extends State<BuyingPage> {
   Future refreshPurchasings() async {
     purchasings = await DatabaseManager.instance
         .readAllPurchasingsORDERBYPresent(widget.shop.shopid!);
-    dealers = await DatabaseManager.instance.readAllDealers();
+    dealers =
+        await DatabaseManager.instance.readAllDealers(widget.shop.shopid!);
     productLots = await DatabaseManager.instance.readAllProductLots();
 
     setState(() {});
@@ -52,22 +53,27 @@ class _BuyingPageState extends State<BuyingPage> {
   Future refreshPurchasingsWHEREisReceived() async {
     purchasings = await DatabaseManager.instance
         .readAllPurchasingsWHEREisReceived(widget.shop.shopid!);
-    dealers = await DatabaseManager.instance.readAllDealers();
+    dealers =
+        await DatabaseManager.instance.readAllDealers(widget.shop.shopid!);
     productLots = await DatabaseManager.instance.readAllProductLots();
+    if (!mounted) return;
     setState(() {});
   }
 
   Future refreshPurchasingsWHEREisNotReceived() async {
     purchasings = await DatabaseManager.instance
         .readAllPurchasingsWHEREisNotReceived(widget.shop.shopid!);
-    dealers = await DatabaseManager.instance.readAllDealers();
+    dealers =
+        await DatabaseManager.instance.readAllDealers(widget.shop.shopid!);
     productLots = await DatabaseManager.instance.readAllProductLots();
+    if (!mounted) return;
     setState(() {});
   }
 
   Future searchDealerByName() async {
     purchasings = await DatabaseManager.instance.readAllPurchasingsByDealerName(
         widget.shop.shopid!, searchDealerController.text);
+    if (!mounted) return;
 
     setState(() {});
   }
@@ -300,12 +306,13 @@ class _BuyingPageState extends State<BuyingPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.check_circle,
                                 color: Colors.greenAccent,
                               ),
-                              Text("รับสินค้าแล้ว"),
+                              // Text("รับสินค้าแล้ว"),
                             ],
                           ),
                         ),
@@ -321,12 +328,13 @@ class _BuyingPageState extends State<BuyingPage> {
                       child: Align(
                         alignment: Alignment.center,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.circle_outlined,
                               color: Colors.greenAccent,
                             ),
-                            Text("ไม่ได้รับสินค้า"),
+                            // Text("ไม่ได้รับสินค้า"),
                           ],
                         ),
                       ),
@@ -337,6 +345,7 @@ class _BuyingPageState extends State<BuyingPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
+            height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
@@ -417,7 +426,8 @@ class _BuyingPageState extends State<BuyingPage> {
                             : Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Container(
-                                  height: (MediaQuery.of(context).size.height),
+                                  height: (MediaQuery.of(context).size.height *
+                                      0.55),
                                   width: 400.0,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
@@ -529,8 +539,9 @@ class _BuyingPageState extends State<BuyingPage> {
                                                 content: Container(
                                                     child: Row(
                                                   children: [
-                                                    Text(
-                                                        "ลบรายการสั่งซื้อ ${_dealer.dName}"),
+                                                    Text(_dealer == null
+                                                        ? 'ลูกค้า-'
+                                                        : "ลบรายการสั่งซื้อ ${_dealer.dName}"),
                                                     Text(
                                                         ' ยอด ${NumberFormat("#,###.##").format(purchasing.total)}',
                                                         style: const TextStyle(
@@ -553,7 +564,16 @@ class _BuyingPageState extends State<BuyingPage> {
                                                         builder: (context) =>
                                                             BuyingNavEdit(
                                                               shop: widget.shop,
-                                                              dealer: _dealer,
+                                                              dealer: _dealer ==
+                                                                      null
+                                                                  ? DealerModel(
+                                                                      dName:
+                                                                          'ตัวแทนจำหน่ายถูกลบ',
+                                                                      dAddress:
+                                                                          '-',
+                                                                      dPhone:
+                                                                          '-')
+                                                                  : _dealer,
                                                               purchasing:
                                                                   purchasing,
                                                             )));
@@ -722,7 +742,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                             width: 80,
                                                                                                             child: Flexible(
                                                                                                               child: Text(
-                                                                                                                '${_selectedDealer.dName}',
+                                                                                                                _selectedDealer == null ? 'ตัวแทนจำหน่าย -' : '${_selectedDealer.dName}',
                                                                                                                 style: TextStyle(overflow: TextOverflow.ellipsis, fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
                                                                                                               ),
                                                                                                             ),
@@ -806,7 +826,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                             children: <Widget>[
                                                               Text(
                                                                 _dealer == null
-                                                                    ? 'กำลังแสดง'
+                                                                    ? 'ตัวแทนจำหน่ายถูกลบ'
                                                                     : '${_dealer.dName!}',
                                                                 style: const TextStyle(
                                                                     fontWeight:
@@ -827,7 +847,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                   Text(
                                                                     _dealer ==
                                                                             null
-                                                                        ? 'กำลังแสดง'
+                                                                        ? '-'
                                                                         : ' ${_dealer.dPhone!}',
                                                                     style: const TextStyle(
                                                                         fontSize:

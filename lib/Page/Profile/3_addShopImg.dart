@@ -236,6 +236,7 @@ class _AddShopImgPageState extends State<AddShopImgPage> {
                           name: widget.shopName,
                           phone: widget.shopPhone,
                           image: _image!.path,
+        
                           profileId: widget.profile.id == null
                               ? 1
                               : widget.profile.id!);

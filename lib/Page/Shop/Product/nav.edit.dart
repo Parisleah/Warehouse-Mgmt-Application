@@ -49,10 +49,12 @@ class _ProductNavEditState extends State<ProductNavEdit> {
       TextEditingController();
   List<TextEditingController> editCostControllers = [];
   List<TextEditingController> editPriceControllers = [];
+  List<TextEditingController> weightControllers = [];
   TextEditingController editAllCostController = TextEditingController();
   TextEditingController editAllPriceController = TextEditingController();
   TextEditingController pController = TextEditingController();
   TextEditingController cController = TextEditingController();
+  TextEditingController wController = TextEditingController();
   List<ProductModel> productModels = [];
   List<TextEditingController> amountControllers = [];
   List stPropertySelecteds = [];
@@ -186,6 +188,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
 
         editCostControllers.add(TextEditingController());
         editPriceControllers.add(TextEditingController());
+        weightControllers.add(TextEditingController());
 
         i++;
       }
@@ -830,6 +833,373 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         });
   }
 
+  Future<void> dialogEdit_AllWeight() async {
+    final _costformKey = GlobalKey<FormState>();
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+            builder: (context, EditPropCostPriceDialogSetState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            title: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'กำหนดน้ำหนักทั้งหมด',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      '(ไม่ต้องเลือกหากตั้งการกำหนดทั้งหมด)',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ],
+                ),
+                Spacer(),
+                IconButton(
+                    onPressed: () {
+                      stPropertySelecteds.clear();
+                      ndPropertySelecteds.clear();
+                      wController.clear();
+
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.grey,
+                    ))
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${stPropName}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        MultiSelectContainer(
+                            textStyles: const MultiSelectTextStyles(
+                                textStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 255, 255, 255))),
+                            prefix: MultiSelectPrefix(
+                              selectedPrefix: const Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                            itemsDecoration: MultiSelectDecorations(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    const Color.fromRGBO(56, 54, 76, 1.0),
+                                    const Color.fromRGBO(56, 54, 76, 1.0),
+                                  ]),
+                                  borderRadius: BorderRadius.circular(20)),
+                              selectedDecoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    Theme.of(context).backgroundColor,
+                                    Theme.of(context).backgroundColor,
+                                  ]),
+                                  borderRadius: BorderRadius.circular(20)),
+                            ),
+                            items: stPropsList
+                                .map((item) => MultiSelectCard(
+                                    value: '${item.pmstPropName}',
+                                    label: '${item.pmstPropName}'))
+                                .toList(),
+                            onChange: (allSelectedItems, selectedItem) {
+                              // for (var item in allSelectedItems) {
+                              //   stPropertySelecteds.add(item);
+                              //   print('${item}');
+                              // }
+                              EditPropCostPriceDialogSetState(() {
+                                stPropertySelecteds = allSelectedItems;
+                                print(
+                                    'stPropertySelecteds -> ${stPropertySelecteds.length}');
+                              });
+                            }),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ndPropsList.isEmpty
+                            ? Container()
+                            : Text(
+                                '${ndPropName}',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                        ndPropsList.isEmpty
+                            ? Container()
+                            : MultiSelectContainer(
+                                textStyles: const MultiSelectTextStyles(
+                                    textStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(
+                                            255, 255, 255, 255))),
+                                prefix: MultiSelectPrefix(
+                                  selectedPrefix: const Padding(
+                                    padding: EdgeInsets.only(right: 5),
+                                    child: Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ),
+                                ),
+                                itemsDecoration: MultiSelectDecorations(
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(colors: [
+                                        const Color.fromRGBO(56, 54, 76, 1.0),
+                                        const Color.fromRGBO(56, 54, 76, 1.0),
+                                      ]),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  selectedDecoration: BoxDecoration(
+                                      gradient: LinearGradient(colors: [
+                                        Theme.of(context).backgroundColor,
+                                        Theme.of(context).backgroundColor,
+                                      ]),
+                                      borderRadius: BorderRadius.circular(20)),
+                                ),
+                                items: ndPropsList
+                                    .map((item) => MultiSelectCard(
+                                        value: '${item.pmndPropName}',
+                                        label: '${item.pmndPropName}'))
+                                    .toList(),
+                                onChange: (allSelectedItems, selectedItem) {
+                                  EditPropCostPriceDialogSetState(() {
+                                    ndPropertySelecteds = allSelectedItems;
+                                    print(
+                                        'ndPropertySelecteds -> ${ndPropertySelecteds.length}');
+                                  });
+                                }),
+                      ],
+                    ),
+                  ),
+                  ListBody(
+                    children: <Widget>[
+                      Form(
+                        key: _costformKey,
+                        child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .background
+                                    .withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(15)),
+                            width: 400,
+                            height: 80,
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'โปรดระบุน้ำหนัก';
+                                    }
+                                    return null;
+                                  },
+                                  textAlign: TextAlign.start,
+                                  keyboardType: TextInputType.number,
+                                  // maxLength: length,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(20),
+                                  ],
+                                  controller: wController,
+                                  //-----------------------------------------------------
+
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                  cursorColor: primary_color,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(
+                                        top: 25,
+                                        bottom: 10,
+                                        left: 10,
+                                        right: 10),
+                                    // labelText: title,
+                                    fillColor: Theme.of(context)
+                                        .colorScheme
+                                        .background,
+
+                                    hoverColor: Colors.white,
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10.0),
+                                      ),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                      ),
+                                    ),
+                                    border: const OutlineInputBorder(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                            topRight: Radius.circular(20),
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20)),
+                                        borderSide: BorderSide.none),
+                                    hintText: 'กรัม',
+                                    hintStyle: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
+                                    suffixIcon: wController.text.isEmpty
+                                        ? Container(
+                                            width: 0,
+                                          )
+                                        : IconButton(
+                                            onPressed: () =>
+                                                wController.clear(),
+                                            icon: const Icon(
+                                              Icons.close_sharp,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                  )),
+                            )),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text('ยืนยัน'),
+                onPressed: () {
+                  if (_costformKey.currentState!.validate()) {
+                    if (ndPropsList.isNotEmpty) {
+                      print('1st + 2nd Propertys');
+                      if (stPropertySelecteds.isNotEmpty &&
+                          ndPropertySelecteds.isNotEmpty) {
+                        print('Both Selected');
+                        for (var i = 0; i < ndPropertySelecteds.length; i++) {
+                          for (var st in stPropertySelecteds) {
+                            for (var nd in ndPropertySelecteds) {
+                              for (var model in productModels) {
+                                if (model.stProperty == st &&
+                                    model.ndProperty == nd) {
+                                  var findIndex = productModels
+                                      .indexWhere((e) => e == model);
+
+                                  weightControllers[findIndex].text =
+                                      wController.text
+                                          .replaceAll(RegExp('[^0-9]'), '');
+                                  ;
+                                }
+                              }
+                            }
+                          }
+                        }
+                        Navigator.of(context).pop();
+                      } else if (stPropertySelecteds.isNotEmpty &&
+                          ndPropertySelecteds.isEmpty) {
+                        print('Only 1st Selected');
+                        for (var i = 0; i < stPropertySelecteds.length; i++) {
+                          var stSelectedInd = stPropertySelecteds[i];
+
+                          print(stSelectedInd);
+                          for (var model in productModels) {
+                            if (model.stProperty == stSelectedInd) {
+                              var findIndex =
+                                  productModels.indexWhere((e) => e == model);
+
+                              weightControllers[findIndex].text = wController
+                                  .text
+                                  .replaceAll(RegExp('[^0-9]'), '');
+                              ;
+                            } else {}
+                          }
+                        }
+                        Navigator.of(context).pop();
+                      } else if (stPropertySelecteds.isEmpty &&
+                          ndPropertySelecteds.isNotEmpty) {
+                        print('Only 2nd Selected');
+                        for (var i = 0; i < ndPropertySelecteds.length; i++) {
+                          var ndSelectedInd = ndPropertySelecteds[i];
+
+                          for (var model in productModels) {
+                            if (model.ndProperty == ndSelectedInd) {
+                              var findIndex =
+                                  productModels.indexWhere((e) => e == model);
+
+                              weightControllers[findIndex].text =
+                                  wController.text;
+                            }
+                          }
+                        }
+                        Navigator.of(context).pop();
+                      } else {
+                        print('No Selected');
+                        var cnt = 0;
+                        for (var w in weightControllers) {
+                          w.text =
+                              wController.text.replaceAll(RegExp('[^0-9]'), '');
+                          ;
+                          cnt++;
+                        }
+
+                        Navigator.of(context).pop();
+                      }
+                    } else {
+                      print('Only 1st Property');
+                      // Created Only 1st Propertys
+                      if (stPropertySelecteds.isNotEmpty) {
+                        print('Empty Selection 1st Property');
+                        for (var st in stPropertySelecteds) {
+                          for (var model in productModels) {
+                            if (model.stProperty == st) {
+                              var findIndex =
+                                  productModels.indexWhere((e) => e == model);
+
+                              weightControllers[findIndex].text =
+                                  wController.text;
+                            }
+                          }
+                        }
+
+                        Navigator.of(context).pop();
+                      } else {
+                        for (var w in weightControllers) {
+                          w.text = wController.text;
+                        }
+
+                        Navigator.of(context).pop();
+                      }
+                    }
+                    stPropertySelecteds.clear();
+                    ndPropertySelecteds.clear();
+                  } else {
+                    print('Else');
+                  }
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   // ราคาทั้งหมด
   Future<void> dialogEdit_PropCostPrice() async {
     final _costformKey = GlobalKey<FormState>();
@@ -845,9 +1215,18 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                 borderRadius: BorderRadius.circular(30.0)),
             title: Row(
               children: [
-                Text(
-                  'กำหนดราคาทั้งหมด',
-                  style: TextStyle(color: Colors.white),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'กำหนดราคาทั้งหมด',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      '(ไม่ต้องเลือกหากตั้งการกำหนดทั้งหมด)',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ],
                 ),
                 Spacer(),
                 IconButton(
@@ -1376,6 +1755,397 @@ class _ProductNavEditState extends State<ProductNavEdit> {
     setState(() {});
   }
 
+  dialogProduct_weight() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext dContext3) {
+          return StatefulBuilder(builder: (dContext3, DialogSetState) {
+            return Dialog(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0)), //th
+              child: SizedBox(
+                height: 500,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              // color: Theme.of(context).colorScheme.background,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Container(
+                                width:
+                                    (MediaQuery.of(context).size.width) * 0.7,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'กำหนดน้ำหนัก ',
+                                      style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 255, 255, 255),
+                                        fontSize: 16,
+                                        // fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Text(
+                                      '(3/3)',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 16,
+                                        // fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                        onPressed: () {
+                                          amountControllers.clear();
+                                          Navigator.pop(context);
+                                        },
+                                        icon: Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              dialogEdit_AllWeight();
+                            },
+                            child: Row(
+                              children: [
+                                Icon(Icons.mode_edit_outline_sharp),
+                                Text('ทั้งหมด')
+                              ],
+                            )),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        // สี
+
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            children: [
+                              productModels.isEmpty
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background
+                                              .withOpacity(0.9),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      height: 320,
+                                      child: Expanded(
+                                        child: Center(
+                                            child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.note_alt_outlined,
+                                              color: Colors.grey,
+                                              size: 20,
+                                            ),
+                                            Text(
+                                              'ว่าง',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13),
+                                            ),
+                                          ],
+                                        )),
+                                      ),
+                                    )
+                                  : Stack(children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .background
+                                                .withOpacity(0.9),
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        height: 320,
+                                        child: ListView.builder(
+                                            // scrollDirection: Axis.horizontal,
+                                            padding: EdgeInsets.zero,
+                                            itemCount: productModels.length,
+                                            itemBuilder: (context, index) {
+                                              final productModelInd =
+                                                  productModels[index];
+
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    child: Column(children: [
+                                                      Row(
+                                                        children: [
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            '${index + 1}',
+                                                            style: TextStyle(
+                                                                fontSize: 15,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .backgroundColor),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .primary,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                      '${productModelInd.stProperty}',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      )),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .primary,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                    '${productModelInd.ndProperty}',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Spacer(),
+                                                          Positioned(
+                                                            top: 0.0,
+                                                            right: 0,
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                  Icons.close,
+                                                                  size: 25,
+                                                                  color: Colors
+                                                                      .grey),
+                                                              onPressed: () {
+                                                                DialogSetState(
+                                                                  () {
+                                                                    productModels
+                                                                        .removeAt(
+                                                                            index);
+                                                                  },
+                                                                );
+                                                              },
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          Text(
+                                                            'น้ำหนัก',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .grey),
+                                                          ),
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10)),
+                                                            height: 60,
+                                                            width: 130,
+                                                            child:
+                                                                CustomTextField
+                                                                    .textField(
+                                                              context,
+                                                              'กรัม',
+                                                              _validate,
+                                                              length: 10,
+                                                              isNumber: true,
+                                                              textController:
+                                                                  weightControllers[
+                                                                      index],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                    ]),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    ]),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'รูปแบบสินค้าทั้งหมด',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color:
+                                              Theme.of(context).backgroundColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Text(
+                                            '${NumberFormat("#,###").format(productModels.length)}',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Row(
+                          mainAxisAlignment: productModels.isEmpty
+                              ? MainAxisAlignment.center
+                              : MainAxisAlignment.spaceAround,
+                          children: [
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    primary: Colors.redAccent,
+                                    fixedSize: const Size(80, 40)),
+                                onPressed: () {
+                                  // amountControllers.clear();
+                                  // productModels.clear();
+                                  // weightControllers.clear();
+
+                                  Navigator.pop(context);
+
+                                  setState(() {});
+                                },
+                                child: Text('ยกเลิก')),
+                            productModels.isEmpty
+                                ? Container(
+                                    width: 0,
+                                  )
+                                : ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        fixedSize: const Size(80, 40)),
+                                    onPressed: () {
+                                      var foundNullIndex =
+                                          _invalidationPriceController();
+                                      DialogSetState(
+                                        () {},
+                                      );
+
+                                      if (isFoundNullCost || isFoundNullPrice) {
+                                        ScaffoldMessenger.of(dContext3)
+                                            .showSnackBar(SnackBar(
+                                          behavior: SnackBarBehavior.floating,
+                                          backgroundColor: Colors.redAccent,
+                                          content: Text(
+                                              "ราคารูปแบบสินค้าที่(${foundNullIndex}) ว่าง"),
+                                          duration: Duration(seconds: 3),
+                                        ));
+                                      } else {
+                                        _addCostPriceInProdModel(
+                                            stPropsList, ndPropsList);
+
+                                        Navigator.pop(dContext3);
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                    child: Text('ยืนยัน')),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          });
+        });
+  }
+
   Future<void> dialogEdit_PropName(TextEditingController controller) async {
     return showDialog<void>(
       context: context,
@@ -1473,18 +2243,27 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                  width: 300,
+                                  width:
+                                      (MediaQuery.of(context).size.width) * 0.7,
                                   child: Row(
                                     children: [
                                       SizedBox(
                                         width: 10,
                                       ),
-                                      Text(
-                                        'สร้างรูปแบบสินค้า',
+                                      const Text(
+                                        'สร้างรูปแบบสินค้า ',
                                         style: TextStyle(
                                           color: Color.fromARGB(
                                               255, 255, 255, 255),
-                                          fontSize: 25,
+                                          fontSize: 16,
+                                          // fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      const Text(
+                                        '(1/3)',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 16,
                                           // fontWeight: FontWeight.bold),
                                         ),
                                       ),
@@ -1512,7 +2291,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                         // สี
 
                         Container(
-                          height: 300,
+                          height: (MediaQuery.of(context).size.height) * 0.47,
                           decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.circular(20)),
@@ -1567,7 +2346,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           )
                                   ],
                                 ),
-                                Row(
+                                Wrap(
                                   children: [
                                     Container(
                                       decoration: BoxDecoration(
@@ -1750,7 +2529,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                             height: 20,
                           ),
                           Container(
-                            height: 300,
+                            height: (MediaQuery.of(context).size.height) * 0.47,
                             decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
                                 borderRadius: BorderRadius.circular(20)),
@@ -1800,7 +2579,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                             )
                                     ],
                                   ),
-                                  Row(
+                                  Wrap(
                                     children: [
                                       Container(
                                         decoration: BoxDecoration(
@@ -2061,15 +2840,24 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                 width: 10,
                               ),
                               Container(
-                                width: 300,
+                                width:
+                                    (MediaQuery.of(context).size.width) * 0.7,
                                 child: Row(
                                   children: [
                                     Text(
-                                      'กำหนดราคา',
+                                      'กำหนดราคา ',
                                       style: TextStyle(
                                         color:
                                             Color.fromARGB(255, 255, 255, 255),
-                                        fontSize: 25,
+                                        fontSize: 16,
+                                        // fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Text(
+                                      '(2/3)',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 16,
                                         // fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -2409,14 +3197,10 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           duration: Duration(seconds: 3),
                                         ));
                                       } else {
-                                        _addCostPriceInProdModel(
-                                            stPropsList, ndPropsList);
-
-                                        Navigator.pop(dContext2);
-                                        Navigator.pop(context);
+                                        dialogProduct_weight();
                                       }
                                     },
-                                    child: Text('ยืนยัน')),
+                                    child: Text('ถัดไป')),
                           ],
                         ),
                       ],
@@ -2443,6 +3227,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
           productModels.add(model);
           editCostControllers.add(TextEditingController());
           editPriceControllers.add(TextEditingController());
+          weightControllers.add(TextEditingController());
         }
       } else {
         final model = ProductModel(
@@ -2455,6 +3240,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         productModels.add(model);
         editCostControllers.add(TextEditingController());
         editPriceControllers.add(TextEditingController());
+        weightControllers.add(TextEditingController());
       }
     }
 
@@ -3050,165 +3836,148 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                     BorderRadius.circular(10))),
                                         child: GestureDetector(
                                           onTap: () async {
-                                            Navigator.push(
+                                            await Navigator.push(
                                                 context,
                                                 new MaterialPageRoute(
                                                     builder: (context) =>
                                                         ProductEditModel(
                                                           model: productModel,
                                                         )));
-                                            await refreshPage();
+                                            refreshPage();
 
                                             setState(() {});
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(5.0),
-                                            child: Container(
-                                              height: 120,
-                                              decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: Row(children: [
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            '${index + 1}',
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .backgroundColor),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .background,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(3.0),
-                                                              child: Text(
-                                                                '${productModel.stProperty}',
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        15,
-                                                                    color: Colors
-                                                                        .white),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .background,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(3.0),
-                                                              child: Text(
-                                                                '${productModel.ndProperty}',
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        15,
-                                                                    color: Colors
-                                                                        .white),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Text(
-                                                        'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
-                                                        style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 12),
-                                                      ),
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  height: 120,
+                                                  decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10.0),
+                                                    child: Row(children: [
                                                       const SizedBox(
                                                         width: 10,
                                                       ),
-                                                      Text(
-                                                        'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
-                                                        style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 12),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                '${index + 1}',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .backgroundColor),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .background,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                    '${productModel.stProperty}',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .background,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                    '${productModel.ndProperty}',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Text(
+                                                            'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontSize: 12),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontSize: 12),
+                                                          ),
+                                                          Text(
+                                                            'น้ำหนัก ${NumberFormat("#,###,###.##").format(productModel.weight)} กรัม',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.grey,
+                                                                fontSize: 12),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      Text(
-                                                        'น้ำหนัก ${NumberFormat("#,###,###.##").format(productModel.weight)} กรัม',
-                                                        style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 12),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Spacer(),
-                                                  amountOfProd == 0
-                                                      ? Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons
-                                                                  .numbers_outlined,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                            Text('สินค้าหมด ',
-                                                                style:
-                                                                    const TextStyle(
-                                                                  fontSize: 15,
+                                                      Spacer(),
+                                                      amountOfProd == 0
+                                                          ? Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .numbers_outlined,
                                                                   color: Colors
                                                                       .white,
-                                                                )),
-                                                          ],
-                                                        )
-                                                      : Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .background,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(5.0),
-                                                            child: Row(
-                                                              children: [
-                                                                Text('คงเหลือ ',
+                                                                ),
+                                                                Text(
+                                                                    'สินค้าหมด ',
                                                                     style:
                                                                         const TextStyle(
                                                                       fontSize:
@@ -3216,21 +3985,91 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                                       color: Colors
                                                                           .white,
                                                                     )),
-                                                                Text(
-                                                                    '${NumberFormat("#,###.##").format(amountOfProd)}',
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            15,
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontWeight:
-                                                                            FontWeight.bold)),
                                                               ],
+                                                            )
+                                                          : Container(
+                                                              decoration: BoxDecoration(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .background,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10)),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        5.0),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Text(
+                                                                        'คงเหลือ ',
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        )),
+                                                                    Text(
+                                                                        '${NumberFormat("#,###.##").format(amountOfProd)}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                15,
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontWeight: FontWeight.bold)),
+                                                                  ],
+                                                                ),
+                                                              ),
                                                             ),
+                                                    ]),
+                                                  ),
+                                                ),
+                                                productModel.prodModelId == null
+                                                    ? Positioned(
+                                                        top: 0.0,
+                                                        right: 0.0,
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.7),
+                                                                  spreadRadius:
+                                                                      0,
+                                                                  blurRadius: 5,
+                                                                  offset:
+                                                                      Offset(
+                                                                          0, 4))
+                                                            ],
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .backgroundColor,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30),
+                                                          ),
+                                                          child: Text(
+                                                            'รูปแบบใหม่',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
                                                           ),
                                                         ),
-                                                ]),
-                                              ),
+                                                      )
+                                                    : Container()
+                                              ],
                                             ),
                                           ),
                                         ),

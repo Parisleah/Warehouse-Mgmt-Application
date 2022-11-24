@@ -28,14 +28,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Profile? profile;
   bool isNameChange = false;
   bool isHidePin = true;
-  final profileNameController = TextEditingController();
-  final profilePhoneController = TextEditingController();
+  late final profileNameController =
+      TextEditingController(text: widget.profile.name);
+
   @override
   void initState() {
     super.initState();
     profile = widget.profile;
     profileNameController.addListener(() => setState(() {}));
-    profilePhoneController.addListener(() => setState(() {}));
   }
 
   Future updateProfileImage() async {
@@ -112,14 +112,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
             )),
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(
+                    top: 110, bottom: 10, left: 10, right: 10),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 90),
                     Container(
-                      height: 200,
-                      width: 200,
+                      height: (MediaQuery.of(context).size.width / 2),
+                      width: (MediaQuery.of(context).size.width / 2),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20)),
@@ -132,8 +132,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 borderRadius: BorderRadius.circular(20),
                                 child: Image.file(
                                   _image!,
-                                  width: 180,
-                                  height: 180,
+                                  width:
+                                      (MediaQuery.of(context).size.width / 2.1),
+                                  height:
+                                      (MediaQuery.of(context).size.width / 2.1),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -144,8 +146,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 borderRadius: BorderRadius.circular(20),
                                 child: Image.file(
                                   File(widget.profile.image),
-                                  width: 180,
-                                  height: 180,
+                                  width:
+                                      (MediaQuery.of(context).size.width / 2.1),
+                                  height:
+                                      (MediaQuery.of(context).size.width / 2.1),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -184,154 +188,133 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      children: [
-                        const Text(
-                          "ชื่อผู้ใช้",
-                          style: TextStyle(color: Colors.white),
+                    Container(
+                      child: Column(children: [
+                        Row(
+                          children: [
+                            const Text(
+                              "ชื่อผู้ใช้",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
                         Container(
-                            width: 350,
-                            child: Container(
-                              width: 350,
-                              child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                      color: Color.fromRGBO(56, 48, 77, 1),
-                                      borderRadius: BorderRadius.circular(15)),
-                                  width: 400,
-                                  height: 80,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: TextFormField(
-                                        textAlign: TextAlign.start,
-                                        keyboardType: TextInputType.text,
-                                        // maxLength: length,
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(30),
-                                        ],
-                                        controller: profileNameController,
-                                        //-----------------------------------------------------
-                                        onFieldSubmitted: (context) {
-                                          setState(() {
-                                            updateProfileName();
-                                            refreshProfile();
-                                            isNameChange == !isNameChange;
-                                            profileNameController.clear();
-                                          });
-                                          setState(() {});
-                                        },
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                        cursorColor: primary_color,
-                                        decoration: InputDecoration(
-                                          // errorText:
-                                          //     _validate ? 'โปรดระบุ' : null, //
-                                          contentPadding: EdgeInsets.only(
-                                              top: 25,
-                                              bottom: 10,
-                                              left: 10,
-                                              right: 10),
-                                          // labelText: title,
-                                          filled: true,
-                                          labelStyle:
-                                              TextStyle(color: Colors.white),
-                                          counterStyle:
-                                              TextStyle(color: Colors.white),
-                                          fillColor:
-                                              Color.fromRGBO(56, 48, 77, 1),
-                                          focusColor:
-                                              Color.fromARGB(255, 255, 0, 0),
-                                          hoverColor: Colors.white,
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                color: Color.fromRGBO(56, 48, 77, 1),
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 80,
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: TextFormField(
+                                  textAlign: TextAlign.start,
+                                  keyboardType: TextInputType.text,
+                                  // maxLength: length,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(30),
+                                  ],
+                                  controller: profileNameController,
+                                  //-----------------------------------------------------
+                                  onFieldSubmitted: (context) {
+                                    setState(() {
+                                      updateProfileName();
+                                      refreshProfile();
+                                      isNameChange == !isNameChange;
+                                      profileNameController.clear();
+                                    });
+                                    setState(() {});
+                                  },
+                                  style: const TextStyle(color: Colors.white),
+                                  cursorColor: primary_color,
+                                  decoration: InputDecoration(
+                                    // errorText:
+                                    //     _validate ? 'โปรดระบุ' : null, //
+                                    contentPadding: EdgeInsets.only(
+                                        top: 25,
+                                        bottom: 10,
+                                        left: 10,
+                                        right: 10),
+                                    // labelText: title,
+                                    filled: true,
+                                    labelStyle: TextStyle(color: Colors.white),
+                                    counterStyle:
+                                        TextStyle(color: Colors.white),
+                                    fillColor: Color.fromRGBO(56, 48, 77, 1),
+                                    focusColor: Color.fromARGB(255, 255, 0, 0),
+                                    hoverColor: Colors.white,
 
-                                          // border: const OutlineInputBorder(
-                                          //   borderRadius: BorderRadius.all(
-                                          //     Radius.circular(10.0),
-                                          //   ),
-                                          //   borderSide: BorderSide(
-                                          //     color: Colors.green,
-                                          //   ),
-                                          // ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(10.0),
-                                            ),
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15.0),
-                                            borderSide: const BorderSide(
-                                              color: Colors.transparent,
-                                            ),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15.0),
-                                            borderSide: BorderSide(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surface,
-                                            ),
-                                          ),
-                                          hintText: profile!.name,
-                                          hintStyle: const TextStyle(
-                                              color: Colors.grey, fontSize: 14),
-                                          prefixIcon: const Icon(
-                                              Icons.person_pin,
-                                              color: Colors.white),
-                                          suffixIcon: isNameChange == false
-                                              ? Container(
-                                                  width: 0,
-                                                )
-                                              : IconButton(
-                                                  onPressed: () {
-                                                    profileNameController
-                                                        .clear();
-                                                    setState(() {
-                                                      isNameChange == false;
-                                                    });
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.close_sharp,
-                                                    color: Colors.white,
-                                                  ),
+                                    // border: const OutlineInputBorder(
+                                    //   borderRadius: BorderRadius.all(
+                                    //     Radius.circular(10.0),
+                                    //   ),
+                                    //   borderSide: BorderSide(
+                                    //     color: Colors.green,
+                                    //   ),
+                                    // ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10.0),
+                                      ),
+                                      borderSide:
+                                          BorderSide(color: Colors.transparent),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                      ),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                      ),
+                                    ),
+                                    hintText: profile!.name,
+                                    hintStyle: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    prefixIcon: const Icon(Icons.person_pin,
+                                        color: Colors.white),
+                                    suffixIcon:
+                                        profileNameController.text.isEmpty
+                                            ? Container(
+                                                width: 0,
+                                              )
+                                            : IconButton(
+                                                onPressed: () {
+                                                  profileNameController.clear();
+                                                },
+                                                icon: const Icon(
+                                                  Icons.close_sharp,
+                                                  color: Colors.white,
                                                 ),
-                                        )),
+                                              ),
                                   )),
                             )),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Text(
-                          "เบอร์โทรศัพท์",
-                          style: TextStyle(color: Colors.white),
+                        SizedBox(
+                          height: 10,
                         ),
-                        Spacer(),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              "เบอร์โทรศัพท์",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Spacer(),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.all(0),
                               elevation: 0,
-                              fixedSize: const Size(350, 80),
                               primary: Colors.transparent),
                           onPressed: () async {
                             await Navigator.push(
@@ -344,7 +327,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             setState(() {});
                           },
                           child: Container(
-                            width: 350,
                             height: 80,
                             decoration: BoxDecoration(
                                 color: Color.fromRGBO(56, 48, 77, 1),
@@ -361,7 +343,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               Text(
                                 profile!.phone.replaceAllMapped(
                                     RegExp(r'(\d{3})(\d{3})(\d+)'),
-                                    (Match m) => "${m[1]}-${m[2]}-XXXX"),
+                                    (Match m) => "${m[1]}-${m[2]}-${m[3]}"),
                                 style: TextStyle(
                                     color: Color.fromARGB(255, 136, 136, 136),
                                     fontSize: 14),
@@ -369,43 +351,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ]),
                           ),
                         ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Text(
-                          "PIN",
-                          style: TextStyle(color: Colors.white),
+                        SizedBox(
+                          height: 10,
                         ),
-                        Spacer(),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              "PIN",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Spacer(),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.all(0),
                               elevation: 0,
-                              fixedSize: const Size(350, 80),
                               primary: Colors.transparent),
                           onPressed: () async {
                             await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => VerifyPhonePage(
-                                          profile: widget.profile,
+                                          profile: profile!,
                                         )));
                             refreshProfile();
                             setState(() {});
                           },
                           child: Container(
-                            width: 350,
                             height: 80,
                             decoration: BoxDecoration(
                                 color: Color.fromRGBO(56, 48, 77, 1),
@@ -462,7 +438,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ]),
                           ),
                         ),
-                      ],
+                      ]),
                     )
                   ],
                 ),

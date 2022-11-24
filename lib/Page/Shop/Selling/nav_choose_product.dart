@@ -157,6 +157,7 @@ class _SellingNavChooseProductState extends State<SellingNavChooseProduct> {
       ),
       body: SingleChildScrollView(
         child: Container(
+          height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
           decoration: const BoxDecoration(

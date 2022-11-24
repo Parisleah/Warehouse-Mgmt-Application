@@ -20,22 +20,27 @@ class ProductEditModel extends StatefulWidget {
 }
 
 class _ProductEditModelState extends State<ProductEditModel> {
+  late String stPropName = '${widget.model.prodModelname.split(',')[0]}';
+  late String ndPropName = '${widget.model.prodModelname.split(',')[1]}';
   // Model Edit
   TextEditingController editPropertyName = TextEditingController();
 
-  TextEditingController stProperty = TextEditingController();
-  TextEditingController ndPropertty = TextEditingController();
+  late TextEditingController stProperty =
+      TextEditingController(text: '${widget.model.stProperty}');
+  late TextEditingController ndPropertty =
+      TextEditingController(text: '${widget.model.ndProperty}');
   late TextEditingController costController =
       TextEditingController(text: '${widget.model.cost}');
   late TextEditingController priceController =
       TextEditingController(text: '${widget.model.price}');
+  late TextEditingController weightController =
+      TextEditingController(text: '${widget.model.weight}');
 
   List<ProductModel> productModels = [];
   List<ProductLot> productLots = [];
   bool _validate = false;
   bool isDialogChooseFst = false;
-  late String stPropName = '${widget.model.prodModelname.split(',')[0]}';
-  late String ndPropName = '${widget.model.prodModelname.split(',')[1]}';
+
   final df = new DateFormat('dd-MM-yyyy');
 
   Future refreshProductModels() async {
@@ -220,6 +225,23 @@ class _ProductEditModelState extends State<ProductEditModel> {
                   _validate,
                   length: 30,
                   textController: ndPropertty,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'น้ำหนัก (กรัม)',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+                CustomTextField.textField(
+                  context,
+                  '${widget.model.weight}',
+                  isNumber: true,
+                  _validate,
+                  length: 20,
+                  textController: weightController,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -478,59 +500,58 @@ class _ProductEditModelState extends State<ProductEditModel> {
             ),
 
             // ยกเลิก Button
-            productLots.isEmpty
-                ? Container()
-                : Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Wrap(
-                          spacing: 20,
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  primary: Colors.redAccent),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                "ยกเลิก",
-                                style: TextStyle(fontSize: 17),
-                              ),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Wrap(
+                    spacing: 20,
+                    children: [
+                      ElevatedButton(
+                        style:
+                            ElevatedButton.styleFrom(primary: Colors.redAccent),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "ยกเลิก",
+                          style: TextStyle(fontSize: 17),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final updatedModel = widget.model.copy(
+                            weight: double.parse(weightController.text),
+                            prodModelname: '${stPropName},${ndPropName}',
+                            stProperty: stProperty.text,
+                            ndProperty: ndPropertty.text,
+                            cost: double.parse(costController.text).toInt(),
+                            price: double.parse(priceController.text).toInt(),
+                          );
+                          await DatabaseManager.instance
+                              .updateProductModel(updatedModel);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor:
+                                  Theme.of(context).backgroundColor,
+                              behavior: SnackBarBehavior.floating,
+                              content: Text("บันทึกเสร็จสิ้น"),
+                              duration: Duration(seconds: 2),
                             ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final updatedModel = widget.model.copy(
-                                  prodModelname: '${stPropName},${ndPropName}',
-                                  cost:
-                                      double.parse(costController.text).toInt(),
-                                  price: double.parse(priceController.text)
-                                      .toInt(),
-                                );
-                                await DatabaseManager.instance
-                                    .updateProductModel(updatedModel);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    backgroundColor:
-                                        Theme.of(context).backgroundColor,
-                                    behavior: SnackBarBehavior.floating,
-                                    content: Text("เสร็จสิ้น"),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                "บันทึก",
-                                style: TextStyle(fontSize: 17),
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                          );
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "บันทึก",
+                          style: TextStyle(fontSize: 17),
+                        ),
+                      )
+                    ],
                   )
+                ],
+              ),
+            )
             // บันทึก Button
           ]),
         ),

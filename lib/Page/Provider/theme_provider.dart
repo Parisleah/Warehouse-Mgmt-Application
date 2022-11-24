@@ -41,7 +41,7 @@ const tabbarGred = LinearGradient(
   end: Alignment.bottomCenter,
 );
 
-const dark_primary_accent_color = Color.fromARGB(255, 141, 106, 225);
+const dark_primary_accent_color = Color.fromRGBO(141, 106, 225, 1);
 
 const light_primary_accent_color = Color.fromARGB(255, 72, 179, 127);
 

@@ -74,7 +74,7 @@ class _OtpScreenState extends State<OtpScreen> {
   );
 
   int pinIndex = 0;
-
+  bool isWrong = false;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -257,6 +257,8 @@ class _OtpScreenState extends State<OtpScreen> {
         name: widget.profile.name,
         phone: widget.profile.phone,
         image: widget.profile.image,
+        loginDateTime: DateTime.now(),
+        isDisable: false,
         pin: pin);
     await DatabaseManager.instance.updateProfile(profile);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -278,15 +280,13 @@ class _OtpScreenState extends State<OtpScreen> {
     if (oldPin == veriPin) {
       addProfile(veriPin);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.redAccent,
-          content: Text("รหัสไม่ตรงกัน"),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      for (var i = 0; i < 6; i++) {
+        clearPin();
+      }
+
+      isWrong = true;
       clearPin();
+      setState(() {});
     }
   }
 
@@ -348,14 +348,30 @@ class _OtpScreenState extends State<OtpScreen> {
   buildSecurityText() {
     // ignore: prefer_const_constructors
     return Container(
-      child: const Text(
-        "ยืนยัน PIN",
-        // ignore: prefer_const_constructors
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 21.0,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Column(
+        children: [
+          const Text(
+            "ยืนยัน PIN",
+            // ignore: prefer_const_constructors
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 21.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          isWrong
+              ? Text("รหัสไม่ตรงกัน",
+                  // ignore: prefer_const_constructors
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold,
+                  ))
+              : Container(),
+        ],
       ),
     );
   }

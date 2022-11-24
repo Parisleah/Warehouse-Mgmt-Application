@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:warehouse_mnmt/Page/Model/Profile.dart';
 
 // Components
@@ -9,11 +11,10 @@ import 'package:warehouse_mnmt/Page/Model/Profile.dart';
 // Models
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Profile/1_addShopName.dart';
+import 'package:warehouse_mnmt/Page/Profile/NormalUser/0_InputPin.dart';
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/db/database.dart';
 import 'package:warehouse_mnmt/main.dart';
-
-
 
 class DisableWrongPinPage extends StatefulWidget {
   final Profile profile;
@@ -34,43 +35,73 @@ class _DisableWrongPinPageState extends State<DisableWrongPinPage> {
   @override
   void initState() {
     profile = widget.profile;
-    super.initState();
+    print(
+        'Received Profile isDisable ${profile!.isDisable} loginDateTime ${profile!.loginDateTime}');
+    DateTime loginTime = DateTime.parse(
+        DateFormat("yyyy-MM-dd hh:mm:ss").format(profile!.loginDateTime!));
 
+    super.initState();
+    startTimer();
+
+    updatedProfile();
+    setState(() {});
   }
 
-  Future<bool> _onWillPop() async {
-    return (await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)),
-            title: new Text('คุณแน่ใจ ?'),
-            content: new Text('ต้องการออกจากแอปพลิเคชัน'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(false), //<-- SEE HERE
-                child: Text(
-                  'ไม่',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(true), // <-- SEE HERE
-                child: Text('ออก', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-        )) ??
-        false;
+  DateTime date = DateTime.now();
+
+  Timer? countdownTimer;
+
+  // IF Fail
+  late Duration addDuration = profile!.loginDateTime!.difference(date);
+  void startTimer() async {
+    countdownTimer =
+        Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
+
+    ;
+  }
+
+  // ELSE Out of Apps
+  // late Duration waitingDuration = profile!.loginDateTime.difference(date);
+  Future updatedProfile() async {
+    print('Add Duration !! ${date.add(addDuration)}');
+
+    final addedDuration =
+        profile!.copy(isDisable: true, loginDateTime: date.add(addDuration));
+    await DatabaseManager.instance.updateProfile(addedDuration);
+    profile = await DatabaseManager.instance.readProfile(widget.profile.id!);
+    setState(() {});
+  }
+
+  void setCountDown() {
+    final reduceSecondsBy = 1;
+    setState(() {
+      final seconds = addDuration.inSeconds - reduceSecondsBy;
+      if (seconds < 0) {
+        countdownTimer!.cancel();
+        isLoading = true;
+      } else {
+        addDuration = Duration(seconds: seconds);
+      }
+    });
+  }
+
+  // Step 4
+  void stopTimer() {
+    setState(() => countdownTimer!.cancel());
   }
 
   @override
   Widget build(BuildContext context) {
+    String strDigits(int n) => n.toString().padLeft(2, '0');
+
+    final hours = strDigits(addDuration.inHours.remainder(24));
+    final minutes = strDigits(addDuration.inMinutes.remainder(60));
+    final seconds = strDigits(addDuration.inSeconds.remainder(60));
+
     return WillPopScope(
-      onWillPop: _onWillPop,
+      onWillPop: () async {
+        return false;
+      },
       child: Scaffold(
         body: SingleChildScrollView(
           child: Container(
@@ -94,7 +125,64 @@ class _DisableWrongPinPageState extends State<DisableWrongPinPage> {
                       const SizedBox(
                         height: 20,
                       ),
-                     
+                      Container(
+                          width: 150,
+                          height: 150,
+                          child: Image.asset('assets/Icons/Warehouse.png')),
+                      isLoading
+                          ? Text(
+                              'สิ้นสุดการรอ!',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 50),
+                            )
+                          : isLoading
+                              ? Text(
+                                  'ยินดีต้อนรับ',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 40),
+                                )
+                              : Text(
+                                  '$hours:$minutes:$seconds',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 50),
+                                ),
+                      isLoading
+                          ? Container()
+                          : Text(
+                              'ถึง ${DateFormat.Hms().format(profile!.loginDateTime!)}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 20),
+                            ),
+                      isLoading
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(80, 40)),
+                              onPressed: () async {
+                                await DatabaseManager.instance.updateProfile(
+                                    profile!.copy(
+                                        isDisable: false, loginDateTime: null));
+
+                                profile = await DatabaseManager.instance
+                                    .readProfile(widget.profile.id!);
+                                setState(() {});
+
+                                Navigator.push(
+                                    context,
+                                    new MaterialPageRoute(
+                                        builder: (context) => InputPinPage(
+                                              profile: profile!,
+                                            )));
+                              },
+                              child: Text('ถัดไป'))
+                          : SizedBox(height: 20),
                     ]),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,8 +38,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   final df = new DateFormat('dd-MM-yyyy');
   DealerModel _dealer =
       DealerModel(dName: 'ยังไม่ระบุตัวแทนจำหน่าย', dAddress: '', dPhone: '');
-  DeliveryCompanyModel _shipping =
-      DeliveryCompanyModel(dcName: 'ระบุการจัดส่ง');
+
   var totalWeight = 0;
   var shippingCost = 0;
   var totalPrice = 0;
@@ -74,12 +74,6 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   _updateDealer(DealerModel dealer) {
     setState(() {
       _dealer = dealer;
-    });
-  }
-
-  _updateShipping(DeliveryCompanyModel shipping) async {
-    setState(() {
-      _shipping = shipping;
     });
   }
 
@@ -173,31 +167,6 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
         }
       }
     }
-
-    // List<DeliveryRateModel> deliveryRates = [];
-    // print('Delivery Rates (${deliveryRates.length})');
-
-    // if (carts.isNotEmpty) {
-    //   if (_shipping.dcName != 'ระบุการจัดส่ง') {
-    //     deliveryRates = await DatabaseManager.instance
-    //         .readDeliveryRatesWHEREdcId(_newshipping.dcId!);
-    //     for (var rate in deliveryRates) {
-    //       if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
-    //               totalWeight.toInt() &&
-    //           oldTotalWeight.toInt() <=
-    //               double.parse(rate.weightRange.split('-')[1]).toInt()) {
-    //         shippingCost = rate.cost;
-    //       }
-    //     }
-    //     if (shippingCost == 0) {
-    //       dialogAlertWeightNotInRange(_shipping);
-    //     }
-    //   } else {
-    //     shippingCost = 0;
-    //   }
-    // } else {
-    //   shippingCost = 0;
-    // }
 
     totalPrice = oldTotal + oldShippingPrice;
     amount = oldAmount;
@@ -715,19 +684,32 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                           )
                         : Row(
                             children: [
-                              Text(
-                                'น้ำหนักรวม ',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              Text(
-                                  '${NumberFormat("#,###.##").format(totalWeight)}',
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      color: Theme.of(context).backgroundColor,
-                                      fontWeight: FontWeight.bold)),
-                              Text(
-                                ' กรัม',
-                                style: const TextStyle(color: Colors.white),
+                              Container(
+                                width: 180,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'น้ำหนักรวม ',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          '${NumberFormat("#,###.##").format(totalWeight)}',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Theme.of(context)
+                                                  .backgroundColor,
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                    Text(
+                                      ' กรัม',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const Spacer(),
                               Text(
@@ -822,6 +804,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 child: TextField(
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(7),
+                      FilteringTextInputFormatter.digitsOnly
                     ],
                     onChanged: (text) {
                       if (shipPricController.text != null &&
@@ -1091,15 +1074,13 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                           } else if (carts.isEmpty || carts.length == 0) {
                             _showAlertSnackBar('รายการสั่งซื้อว่าง');
                           } else {
-                            print(_shipping);
                             // Purchasing
                             final purchased = PurchasingModel(
                                 orderedDate: date,
                                 dealerId: _dealer.dealerId!,
                                 shippingCost: shippingCost,
-                               
                                 amount: amount,
-                                total: totalPrice,
+                                total: totalPrice - shippingCost,
                                 isReceive: isReceived,
                                 shopId: widget.shop.shopid!);
                             final createdPur = await DatabaseManager.instance

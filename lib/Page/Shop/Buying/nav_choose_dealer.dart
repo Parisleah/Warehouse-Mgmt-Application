@@ -322,7 +322,8 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
 
   List<DealerModel> dealers = [];
   Future refreshDealer() async {
-    dealers = await DatabaseManager.instance.readAllDealers();
+    dealers =
+        await DatabaseManager.instance.readAllDealers(widget.shop.shopid!);
     setState(() {});
   }
 
@@ -359,7 +360,6 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
           decoration: const BoxDecoration(
@@ -386,8 +386,8 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                   ),
             dealers.isEmpty
                 ? Container(
-                    width: 440,
-                    height: 550,
+                    width: (MediaQuery.of(context).size.width),
+                    height: (MediaQuery.of(context).size.height),
                     child: Center(
                         child: Text(
                       'ไม่มีตัวแทนจำหน่าย',
@@ -395,8 +395,8 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                     )),
                   )
                 : Container(
-                    width: 440,
-                    height: 550,
+                    width: (MediaQuery.of(context).size.width),
+                    height: (MediaQuery.of(context).size.height),
                     child: RefreshIndicator(
                       onRefresh: refreshDealer,
                       child: ListView.builder(
@@ -445,18 +445,18 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                                     duration: Duration(seconds: 2),
                                   ));
                                 },
-                                child: Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        primary: const Color.fromRGBO(
-                                            56, 54, 76, 1.0),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15))),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      widget.update(dealer);
-                                    },
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      primary:
+                                          const Color.fromRGBO(56, 54, 76, 1.0),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15))),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    widget.update(dealer);
+                                  },
+                                  child: Container(
                                     child: Row(children: [
                                       Icon(Icons.person_pin_circle),
                                       Padding(
@@ -497,20 +497,18 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                                             ),
                                             Container(
                                               width: 230,
-                                              child: Flexible(
-                                                child: Text(
-                                                    'ที่อยู่ ${dealer.dAddress}',
-                                                    style: TextStyle(
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        fontSize: 15,
-                                                        color: Colors.white)),
-                                              ),
+                                              child: Text(
+                                                  'ที่อยู่ ${dealer.dAddress}',
+                                                  style: TextStyle(
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      fontSize: 15,
+                                                      color: Colors.white)),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      const Spacer(),
+                                      // const Spacer(),
                                       IconButton(
                                           onPressed: () async {
                                             await dialogEditDealer(dealer);

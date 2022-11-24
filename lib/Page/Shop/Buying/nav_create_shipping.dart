@@ -41,6 +41,7 @@ class _CreateShippingPageState extends State<CreateShippingPage> {
   final nameController = TextEditingController();
   final onlyOneController = TextEditingController();
   String? deliveryOptions;
+  bool isSelectedRange = false;
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -729,7 +730,7 @@ class _CreateShippingPageState extends State<CreateShippingPage> {
                             ),
                           ),
                         ),
-                  deliveryRates.isEmpty
+                  deliveryRates.isEmpty || onlyOneController.text.isEmpty
                       ? Container()
                       : ElevatedButton(
                           onPressed: () async {
@@ -737,51 +738,36 @@ class _CreateShippingPageState extends State<CreateShippingPage> {
                                 _formDcNameKey.currentState!.validate()) {
                               final company = DeliveryCompanyModel(
                                   dcName: nameController.text,
+                                  dcisRange: isSelectedRange,
+                                  fixedDeliveryCost: isSelectedRange
+                                        ? null
+                                        : double.parse(onlyOneController.text
+                                                .replaceAll(
+                                                    RegExp('[^0-9]'), ''))
+                                            .toInt(),
                                   shopId: widget.shop.shopid!);
                               final createdCompany = await DatabaseManager
                                   .instance
                                   .createDeliveryCompany(company);
-                              for (var i = 0; i < deliveryRates.length; i++) {
-                                final reatedRate = deliveryRates[i].copy(
-                                    weightRange:
-                                        '${double.parse(startControllers[i].text)}-${double.parse(endControllers[i].text)}',
-                                    cost: double.parse(costControllers[i]
-                                            .text
-                                            .replaceAll(RegExp('[^0-9]'), ''))
-                                        .toInt(),
-                                    dcId: createdCompany.dcId!);
-                                await DatabaseManager.instance
-                                    .createDeliveryRate(reatedRate);
+                              if (isSelectedRange == true) {
+                                for (var i = 0; i < deliveryRates.length; i++) {
+                                  final reatedRate = deliveryRates[i].copy(
+                                      weightRange:
+                                          '${double.parse(startControllers[i].text)}-${double.parse(endControllers[i].text)}',
+                                      cost: double.parse(costControllers[i]
+                                              .text
+                                              .replaceAll(RegExp('[^0-9]'), ''))
+                                          .toInt(),
+                                      dcId: createdCompany.dcId!);
+                                  await DatabaseManager.instance
+                                      .createDeliveryRate(reatedRate);
+                                }
                               }
                               Navigator.pop(context);
                             }
                           },
                           child: Text('บันทึก')),
-                  onlyOneController.text.isEmpty
-                      ? Container()
-                      : ElevatedButton(
-                          onPressed: () async {
-                            if (_formDcNameKey.currentState!.validate() &&
-                                _formOnlyOneKey.currentState!.validate()) {
-                              final company = DeliveryCompanyModel(
-                                  dcName: nameController.text,
-                                  shopId: widget.shop.shopid!);
-                              final createdCompany = await DatabaseManager
-                                  .instance
-                                  .createDeliveryCompany(company);
-                              final reatedRate = DeliveryRateModel(
-                                  weightRange: 'only-one',
-                                  cost: double.parse(onlyOneController.text
-                                          .replaceAll(RegExp('[^0-9]'), ''))
-                                      .toInt(),
-                                  dcId: createdCompany.dcId!);
-                              await DatabaseManager.instance
-                                  .createDeliveryRate(reatedRate);
-
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text('บันทึก')),
+                  
                   const SizedBox(
                     height: 10,
                   ),

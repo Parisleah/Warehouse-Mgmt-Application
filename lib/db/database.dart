@@ -30,7 +30,8 @@ class DatabaseManager {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('main54.db');
+    //57
+    _database = await _initDB('main78.db');
     return _database!;
   }
 
@@ -73,7 +74,10 @@ class DatabaseManager {
   ${ProfileFields.name} $textType,
   ${ProfileFields.phone} $textType,
   ${ProfileFields.image} $textType,
+  ${ProfileFields.loginDateTime} $textType,
+  ${ProfileFields.isDisable} $boolType,
   ${ProfileFields.pin} $textType
+
       );""";
 
   static final createTableShop = """
@@ -82,6 +86,7 @@ class DatabaseManager {
   ${ShopFields.name} $textType,
   ${ShopFields.phone} $textType,
   ${ShopFields.image} $textType,
+  ${ShopFields.dcId} $integerType,
   ${ShopFields.profileId} $integerType
 
       );""";
@@ -213,6 +218,8 @@ ${DealerFields.shopId} $integerType
   CREATE TABLE IF NOT EXISTS $tableDeliveryCompany (  
   ${DeliveryCompanyFields.dcId} $idType,
   ${DeliveryCompanyFields.dcName} $textType,
+  ${DeliveryCompanyFields.dcisRange} $boolType,
+  ${DeliveryCompanyFields.fixedDeliveryCost} $integerType,
   ${DeliveryCompanyFields.shopId} $integerType
       );""";
   static final createTableDeliveryRate = """
@@ -432,7 +439,7 @@ ${DealerFields.shopId} $integerType
 
   Future<List<ProductModel>> readAllProductModelsInProduct(int prodId) async {
     final db = await instance.database;
-    final orderBy = '${ProductModelFields.prodModelId} ASC';
+    final orderBy = '${ProductModelFields.prodModelId} DESC';
     final result = await db.query(tableProductModel,
         columns: ProductModelFields.values,
         where: '${ProductModelFields.prodId} = ?',
@@ -570,15 +577,77 @@ ${DealerFields.shopId} $integerType
     return db.delete(tableProductLot,
         where: '${ProductLotFields.prodLotId} = ?', whereArgs: [prodLotId]);
   }
+
+  Future<List<SellingModel>> readSellingsWHEREisReceivedANDRangeDate(
+      String selectedTabbar, String fromDate, String toDate, int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${PurchasingFields.orderedDate} DESC';
+    // final result = await db.rawQuery(
+    //     "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} BETWEEN '${fromDate}' AND '${toDate}'");
+    // final result = await db.rawQuery(
+    //     "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} >= '${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}' AND ${PurchasingFields.orderedDate} <= '${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}' ORDER BY ${PurchasingFields.orderedDate} DESC");
+    final result = await db.rawQuery(
+        "SELECT * FROM selling WHERE ${SellingFields.shopId} = ${shopId} AND ${SellingFields.isDelivered} = 1 AND ${SellingFields.orderedDate} BETWEEN date('${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}') AND date('${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}') ORDER BY ${orderBy}");
+    var cnt = 0;
+    print(
+        '-----------------------------Range [${selectedTabbar}]----------------------------------');
+
+    print(
+        'Start Data [${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}]-[${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}]');
+
+    for (var pur
+        in result.map((json) => SellingModel.fromJson(json)).toList()) {
+      print(
+          '--------------------------------------------------------------------');
+      print('${cnt + 1} : Shop ${pur.shopId} ${pur.total}');
+      print('Unconvert : ${pur.orderedDate}');
+      // print('Converted : ${DateFormat('yyyy-MM-dd').format(pur.orderedDate)}');
+
+      cnt++;
+    }
+
+    return result.map((json) => SellingModel.fromJson(json)).toList();
+  }
+
   // Product lot
+  Future<List<SellingModel>> readSellingsWHEREisReceivedANDToday(
+      int shopId) async {
+    final db = await instance.database;
+    final orderBy = '${SellingFields.orderedDate} DESC';
+    // String todayDate = DateTime.now().toIso8601String();
+
+    final result = await db.rawQuery(
+        "SELECT * FROM selling WHERE ${SellingFields.shopId} = ${shopId} AND ${SellingFields.isDelivered} = 1 AND ${SellingFields.orderedDate} = date('${DateFormat('yyyy-MM-dd').format(DateTime.now())}')");
+    var cnt = 0;
+
+    print(
+        '--------------------------------------------------------------------');
+    print('Received Date Time ');
+    print('Date ${DateFormat('yyyy-MM-dd').format(DateTime.now())}');
+
+    for (var sel
+        in result.map((json) => PurchasingModel.fromJson(json)).toList()) {
+      print(
+          '--------------------------------------------------------------------');
+      print('${cnt + 1}');
+      print(' Selliong Unconvert : ${sel.orderedDate}');
+      print(
+          ' Selliong Converted : ${DateFormat('yyyy-MM-dd').format(sel.orderedDate)}');
+      cnt++;
+    }
+
+    return result.map((json) => SellingModel.fromJson(json)).toList();
+  }
 
   // Purchasing
   Future<List<PurchasingModel>> readPurchasingsWHEREisReceivedANDToday(
       int shopId) async {
     final db = await instance.database;
     final orderBy = '${PurchasingFields.orderedDate} DESC';
+    // String todayDate = DateTime.now().toIso8601String();
+
     final result = await db.rawQuery(
-        "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} == date('now')");
+        "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} = date('${DateFormat('yyyy-MM-dd').format(DateTime.now())}')");
     var cnt = 0;
 
     print(
@@ -600,7 +669,7 @@ ${DealerFields.shopId} $integerType
   }
 
   Future<List<PurchasingModel>> readPurchasingsWHEREisReceivedANDRangeDate(
-      String fromDate, String toDate, int shopId) async {
+      String selectedTabbar, String fromDate, String toDate, int shopId) async {
     final db = await instance.database;
     final orderBy = '${PurchasingFields.orderedDate} DESC';
     // final result = await db.rawQuery(
@@ -611,10 +680,10 @@ ${DealerFields.shopId} $integerType
         "SELECT * FROM purchasing WHERE ${PurchasingFields.shopId} = ${shopId} AND ${PurchasingFields.isReceive} = 1 AND ${PurchasingFields.orderedDate} BETWEEN date('${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}') AND date('${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}') ORDER BY ${orderBy}");
     var cnt = 0;
     print(
-        '----------------------------------Range----------------------------------');
+        '-----------------------------Range [${selectedTabbar}]----------------------------------');
 
     print(
-        'Start [${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}] - [${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}]');
+        'Start Data [${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}]-[${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}]');
 
     for (var pur
         in result.map((json) => PurchasingModel.fromJson(json)).toList()) {
@@ -622,7 +691,7 @@ ${DealerFields.shopId} $integerType
           '--------------------------------------------------------------------');
       print('${cnt + 1} : Shop ${pur.shopId} ${pur.total}');
       print('Unconvert : ${pur.orderedDate}');
-      print('Converted : ${DateFormat('yyyy-MM-dd').format(pur.orderedDate)}');
+      // print('Converted : ${DateFormat('yyyy-MM-dd').format(pur.orderedDate)}');
 
       cnt++;
     }
@@ -710,7 +779,7 @@ ${DealerFields.shopId} $integerType
       int shopId, name) async {
     final db = await instance.database;
     final result = await db.rawQuery(
-        "SELECT * FROM purchasing INNER JOIN dealer ON dealer._dealerId == purchasing.dealerId WHERE dealer.dName LIKE '${name}%' OR dealer.dPhone LIKE '${name}%'");
+        "SELECT * FROM purchasing INNER JOIN dealer ON dealer._dealerId == purchasing.dealerId WHERE purchasing.shopId == ${shopId} AND dealer.dName LIKE '${name}%' OR dealer.dPhone LIKE '${name}%'");
 
     return result.map((json) => PurchasingModel.fromJson(json)).toList();
   }
@@ -778,10 +847,15 @@ ${DealerFields.shopId} $integerType
   // PurchasingItems
 
   // Dealers
-  Future<List<DealerModel>> readAllDealers() async {
+
+  Future<List<DealerModel>> readAllDealers(int shopId) async {
     final db = await instance.database;
     final orderBy = '${DealerFields.dealerId} DESC';
-    final result = await db.query(tableDealer, orderBy: orderBy);
+    final result = await db.query(tableDealer,
+        columns: DealerFields.values,
+        where: '${DealerFields.shopId} = ?',
+        whereArgs: [shopId],
+        orderBy: orderBy);
 
     return result.map((json) => DealerModel.fromJson(json)).toList();
   }
@@ -823,7 +897,7 @@ ${DealerFields.shopId} $integerType
   Future<List<SellingModel>> readAllSellingByCusName(int shopId, name) async {
     final db = await instance.database;
     final result = await db.rawQuery(
-        "SELECT * FROM selling INNER JOIN customer ON customer._cusId == selling.customerId INNER JOIN customerAddress ON customer._cusId == customerAddress.cusId WHERE customer.cName LIKE '${name}%' OR customerAddress.cPhone LIKE '${name}%'");
+        "SELECT * FROM selling INNER JOIN customer ON customer._cusId == selling.customerId INNER JOIN customerAddress ON customer._cusId == customerAddress.cusId WHERE selling.shopId == ${shopId} AND customer.cName LIKE '${name}%' OR customerAddress.cPhone LIKE '${name}%'");
 
     return result.map((json) => SellingModel.fromJson(json)).toList();
   }
@@ -944,6 +1018,17 @@ ${DealerFields.shopId} $integerType
     return result.map((json) => CustomerModel.fromJson(json)).toList();
   }
 
+  Future<CustomerModel> readCustomer(int customerId) async {
+    final db = await instance.database;
+    final orderBy = '${CustomerFields.cusId} DESC';
+    final maps = await db.query(tableCustomer,
+        whereArgs: [customerId],
+        where: '${CustomerFields.cusId} = ?',
+        orderBy: orderBy);
+
+    return CustomerModel.fromJson(maps.first);
+  }
+
   Future<List<CustomerModel>> readAllCustomerInShop(int shopId) async {
     final db = await instance.database;
     final orderBy = '${CustomerFields.cusId} DESC';
@@ -1045,6 +1130,20 @@ ${DealerFields.shopId} $integerType
         orderBy: orderBy);
 
     return result.map((json) => DeliveryCompanyModel.fromJson(json)).toList();
+  }
+
+  Future<DeliveryCompanyModel> readDeliveryCompanysOnlyOne(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(tableDeliveryCompany,
+        columns: DeliveryCompanyFields.values,
+        where: '${DeliveryCompanyFields.dcId} = ?',
+        whereArgs: [id]);
+
+    if (maps.isNotEmpty) {
+      return DeliveryCompanyModel.fromJson(maps.first);
+    } else {
+      throw Exception('ID $id not found');
+    }
   }
 
   Future<DeliveryCompanyModel> createDeliveryCompany(

@@ -96,7 +96,6 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                         .background
                         .withOpacity(0.9),
                     borderRadius: BorderRadius.circular(15)),
-                width: 380,
                 height: 70,
                 child: TextFormField(
                     keyboardType: TextInputType.text,
@@ -159,6 +158,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
       ),
       body: SingleChildScrollView(
         child: Container(
+          height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
           decoration: const BoxDecoration(
@@ -247,7 +247,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => BuyingNavShowProd(
-                                      prodCategory: category,
+                                        prodCategory: category,
                                         update: addPurchasingItem,
                                         productTotalAmount: amountOfProd,
                                         product: product)));

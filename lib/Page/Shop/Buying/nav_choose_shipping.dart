@@ -21,11 +21,7 @@ class ChooseShippingNav extends StatefulWidget {
 }
 
 class _ChooseShippingNavState extends State<ChooseShippingNav> {
-  List<DeliveryCompanyModel> companys = [
-    DeliveryCompanyModel(
-      dcName: 'รับสินค้าเอง',
-    )
-  ];
+  List<DeliveryCompanyModel> companys = [];
   @override
   void initState() {
     super.initState();
@@ -35,13 +31,19 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
   Future refreshPage() async {
     companys = await DatabaseManager.instance
         .readDeliveryCompanys(widget.shop.shopid!);
+    companys.add(DeliveryCompanyModel(
+        dcName: 'รับสินค้าเอง', dcisRange: false, fixedDeliveryCost: 0));
+    companys.add(DeliveryCompanyModel(
+        dcName: 'ระบุราคา', dcisRange: false, fixedDeliveryCost: 0));
 
     setState(() {});
   }
 
   TextEditingController controller = TextEditingController();
   bool _validate = false;
-  Future<void> dialog(TextEditingController controller) async {
+
+  Future<void> dialog(
+      TextEditingController controller, DeliveryCompanyModel company) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -56,7 +58,7 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
               child: Row(
                 children: [
                   const Text(
-                    'ระบุการจัดส่งอื่น ๆ ',
+                    'ราคาการจัดส่ง',
                     style: TextStyle(color: Colors.white),
                   ),
                 ],
@@ -67,7 +69,8 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
                 children: <Widget>[
                   CustomTextField.textField(
                     dContext,
-                    'ระบุการจัดส่ง',
+                    'ราคา',
+                    isNumber: true,
                     _validate,
                     length: 30,
                     textController: controller,
@@ -80,6 +83,14 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
                 child: const Text('ยืนยัน'),
                 onPressed: () {
                   // widget.update(controller.text);
+                  final updatedCompany = company.copy(
+                      fixedDeliveryCost: double.parse(
+                              controller.text.replaceAll(RegExp('[^0-9]'), ''))
+                          .toInt());
+
+                  widget.update(
+                    updatedCompany,
+                  );
                   Navigator.of(dContext).pop();
                   Navigator.of(context).pop();
                 },
@@ -109,24 +120,24 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
           ],
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                      builder: (context) => CreateShippingPage(
-                            shop: widget.shop!,
-                          )));
-              refreshPage();
-              setState(() {});
-            },
-            icon: const Icon(
-              Icons.add,
-              size: 30,
-            ),
-          )
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () async {
+        //       await Navigator.push(
+        //           context,
+        //           new MaterialPageRoute(
+        //               builder: (context) => CreateShippingPage(
+        //                     shop: widget.shop!,
+        //                   )));
+        //       refreshPage();
+        //       setState(() {});s
+        //     },
+        //     icon: const Icon(
+        //       Icons.add,
+        //       size: 30,
+        //     ),
+        //   )
+        // ],
         backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
       ),
       body: SingleChildScrollView(
@@ -170,94 +181,37 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
                           return // Choose Customer Button
                               Padding(
                             padding: const EdgeInsets.only(top: 10),
-                            child: Dismissible(
-                              key: UniqueKey(),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (direction) async {
-                                rates = await DatabaseManager.instance
-                                    .readDeliveryRatesWHEREdcId(company.dcId!);
-                                for (var rate in rates) {
-                                  await DatabaseManager.instance
-                                      .deleteDeliveryRate(rate.rId!);
-                                }
-                                await DatabaseManager.instance
-                                    .deleteDeliveryCompany(company.dcId!);
-
-                                refreshPage();
-                                setState(() {});
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  backgroundColor: Colors.redAccent,
-                                  content: Text("ลบ ${company.dcName}"),
-                                  duration: Duration(seconds: 1),
-                                ));
-                              },
-                              background: Container(
-                                margin: EdgeInsets.only(
-                                    left: 0, top: 10, right: 10, bottom: 10),
-                                decoration: BoxDecoration(
-                                    color: Colors.redAccent,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.delete_forever,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    primary:
-                                        const Color.fromRGBO(56, 54, 76, 1.0),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(15))),
-                                onPressed: () {
-                                  //  if (shipping == 'อื่นๆ') {
-                                  //   dialog(controller);
-                                  // } else {
-                                  //   Navigator.of(context).pop();
-                                  //   widget.update(shipping);
-                                  // }
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  primary:
+                                      const Color.fromRGBO(56, 54, 76, 1.0),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15))),
+                              onPressed: () {
+                                if (company.dcName == 'ระบุราคา') {
+                                  dialog(controller, company);
+                                } else {
                                   Navigator.of(context).pop();
-                                  widget.update(company);
+                                  widget.update(
+                                    company,
+                                  );
                                   refreshPage();
-                                },
-                                child: Row(children: [
-                                  Icon(Icons.local_shipping_rounded),
-                                  Padding(
-                                    padding: const EdgeInsets.all(25.0),
-                                    child: Text(company.dcName,
-                                        style: TextStyle(
-                                            fontSize: 15, color: Colors.white)),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    onPressed: () async {
-                                      await Navigator.push(
-                                          context,
-                                          new MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditShippingPage(
-                                                    shop: widget.shop!,
-                                                    company: company,
-                                                  )));
-                                      refreshPage();
-                                    },
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                ]),
-                              ),
+                                }
+                              },
+                              child: Row(children: [
+                                Icon(company.dcName == 'รับสินค้าเอง'
+                                    ? Icons.front_hand_rounded
+                                    : company.dcName == 'ระบุราคา'
+                                        ? Icons.edit
+                                        : Icons.local_shipping_rounded),
+                                Padding(
+                                  padding: const EdgeInsets.all(25.0),
+                                  child: Text(company.dcName,
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.white)),
+                                ),
+                                const Spacer(),
+                              ]),
                             ),
                           );
                           // Choose Customer Button;

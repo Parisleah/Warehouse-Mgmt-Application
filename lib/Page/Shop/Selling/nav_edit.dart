@@ -40,7 +40,7 @@ class SellingNavEdit extends StatefulWidget {
 
 class _SellingNavEditState extends State<SellingNavEdit> {
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
-  DeliveryCompanyModel _shipping = DeliveryCompanyModel(dcName: '-');
+  late DeliveryCompanyModel _shipping;
   late var shippingCost = widget.selling.shippingCost;
   late var discountPercent = widget.selling.discountPercent;
   var noShippingPrice = 0;
@@ -57,7 +57,8 @@ class _SellingNavEditState extends State<SellingNavEdit> {
   List<CustomerAddressModel> addresses = [];
   List<SellingItemModel> sellingItems = [];
   List<ProductLot> productLots = [];
-  List<DeliveryCompanyModel> companys = [];
+  DeliveryCompanyModel? company;
+
   _addProductInCart(SellingItemModel product) {
     sellingItems.add(product);
   }
@@ -79,8 +80,8 @@ class _SellingNavEditState extends State<SellingNavEdit> {
     sellingItems = await DatabaseManager.instance
         .readAllSellingItemsWhereSellID(widget.selling.selId!);
     productLots = await DatabaseManager.instance.readAllProductLots();
-    companys = await DatabaseManager.instance
-        .readDeliveryCompanys(widget.shop.shopid!);
+    // companys = await DatabaseManager.instance
+    // .readDeliveryCompanys(widget.shop.shopid!);
     for (var item in sellingItems) {
       noShippingPrice += item.total;
       for (var model in models) {
@@ -89,10 +90,15 @@ class _SellingNavEditState extends State<SellingNavEdit> {
         }
       }
     }
-    for (var company in companys) {
-      if (company.dcId == widget.selling.deliveryCompanyId) {
-        _shipping = company;
-      }
+    if (widget.selling.deliveryCompanyId != null) {
+      company = await DatabaseManager.instance
+          .readDeliveryCompanysOnlyOne(widget.selling.deliveryCompanyId!);
+    } else {
+      company = widget.selling.shippingCost == 0
+          ? DeliveryCompanyModel(
+              dcName: 'รับสินค้าเอง', dcisRange: false, fixedDeliveryCost: 0)
+          : DeliveryCompanyModel(
+              dcName: 'ระบุราคา', dcisRange: false, fixedDeliveryCost: 0);
     }
 
     setState(() {});
@@ -108,7 +114,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
         }
       }
     }
-
     setState(() {
       noShippingPrice = oldTotalPrice;
     });
@@ -184,11 +189,11 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                 } else {
                                   for (var item in sellingItems) {
                                     await DatabaseManager.instance
-                                        .deletePurchasingItem(item.selItemId!);
+                                        .deleteSellingItem(item.selItemId!);
                                   }
                                 }
                                 await DatabaseManager.instance
-                                    .deletePurchasing(widget.selling.selId!);
+                                    .deleteSelling(widget.selling.selId!);
 
                                 Navigator.of(context).pop();
                                 Navigator.of(context).pop();
@@ -275,7 +280,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                       ),
                       Spacer(),
                       Text(
-                        '${df.format(widget.selling.orderedDate)}',
+                        '${DateFormat('H:m:s, y-MMM-d').format(widget.selling.orderedDate)}',
                         style: TextStyle(color: Colors.grey),
                       )
                     ],
@@ -381,6 +386,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                           var prodName;
                                           var prodImg;
                                           var prodModel;
+
                                           for (var prod in products) {
                                             if (prod.prodId == selling.prodId) {
                                               prodImg = prod.prodImage!;
@@ -696,14 +702,23 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 width: 400,
                 height: 30,
                 child: Row(children: [
-                  const Padding(
+                  Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: Text("การจัดส่ง",
                         style: TextStyle(fontSize: 15, color: Colors.white)),
                   ),
+                  company?.dcisRange == false
+                      ? Text(' (อัตราคงที่)',
+                          style: TextStyle(fontSize: 15, color: Colors.grey))
+                      : Container(),
                   const Spacer(),
-                  Text('${_shipping.dcName}',
-                      style: TextStyle(fontSize: 15, color: Colors.grey)),
+                  Container(
+                    alignment: Alignment.centerRight,
+                    width: 150,
+                    child: Text('${company?.dcName}',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 15, color: Colors.grey)),
+                  ),
                   const SizedBox(
                     width: 10,
                   ),
@@ -728,9 +743,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   const Spacer(),
                   Text('${NumberFormat("#,###.##").format(shippingCost)}',
                       style: TextStyle(fontSize: 15, color: Colors.grey)),
-                  const SizedBox(
-                    width: 10,
-                  ),
                 ]),
               ),
               // Container of ค่าจัดส่ง
@@ -915,7 +927,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Text(
-                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice)}',
+                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice + shippingCost)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),

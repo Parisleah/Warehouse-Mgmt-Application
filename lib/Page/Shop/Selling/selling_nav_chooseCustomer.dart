@@ -39,7 +39,8 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
   }
 
   Future refreshCustomers() async {
-    customers = await DatabaseManager.instance.readAllCustomerInShop(widget.shop.shopid!);
+    customers = await DatabaseManager.instance
+        .readAllCustomerInShop(widget.shop.shopid!);
     setState(() {});
   }
 
@@ -126,23 +127,26 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
                           padding: EdgeInsets.zero,
                           itemCount: customers.length,
                           itemBuilder: (context, index) {
-                            final customer = customers[index];
+                            var customer = customers[index];
                             return Dismissible(
-                              background: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.redAccent,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.delete_forever,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                  ],
+                              background: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.redAccent,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.delete_forever,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               direction: DismissDirection.endToStart,
@@ -162,7 +166,7 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
                                 ));
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 10),
+                                padding: const EdgeInsets.all(5.0),
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                       primary:
@@ -170,8 +174,8 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(15))),
-                                  onPressed: () {
-                                    Navigator.push(
+                                  onPressed: () async {
+                                    await Navigator.push(
                                         context,
                                         new MaterialPageRoute(
                                             builder: (context) =>
@@ -179,6 +183,9 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
                                                   customer: customer,
                                                   update: _getCustomerAddress,
                                                 )));
+                                    refreshCustomers();
+                                    customer = await DatabaseManager.instance
+                                        .readCustomer(customer.cusId!);
                                     widget.updateCustomer(customer);
                                   },
                                   child: Row(children: [

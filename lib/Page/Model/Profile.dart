@@ -1,13 +1,22 @@
 const String tableProfile = 'profile';
 
 class ProfileFields {
-  static final List<String> values = [id, name, phone, image, pin];
+  static final List<String> values = [
+    id,
+    name,
+    phone,
+    image,
+    loginDateTime,
+    isDisable,
+    pin
+  ];
 
   static final String id = '_id';
   static final String name = 'name';
   static final String phone = 'phone';
   static final String image = 'image';
-
+  static final String loginDateTime = 'loginDateTime';
+  static final String isDisable = 'isDisable';
   static final String pin = 'pin';
 }
 
@@ -16,6 +25,8 @@ class Profile {
   final String name;
   late final String phone;
   final String image;
+  final DateTime? loginDateTime;
+  final bool isDisable;
   final String pin;
 
   Profile({
@@ -23,6 +34,8 @@ class Profile {
     required this.name,
     required this.phone,
     required this.image,
+    this.loginDateTime,
+    required this.isDisable,
     required this.pin,
   });
   Profile copy({
@@ -30,6 +43,8 @@ class Profile {
     String? name,
     String? phone,
     String? image,
+    DateTime? loginDateTime,
+    bool? isDisable,
     String? pin,
   }) =>
       Profile(
@@ -37,6 +52,8 @@ class Profile {
         name: name ?? this.name,
         phone: phone ?? this.phone,
         image: image ?? this.image,
+        loginDateTime: loginDateTime ?? this.loginDateTime,
+        isDisable: isDisable ?? this.isDisable,
         pin: pin ?? this.pin,
       );
   static Profile fromJson(Map<String, Object?> json) => Profile(
@@ -44,6 +61,10 @@ class Profile {
         name: json[ProfileFields.name] as String,
         phone: json[ProfileFields.phone] as String,
         image: json[ProfileFields.image] as String,
+        loginDateTime: json[ProfileFields.loginDateTime] == null
+            ? null
+            : DateTime.parse(json[ProfileFields.loginDateTime] as String),
+        isDisable: json[ProfileFields.isDisable] == 1,
         pin: json[ProfileFields.pin] as String,
       );
   Map<String, Object?> toJson() => {
@@ -51,6 +72,8 @@ class Profile {
         ProfileFields.name: name,
         ProfileFields.phone: phone,
         ProfileFields.image: image,
+        ProfileFields.loginDateTime: loginDateTime?.toIso8601String(),
+        ProfileFields.isDisable: isDisable ? 1 : 0,
         ProfileFields.pin: pin,
       };
 }

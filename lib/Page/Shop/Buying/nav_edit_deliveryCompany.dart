@@ -28,6 +28,7 @@ class _EditShippingPageState extends State<EditShippingPage> {
   List<TextEditingController> startControllers = [];
   List<TextEditingController> endControllers = [];
   List<TextEditingController> costControllers = [];
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +38,7 @@ class _EditShippingPageState extends State<EditShippingPage> {
   Future refreshPage() async {
     deliveryRates = await DatabaseManager.instance
         .readDeliveryRatesWHEREdcId(widget.company.dcId!);
-    print(deliveryRates.length);
+    print('Delivery Rates (${deliveryRates.length})');
     for (var i = 0; i < deliveryRates.length; i++) {
       startControllers.add(TextEditingController(
           text: deliveryRates[i].weightRange.split('-')[0]));
@@ -45,16 +46,31 @@ class _EditShippingPageState extends State<EditShippingPage> {
           text: deliveryRates[i].weightRange.split('-')[1]));
       costControllers
           .add(TextEditingController(text: '${deliveryRates[i].cost}'));
+      print(
+          '---------------------------------------------------------------(${i})');
+      print('Start Controller : (${startControllers[i].text})');
+      print('End Controller : (${endControllers[i].text})');
+      print('Cost Controller : (${costControllers[i].text})');
     }
 
     setState(() {});
   }
 
+  Future refreshPageDeliveryRates() async {
+    deliveryRates = await DatabaseManager.instance
+        .readDeliveryRatesWHEREdcId(widget.company.dcId!);
+  }
+
+  final _formOnlyOneKey = GlobalKey<FormState>();
   final _formDcNameKey = GlobalKey<FormState>();
   final _formKey = GlobalKey<FormState>();
   late final nameController =
       TextEditingController(text: widget.company.dcName);
-  String? deliveryOptions;
+  late final onlyOneController =
+      TextEditingController(text: '${widget.company.fixedDeliveryCost}');
+  late bool _isSelectedRange = widget.company.dcisRange;
+  late String? deliveryOptions = _isSelectedRange ? 'range' : 'onlyOne';
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -90,7 +106,7 @@ class _EditShippingPageState extends State<EditShippingPage> {
                     child: Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                          color: Colors.transparent,
+                          color: Theme.of(context).colorScheme.background,
                           borderRadius: BorderRadius.circular(15)),
                       width: 400,
                       height: 70,
@@ -104,7 +120,8 @@ class _EditShippingPageState extends State<EditShippingPage> {
                           style: const TextStyle(color: Colors.white),
                           controller: nameController,
                           decoration: InputDecoration(
-                            hintText: 'ชื่อบริษัท',
+                            hintText:
+                                'ชื่อบริษัทขนส่ง เช่น Kerry Express, Flash...',
                             filled: true,
                             fillColor: Colors.transparent,
                             border: const OutlineInputBorder(
@@ -130,415 +147,95 @@ class _EditShippingPageState extends State<EditShippingPage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  // Container(
-                  //   padding: const EdgeInsets.all(5),
-                  //   decoration: BoxDecoration(
-                  //       color: Colors.transparent,
-                  //       borderRadius: BorderRadius.circular(15)),
-                  //   height: 70,
-                  //   child: Row(
-                  //     children: [
-                  //       SizedBox(
-                  //         width: 180,
-                  //         child: RadioListTile(
-                  //           title: Text(
-                  //             "กำหนดราคา",
-                  //             style: TextStyle(fontSize: 14),
-                  //           ),
-                  //           value: "onlyOne",
-                  //           groupValue: deliveryOptions,
-                  //           onChanged: (value) {
-                  //             setState(() {
-                  //               deliveryOptions = value.toString();
-                  //             });
-                  //           },
-                  //         ),
-                  //       ),
-                  //       Expanded(
-                  //         child: SizedBox(
-                  //           child: RadioListTile(
-                  //             title: Text("คำนวณตามน้ำหนัก",
-                  //                 style: TextStyle(fontSize: 14)),
-                  //             value: "range",
-                  //             groupValue: deliveryOptions,
-                  //             onChanged: (value) {
-                  //               setState(() {
-                  //                 deliveryOptions = value.toString();
-                  //               });
-                  //             },
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  const SizedBox(
-                    height: 10,
-                  ),
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(15)),
-                    height: (MediaQuery.of(context).size.height) / 2,
-                    child: Expanded(
-                        child: Column(
+                    height: 70,
+                    child: Row(
                       children: [
-                        Row(
-                          children: [
-                            Text('ช่วงน้ำหนัก (${deliveryRates.length})'),
-                            Text(
-                              ' หน่วยเป็นกรัม',
-                              style: TextStyle(color: Colors.grey),
+                        Text("${_isSelectedRange}",
+                            style: TextStyle(fontSize: 14)),
+                        SizedBox(
+                          width: 180,
+                          child: RadioListTile(
+                            title: Text(
+                              "อัตราค่าบริการคงที่",
+                              style: TextStyle(fontSize: 14),
                             ),
-                            const SizedBox(
-                              width: 400 / 9,
-                            ),
-                            Text('ค่าจัดส่ง'),
-                          ],
-                        ),
-                        Form(
-                          key: _formKey,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.circular(15)),
-                            padding: EdgeInsets.all(5),
-                            height: 250,
-                            child: ListView.builder(
-                                padding: EdgeInsets.zero,
-                                itemCount: deliveryRates.length,
-                                itemBuilder: (context, index) {
-                                  final rate = deliveryRates[index];
-
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 5),
-                                    child: Container(
-                                      height: 80,
-                                      decoration: BoxDecoration(
-                                          color: Colors.transparent,
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Expanded(
-                                        child: Row(children: [
-                                          Text('${index + 1}',
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.white)),
-                                          SizedBox(
-                                            height: 80,
-                                            width: 80,
-                                            child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return 'โปรดระบุช่วง';
-                                                  } else if (startControllers[
-                                                              index]
-                                                          .text
-                                                          .isNotEmpty &&
-                                                      value.isNotEmpty &&
-                                                      value != null) {
-                                                    if (double.parse(
-                                                                startControllers[
-                                                                        index]
-                                                                    .text
-                                                                    .replaceAll(
-                                                                        RegExp(
-                                                                            '[^0-9]'),
-                                                                        ''))
-                                                            .toInt() >
-                                                        double.parse(endControllers[
-                                                                    index]
-                                                                .text
-                                                                .replaceAll(
-                                                                    RegExp(
-                                                                        '[^0-9]'),
-                                                                    ''))
-                                                            .toInt()) {
-                                                      return 'ช่วงน้อยกว่า';
-                                                    } else if ((startControllers
-                                                                    .firstWhere(
-                                                                  (element) =>
-                                                                      element
-                                                                          .text ==
-                                                                      startControllers[
-                                                                              index]
-                                                                          .text,
-                                                                ) ==
-                                                                startControllers[
-                                                                    index] &&
-                                                            endControllers
-                                                                    .firstWhere(
-                                                                  (element) =>
-                                                                      element
-                                                                          .text ==
-                                                                      endControllers[
-                                                                              index]
-                                                                          .text,
-                                                                ) ==
-                                                                endControllers[
-                                                                    index]) ==
-                                                        false) {
-                                                      return 'ช่วง ${startControllers[index].text} มีอยู่แล้ว';
-                                                    }
-                                                  }
-                                                  return null;
-                                                },
-                                                textAlign: TextAlign.start,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                // maxLength: length,
-                                                inputFormatters: [
-                                                  LengthLimitingTextInputFormatter(
-                                                      10),
-                                                ],
-                                                controller:
-                                                    startControllers[index],
-                                                //-----------------------------------------------------
-
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12),
-                                                cursorColor: Theme.of(context)
-                                                    .backgroundColor,
-                                                decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.all(10),
-                                                  // labelText: title,
-                                                  fillColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .background,
-
-                                                  hoverColor: Theme.of(context)
-                                                      .backgroundColor,
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                      Radius.circular(10.0),
-                                                    ),
-                                                    borderSide: BorderSide(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .surface,
-                                                    ),
-                                                  ),
-
-                                                  hintText: 'กรัม',
-                                                  hintStyle: const TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 14),
-                                                  // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
-                                                )),
-                                          ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(
-                                                left: 5, right: 5),
-                                            child: Text('-'),
-                                          ),
-                                          SizedBox(
-                                            height: 80,
-                                            width: 80,
-                                            child: TextFormField(
-                                                // validator: (value) {
-                                                //   if (value == null ||
-                                                //       value.isEmpty) {
-                                                //     return 'โปรดระบุช่วง';
-                                                //   } else if (startController
-                                                //           .text
-                                                //           .isNotEmpty &&
-                                                //       value.isNotEmpty &&
-                                                //       value != null) {
-                                                //     if (double.parse(
-                                                //                 startController[
-                                                //                         index]
-                                                //                     .text)
-                                                //             .toInt() <
-                                                //         double.parse(
-                                                //                 startController[
-                                                //                         index]
-                                                //                     .text)
-                                                //             .toInt()) {
-                                                //       return 'ช่วงน้อยกว่า';
-                                                //     }
-                                                //   }
-                                                //   return null;
-                                                // },
-                                                textAlign: TextAlign.start,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                // maxLength: length,
-                                                inputFormatters: [
-                                                  LengthLimitingTextInputFormatter(
-                                                      10),
-                                                ],
-                                                controller:
-                                                    endControllers[index],
-                                                //-----------------------------------------------------
-
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12),
-                                                cursorColor: Theme.of(context)
-                                                    .backgroundColor,
-                                                decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.all(10),
-                                                  // labelText: title,
-                                                  fillColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .background,
-
-                                                  hoverColor: Theme.of(context)
-                                                      .backgroundColor,
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                      Radius.circular(10.0),
-                                                    ),
-                                                    borderSide: BorderSide(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .surface,
-                                                    ),
-                                                  ),
-
-                                                  hintText: 'กรัม',
-                                                  hintStyle: const TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 14),
-                                                  // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
-                                                )),
-                                          ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(
-                                                left: 5, right: 5),
-                                            child: Text('='),
-                                          ),
-                                          // Cost
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 80,
-                                              child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'โปรดระบุค่าจัดส่ง';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  textAlign: TextAlign.start,
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  // maxLength: length,
-                                                  inputFormatters: [
-                                                    LengthLimitingTextInputFormatter(
-                                                        10),
-                                                  ],
-                                                  controller:
-                                                      costControllers[index],
-                                                  //-----------------------------------------------------
-
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12),
-                                                  cursorColor: Theme.of(context)
-                                                      .backgroundColor,
-                                                  decoration: InputDecoration(
-                                                    contentPadding:
-                                                        EdgeInsets.all(10),
-                                                    // labelText: title,
-                                                    fillColor: Theme.of(context)
-                                                        .colorScheme
-                                                        .background,
-
-                                                    hoverColor:
-                                                        Theme.of(context)
-                                                            .backgroundColor,
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(10.0),
-                                                      ),
-                                                      borderSide: BorderSide(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .surface,
-                                                      ),
-                                                    ),
-
-                                                    hintText: 'ราคา',
-                                                    hintStyle: const TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 14),
-                                                    // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
-                                                    suffixIcon: costControllers[
-                                                                index]
-                                                            .text
-                                                            .isEmpty
-                                                        ? Container(
-                                                            width: 0,
-                                                          )
-                                                        : IconButton(
-                                                            onPressed: () =>
-                                                                costControllers[
-                                                                        index]
-                                                                    .clear(),
-                                                            icon: const Icon(
-                                                              Icons.close_sharp,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                  )),
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: () async {
-                                              if (rate.rId == null) {
-                                                deliveryRates.remove(rate);
-                                                setState(() {});
-                                              } else {
-                                                await DatabaseManager.instance
-                                                    .deleteDeliveryRate(
-                                                        rate.rId!);
-                                                refreshPage();
-
-                                                setState(() {});
-                                              }
-                                            },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color: Colors.white,
-                                              size: 15,
-                                            ),
-                                          )
-                                        ]),
-                                      ),
-                                    ),
-                                  );
-                                }),
+                            value: "onlyOne",
+                            groupValue: deliveryOptions,
+                            onChanged: (value) {
+                              setState(() {
+                                deliveryOptions = value.toString();
+                                _isSelectedRange = false;
+                              });
+                            },
                           ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
+                        Expanded(
+                          child: SizedBox(
+                            child: RadioListTile(
+                              title: Text("คำนวณตามน้ำหนัก",
+                                  style: TextStyle(fontSize: 14)),
+                              value: "range",
+                              groupValue: deliveryOptions,
+                              onChanged: (value) {
+                                setState(() {
+                                  deliveryOptions = value.toString();
+                                  _isSelectedRange = true;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  deliveryOptions == 'range'
+                      ? Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(15)),
+                          height: (MediaQuery.of(context).size.height) / 2,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text('ช่วงน้ำหนัก (${deliveryRates.length})'),
+                                  Text(
+                                    ' หน่วยเป็นกรัม',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                  const SizedBox(
+                                    width: 400 / 9,
+                                  ),
+                                  Text('ค่าจัดส่ง'),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                ],
+                              ),
+                              ElevatedButton(
                                   onPressed: () {
-                                    var cost = 50;
+                                    var cost = 32;
                                     final rate = DeliveryRateModel(
                                         weightRange: deliveryRates.isEmpty
-                                            ? '0.0-500.0'
+                                            ? '0.0-50.0'
                                             : '${double.parse(endControllers.last.text)}-${double.parse(endControllers.last.text) * 2}',
                                         cost: costControllers.isEmpty
                                             ? cost
                                             : int.parse(
                                                     costControllers.last.text) +
-                                                int.parse(
-                                                    costControllers.last.text));
+                                                (int.parse(costControllers
+                                                            .last.text) /
+                                                        5)
+                                                    .toInt());
                                     TextEditingController startController =
                                         TextEditingController(
                                             text: (double.parse(rate.weightRange
@@ -569,56 +266,596 @@ class _EditShippingPageState extends State<EditShippingPage> {
 
                                     setState(() {});
                                   },
-                                  child: Text('เพิ่มช่วง')),
-                            ),
-                          ],
-                        )
-                      ],
-                    )),
-                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.add),
+                                      Text('เพิ่มช่วง'),
+                                    ],
+                                  )),
+                              Form(
+                                key: _formKey,
+                                child: Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    padding: EdgeInsets.all(2),
+                                    child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: deliveryRates.length,
+                                        itemBuilder: (context, index) {
+                                          final dr = deliveryRates[index];
+                                          print('${dr.weightRange}');
 
-                  deliveryRates.isEmpty
+                                          return Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Container(
+                                              height: 70,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: Row(children: [
+                                                  Text('${index + 1} ',
+                                                      style: TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.white)),
+                                                  Expanded(
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              5),
+                                                      decoration: BoxDecoration(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .background,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      child: TextFormField(
+                                                          validator: (value) {
+                                                            if (value == null ||
+                                                                value.isEmpty) {
+                                                              return 'โปรดระบุช่วง';
+                                                            } else if (startControllers[
+                                                                        index]
+                                                                    .text
+                                                                    .isNotEmpty &&
+                                                                value
+                                                                    .isNotEmpty &&
+                                                                value != null) {
+                                                              if (double.parse(startControllers[
+                                                                              index]
+                                                                          .text
+                                                                          .replaceAll(
+                                                                              RegExp(
+                                                                                  '[^0-9]'),
+                                                                              ''))
+                                                                      .toInt() >
+                                                                  double.parse(endControllers[
+                                                                              index]
+                                                                          .text
+                                                                          .replaceAll(
+                                                                              RegExp('[^0-9]'),
+                                                                              ''))
+                                                                      .toInt()) {
+                                                                return 'ช่วงมากกว่า';
+                                                              } else if ((startControllers
+                                                                              .firstWhere(
+                                                                            (element) =>
+                                                                                element.text ==
+                                                                                startControllers[index].text,
+                                                                          ) ==
+                                                                          startControllers[
+                                                                              index] &&
+                                                                      endControllers
+                                                                              .firstWhere(
+                                                                            (element) =>
+                                                                                element.text ==
+                                                                                endControllers[index].text,
+                                                                          ) ==
+                                                                          endControllers[
+                                                                              index]) ==
+                                                                  false) {
+                                                                return 'ช่วง ${startControllers[index].text} มีอยู่แล้ว';
+                                                              }
+                                                            }
+                                                            return null;
+                                                          },
+                                                          textAlign:
+                                                              TextAlign.start,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          // maxLength: length,
+                                                          inputFormatters: [
+                                                            LengthLimitingTextInputFormatter(
+                                                                10),
+                                                            FilteringTextInputFormatter
+                                                                .digitsOnly
+                                                          ],
+                                                          controller:
+                                                              startControllers[
+                                                                  index],
+                                                          //-----------------------------------------------------
+
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 12),
+                                                          cursorColor: Theme.of(
+                                                                  context)
+                                                              .backgroundColor,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            contentPadding:
+                                                                EdgeInsets.all(
+                                                                    10),
+                                                            // labelText: title,
+                                                            fillColor: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .background,
+
+                                                            hoverColor: Theme
+                                                                    .of(context)
+                                                                .backgroundColor,
+                                                            border: const OutlineInputBorder(
+                                                                borderRadius: BorderRadius.only(
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            20),
+                                                                    topRight: Radius
+                                                                        .circular(
+                                                                            20),
+                                                                    bottomLeft:
+                                                                        Radius.circular(
+                                                                            20),
+                                                                    bottomRight:
+                                                                        Radius.circular(
+                                                                            20)),
+                                                                borderSide:
+                                                                    BorderSide
+                                                                        .none),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(
+                                                                Radius.circular(
+                                                                    10.0),
+                                                              ),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .surface,
+                                                              ),
+                                                            ),
+
+                                                            hintText: 'กรัม',
+                                                            hintStyle:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        14),
+                                                            // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 5, right: 5),
+                                                    child: Text('-'),
+                                                  ),
+                                                  Expanded(
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              5),
+                                                      decoration: BoxDecoration(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .background,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      child: TextFormField(
+                                                          textAlign:
+                                                              TextAlign.start,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          // maxLength: length,
+                                                          inputFormatters: [
+                                                            LengthLimitingTextInputFormatter(
+                                                                10),
+                                                            FilteringTextInputFormatter
+                                                                .digitsOnly
+                                                          ],
+                                                          controller:
+                                                              endControllers[
+                                                                  index],
+                                                          //-----------------------------------------------------
+
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 12),
+                                                          cursorColor: Theme.of(
+                                                                  context)
+                                                              .backgroundColor,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            contentPadding:
+                                                                EdgeInsets.all(
+                                                                    10),
+                                                            // labelText: title,
+                                                            fillColor: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .background,
+
+                                                            hoverColor: Theme
+                                                                    .of(context)
+                                                                .backgroundColor,
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(
+                                                                Radius.circular(
+                                                                    10.0),
+                                                              ),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .surface,
+                                                              ),
+                                                            ),
+                                                            border: const OutlineInputBorder(
+                                                                borderRadius: BorderRadius.only(
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            20),
+                                                                    topRight: Radius
+                                                                        .circular(
+                                                                            20),
+                                                                    bottomLeft:
+                                                                        Radius.circular(
+                                                                            20),
+                                                                    bottomRight:
+                                                                        Radius.circular(
+                                                                            20)),
+                                                                borderSide:
+                                                                    BorderSide
+                                                                        .none),
+
+                                                            hintText: 'กรัม',
+                                                            hintStyle:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        14),
+                                                            // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 5, right: 5),
+                                                    child: Text('='),
+                                                  ),
+                                                  Expanded(
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              5),
+                                                      decoration: BoxDecoration(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .background,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      child: TextFormField(
+                                                          validator: (value) {
+                                                            if (value == null ||
+                                                                value.isEmpty) {
+                                                              return 'โปรดระบุค่าจัดส่ง';
+                                                            }
+                                                            return null;
+                                                          },
+                                                          textAlign:
+                                                              TextAlign.start,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          // maxLength: length,
+                                                          inputFormatters: [
+                                                            LengthLimitingTextInputFormatter(
+                                                                10),
+                                                            FilteringTextInputFormatter
+                                                                .digitsOnly
+                                                          ],
+                                                          controller:
+                                                              costControllers[
+                                                                  index],
+                                                          //-----------------------------------------------------
+
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 12),
+                                                          cursorColor: Theme.of(
+                                                                  context)
+                                                              .backgroundColor,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            contentPadding:
+                                                                EdgeInsets.all(
+                                                                    10),
+                                                            // labelText: title,
+                                                            fillColor: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .background,
+
+                                                            hoverColor: Theme
+                                                                    .of(context)
+                                                                .backgroundColor,
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(
+                                                                Radius.circular(
+                                                                    10.0),
+                                                              ),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .surface,
+                                                              ),
+                                                            ),
+
+                                                            border: const OutlineInputBorder(
+                                                                borderRadius: BorderRadius.only(
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            20),
+                                                                    topRight: Radius
+                                                                        .circular(
+                                                                            20),
+                                                                    bottomLeft:
+                                                                        Radius.circular(
+                                                                            20),
+                                                                    bottomRight:
+                                                                        Radius.circular(
+                                                                            20)),
+                                                                borderSide:
+                                                                    BorderSide
+                                                                        .none),
+
+                                                            hintText: 'ราคา',
+                                                            hintStyle:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        14),
+                                                            // prefixIcon: const Icon(Icons.local_shipping, color: Colors.white),
+                                                            suffixIcon:
+                                                                costControllers[
+                                                                            index]
+                                                                        .text
+                                                                        .isEmpty
+                                                                    ? Container(
+                                                                        width:
+                                                                            0,
+                                                                      )
+                                                                    : IconButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                costControllers[index].clear(),
+                                                                        icon:
+                                                                            const Icon(
+                                                                          Icons
+                                                                              .close_sharp,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                ]),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Center(
+                          child: Form(
+                            key: _formOnlyOneKey,
+                            child: Container(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "ค่าบริการจัดส่งสินค้า",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  SizedBox(
+                                    width: 150,
+                                    height: 70,
+                                    child: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'โปรดระบุราคา';
+                                          }
+                                          return null;
+                                        },
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(6),
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller: onlyOneController,
+                                        decoration: InputDecoration(
+                                          hintText: 'ราคา',
+                                          filled: true,
+                                          fillColor: Theme.of(context)
+                                              .colorScheme
+                                              .background,
+                                          border: const OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                              borderSide: BorderSide.none),
+                                          hintStyle: const TextStyle(
+                                              color: Colors.grey, fontSize: 14),
+                                          suffixIcon: onlyOneController
+                                                  .text.isEmpty
+                                              ? Container(
+                                                  width: 0,
+                                                )
+                                              : IconButton(
+                                                  onPressed: () {
+                                                    onlyOneController.clear();
+                                                    setState(() {});
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.close_sharp,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                        )),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                  deliveryRates.isEmpty ||
+                          _isSelectedRange == false ||
+                          nameController.text.isEmpty
                       ? Container()
                       : ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate() &&
                                 _formDcNameKey.currentState!.validate()) {
-                              final updatedCompany = widget.company
-                                  .copy(dcName: nameController.text);
-
-                              await DatabaseManager.instance
-                                  .updateDeliveryCompany(updatedCompany);
-                              for (var i = 0; i < deliveryRates.length; i++) {
-                                if (deliveryRates[i].rId == null) {
-                                  final reatedRate = deliveryRates[i].copy(
-                                      weightRange:
-                                          '${double.parse(startControllers[i].text)}-${double.parse(endControllers[i].text)}',
-                                      cost: double.parse(costControllers[i]
-                                              .text
-                                              .replaceAll(RegExp('[^0-9]'), ''))
-                                          .toInt(),
-                                      dcId: widget.company.dcId!);
-                                  await DatabaseManager.instance
-                                      .createDeliveryRate(reatedRate);
-                                } else {
-                                  final updatedRate = deliveryRates[i].copy(
-                                      weightRange:
-                                          '${double.parse(startControllers[i].text)}-${double.parse(endControllers[i].text)}',
-                                      cost: double.parse(costControllers[i]
-                                              .text
+                              final updatedCompany = widget.company.copy(
+                                  dcName: nameController.text,
+                                  dcisRange: _isSelectedRange,
+                                  fixedDeliveryCost: onlyOneController
+                                          .text.isEmpty
+                                      ? widget.company.fixedDeliveryCost
+                                      : double.parse(onlyOneController.text
                                               .replaceAll(RegExp('[^0-9]'), ''))
                                           .toInt());
+                              await DatabaseManager.instance
+                                  .updateDeliveryCompany(updatedCompany);
+                              print(
+                                  'Updated Compamy : [ID ${updatedCompany.dcId}, NAME ${updatedCompany.dcName} ,isRange? ${updatedCompany.dcisRange}, Fixed ${updatedCompany.fixedDeliveryCost}, SHOP ID ${updatedCompany.shopId}]');
+
+                              var cnt = 0;
+                              for (var i = 0; i < deliveryRates.length; i++) {
+                                final createdRate = deliveryRates[i].copy(
+                                    weightRange:
+                                        '${double.parse(startControllers[i].text)}-${double.parse(endControllers[i].text)}',
+                                    cost: double.parse(costControllers[i]
+                                            .text
+                                            .replaceAll(RegExp('[^0-9]'), ''))
+                                        .toInt(),
+                                    dcId: widget.company.dcId!);
+                                if (createdRate.rId == null) {
                                   await DatabaseManager.instance
-                                      .updateDeliveryRate(updatedRate);
+                                      .createDeliveryRate(createdRate);
+                                } else {
+                                  await DatabaseManager.instance
+                                      .updateDeliveryRate(createdRate);
                                 }
+
+                                cnt++;
                               }
+                              int count = 0;
                               Navigator.pop(context);
                             }
                           },
                           child: Text('บันทึก')),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  _isSelectedRange == true
+                      ? Container()
+                      : ElevatedButton(
+                          onPressed: () async {
+                            // if (_formOnlyOneKey.currentState!.validate() &&
+                            //     _formDcNameKey.currentState!.validate()) {
+                            //   final updatedCompany = widget.company.copy(
+                            //       fixedDeliveryCost: onlyOneController
+                            //               .text.isEmpty
+                            //           ? widget.company.fixedDeliveryCost
+                            //           : double.parse(onlyOneController.text
+                            //                   .replaceAll(RegExp('[^0-9]'), ''))
+                            //               .toInt());
+                            //   await DatabaseManager.instance
+                            //       .updateDeliveryCompany(updatedCompany);
+
+                            //   print(
+                            //       'Updated Compamy : [ID ${updatedCompany.dcId}, NAME ${updatedCompany.dcName} ,isRange? ${updatedCompany.dcisRange}, Fixed ${updatedCompany.fixedDeliveryCost}, SHOP ID ${updatedCompany.shopId}]');
+
+                            //   int count = 0;
+                            //   Navigator.of(
+                            //     context,
+                            //   ).popUntil((_) => count++ >= 4);
+                            // } else {}
+                            final updatedCompany = widget.company.copy(
+                                dcName: nameController.text,
+                                dcisRange: _isSelectedRange,
+                                fixedDeliveryCost: onlyOneController
+                                        .text.isEmpty
+                                    ? widget.company.fixedDeliveryCost
+                                    : double.parse(onlyOneController.text
+                                            .replaceAll(RegExp('[^0-9]'), ''))
+                                        .toInt());
+                            await DatabaseManager.instance
+                                .updateDeliveryCompany(updatedCompany);
+
+                            print(
+                                'Updated Compamy : [ID ${updatedCompany.dcId}, NAME ${updatedCompany.dcName} ,isRange? ${updatedCompany.dcisRange}, Fixed ${updatedCompany.fixedDeliveryCost}, SHOP ID ${updatedCompany.shopId}]');
+
+                            Navigator.pop(context);
+                          },
+                          child: Text('บันทึก')),
                 ],
               ),
             ),

@@ -22,17 +22,23 @@ class CustomTextField {
                 ? bgColor
                 : Theme.of(context).colorScheme.background.withOpacity(0.9),
             borderRadius: BorderRadius.circular(15)),
-        width: 400,
         height: 80,
         child: Padding(
           padding: const EdgeInsets.all(5.0),
           child: TextFormField(
+              validator: (v) {
+                if (v == '' || v == null) {
+                  return 'โปรดระบุ';
+                }
+              },
               textAlign: TextAlign.start,
               keyboardType:
                   isNumber ? TextInputType.number : TextInputType.text,
               // maxLength: length,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(length),
+              inputFormatters: <TextInputFormatter>[
+                isNumber
+                    ? FilteringTextInputFormatter.digitsOnly
+                    : LengthLimitingTextInputFormatter(length),
               ],
               controller: textController,
               //-----------------------------------------------------
@@ -40,7 +46,6 @@ class CustomTextField {
               style: const TextStyle(color: Colors.white, fontSize: 12),
               cursorColor: primary_color,
               decoration: InputDecoration(
-                
                 errorText: _validate ? 'โปรดระบุ' : null, //
                 contentPadding:
                     EdgeInsets.only(top: 25, bottom: 10, left: 10, right: 10),

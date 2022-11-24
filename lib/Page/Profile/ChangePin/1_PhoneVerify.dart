@@ -39,6 +39,7 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
   }
 
   Profile? profile;
+  bool isWrong = false;
   Future getProfile() async {
     this.profile =
         await DatabaseManager.instance.readProfile(widget.profile.id!);
@@ -46,10 +47,7 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
 
   void _Validation() {
     setState(() {
-      if (profilePhoneController.text.isEmpty ||
-          profilePhoneController.text == null) {
-        _validate = true;
-      } else if (profilePhoneController.text == widget.profile.phone) {
+      if (profilePhoneController.text == widget.profile.phone) {
         Navigator.push(
             context,
             new MaterialPageRoute(
@@ -57,14 +55,15 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
                       profile: widget.profile,
                     )));
       } else {
-        _validate = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Theme.of(context).backgroundColor,
-            content: Text("เบอร์โทรศัพท์ไม่ถูกต้อง"),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        if (profilePhoneController.text.isEmpty ||
+            profilePhoneController.text == null) {
+          isWrong = false;
+          _validate = true;
+        } else {
+          _validate = false;
+          isWrong = true;
+          setState(() {});
+        }
       }
     });
   }
@@ -72,6 +71,11 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -118,6 +122,15 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
                   style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
+              isWrong
+                  ? Text("เบอร์โทรศัพท์ไม่ถูกต้อง",
+                      // ignore: prefer_const_constructors
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.bold,
+                      ))
+                  : Container(),
               const SizedBox(
                 height: 10,
               ),
@@ -132,6 +145,7 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
                     // maxLength: length,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.digitsOnly
                     ],
                     controller: profilePhoneController,
                     //-----------------------------------------------------

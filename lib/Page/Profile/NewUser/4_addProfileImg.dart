@@ -51,125 +51,6 @@ class _AddImagePageState extends State<AddImagePage> {
     return imageTemporary;
   }
 
-  showAlert(profileName, profilePhone, profileImg) async {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)), //this right here
-            child: SizedBox(
-              width: 300,
-              height: 420,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 280,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Icon(
-                            Icons.done,
-                            color: Colors.greenAccent,
-                            size: 50,
-                          ),
-                          const Text(
-                            'เสร็จสิ้น',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 25,
-                              // fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          IconButton(
-                              onPressed: (() {
-                                Navigator.pop(context);
-                              }),
-                              icon: Icon(
-                                Icons.close_rounded,
-                                color: Colors.grey,
-                              ))
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.file(
-                        _image!,
-                        width: 180,
-                        height: 180,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(widget.profileName,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                )),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(
-                                widget.profilePhone.replaceAllMapped(
-                                    RegExp(r'(\d{3})(\d{3})(\d+)'),
-                                    (Match m) => "${m[1]}-${m[2]}-${m[3]}"),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                )),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddPinPage(
-                                      profileName: widget.profileName,
-                                      profilePhone: widget.profilePhone,
-                                      profileImg: _image!.path,
-                                    )),
-                          );
-                        },
-                        child: Text('ถัดไป'))
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -340,8 +221,15 @@ class _AddImagePageState extends State<AddImagePage> {
                       ElevatedButton.styleFrom(fixedSize: const Size(80, 40)),
                   onPressed: () {
                     if (_image != null) {
-                      showAlert(
-                          widget.profileName, widget.profilePhone, _image);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddPinPage(
+                                  profileName: widget.profileName,
+                                  profilePhone: widget.profilePhone,
+                                  profileImg: _image!.path,
+                                )),
+                      );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

@@ -28,6 +28,11 @@ class _AddPinPageState extends State<AddPinPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         // ignore: prefer_const_constructors
         decoration: BoxDecoration(
@@ -40,7 +45,10 @@ class _AddPinPageState extends State<AddPinPage> {
           ],
           begin: Alignment.topCenter,
         )),
-        child: OtpScreen(profileName: widget.profileName,profilePhone: widget.profilePhone,profileImg: widget.profileImg),
+        child: OtpScreen(
+            profileName: widget.profileName,
+            profilePhone: widget.profilePhone,
+            profileImg: widget.profileImg),
       ),
     );
   }
@@ -239,7 +247,7 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
-  pinIndexSetup(String text) {
+  pinIndexSetup(String text) async {
     if (pinIndex == 0)
       pinIndex = 1;
     else if (pinIndex < 6) pinIndex++;
@@ -252,9 +260,17 @@ class _OtpScreenState extends State<OtpScreen> {
     if (pinIndex == 6) {
       print(["Create Pin", strPin]);
       print(strPin);
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => AddVerifyPin(profileName: widget.profileName,profilePhone: widget.profilePhone,profileImg: widget.profileImg
-            ,pin: strPin)));
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => AddVerifyPin(
+                  profileName: widget.profileName,
+                  profilePhone: widget.profilePhone,
+                  profileImg: widget.profileImg,
+                  pin: strPin)));
+      for (var i = 0; i < 6; i++) {
+        clearPin();
+      }
     }
   }
 

@@ -50,31 +50,35 @@ class _SellingPageState extends State<SellingPage> {
         .readAllCustomerInShop(widget.shop.shopid!);
     addresses = await DatabaseManager.instance.readAllCustomerAddresses();
     print('Customers -> [${customers.length}]');
-
+    if (!mounted) return;
     setState(() {});
   }
 
-  getAllSellingsWHEREisDelivered() async {
+  Future getAllSellingsWHEREisDelivered() async {
     selllings = await DatabaseManager.instance
         .readAllSellingsWHEREisDelivered(widget.shop.shopid!);
+    if (!mounted) return;
     setState(() {});
   }
 
-  getAllSellingsWHEREisNotDelivered() async {
+  Future getAllSellingsWHEREisNotDelivered() async {
     selllings = await DatabaseManager.instance
         .readAllSellingsWHEREisNotDelivered(widget.shop.shopid!);
+    if (!mounted) return;
     setState(() {});
   }
 
   Future searchCustomerByName() async {
     selllings = await DatabaseManager.instance.readAllSellingByCusName(
         widget.shop.shopid!, searchDealerController.text);
-
+    selllings.toSet();
+    if (!mounted) return;
     setState(() {});
   }
 
   bool isSelectedSelling = false;
   List<SellingModel> selectedSelling = [];
+
   Future<void> dialogConfirmDelete() async {
     return showDialog<void>(
       context: context,
@@ -134,6 +138,7 @@ class _SellingPageState extends State<SellingPage> {
                     await DatabaseManager.instance
                         .deleteSelling(selling.selId!);
                   }
+                  if (!mounted) return;
 
                   dialogSetState(() {});
                   Navigator.of(context).pop();
@@ -189,6 +194,7 @@ class _SellingPageState extends State<SellingPage> {
                           builder: (context) => SellingNavAdd(
                                 shop: widget.shop,
                               )));
+                  // if (!mounted) return;
                   refreshSellings();
                 },
                 icon: const Icon(
@@ -210,6 +216,8 @@ class _SellingPageState extends State<SellingPage> {
                         keyboardType: TextInputType.text,
                         onChanged: (text) {
                           searchCustomerByName();
+                          print(selllings.length);
+                          if (!mounted) return;
                           setState(() {});
                         },
                         inputFormatters: [
@@ -296,12 +304,13 @@ class _SellingPageState extends State<SellingPage> {
                       child: Align(
                         alignment: Alignment.center,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
                             Icon(
                               Icons.check_circle,
                               color: Colors.greenAccent,
                             ),
-                            Text("จัดส่งสินค้าแล้ว"),
+                            // Text("จัดส่งสินค้าแล้ว"),
                           ],
                         ),
                       ),
@@ -316,12 +325,13 @@ class _SellingPageState extends State<SellingPage> {
                       child: Align(
                         alignment: Alignment.center,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.circle_outlined,
                               color: Colors.greenAccent,
                             ),
-                            Text("ไม่ได้จัดส่งสินค้า"),
+                            // Text("ไม่ได้จัดส่งสินค้า"),
                           ],
                         ),
                       ),
@@ -332,6 +342,7 @@ class _SellingPageState extends State<SellingPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
+            height: (MediaQuery.of(context).size.height),
             decoration: BoxDecoration(gradient: scafBG_dark_Color),
             alignment: Alignment.center,
             child: Padding(
@@ -410,7 +421,8 @@ class _SellingPageState extends State<SellingPage> {
                             : Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Container(
-                                  height: 480.0,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.60,
                                   width: 440.0,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(14),
@@ -426,23 +438,18 @@ class _SellingPageState extends State<SellingPage> {
                                           var _customer;
                                           var _address;
 
-                                          _getCustomerInfo() async {
-                                            for (var customer in customers) {
-                                              if (customer.cusId ==
-                                                  selling.customerId) {
-                                                _customer = customer;
-                                                for (var address in addresses) {
-                                                  if (address.cAddreId ==
-                                                      selling.cAddreId) {
-                                                    _address = address;
-                                                  }
+                                          for (var customer in customers) {
+                                            if (customer.cusId ==
+                                                selling.customerId) {
+                                              _customer = customer;
+                                              for (var address in addresses) {
+                                                if (address.cAddreId ==
+                                                    selling.cAddreId) {
+                                                  _address = address;
                                                 }
                                               }
                                             }
                                           }
-
-                                          _getCustomerInfo();
-
                                           final isSelectedItem =
                                               selectedSelling.contains(selling);
 
@@ -487,8 +494,9 @@ class _SellingPageState extends State<SellingPage> {
                                                 content: Container(
                                                     child: Row(
                                                   children: [
-                                                    Text(
-                                                        "ลบรายการสั่งซื้อ ${_customer.cName}"),
+                                                    Text(_customer == null
+                                                        ? 'ลบรากายขาย ลูกค้า - '
+                                                        : "ลบรายการขาย ${_customer.cName}"),
                                                     Text(
                                                         ' ยอด ${NumberFormat("#,###.##").format(selling.total)}',
                                                         style: const TextStyle(
@@ -536,9 +544,9 @@ class _SellingPageState extends State<SellingPage> {
                                                 }
                                               }
                                               await DatabaseManager.instance
-                                                  .deletePurchasing(
+                                                  .deleteSelling(
                                                       selling.selId!);
-
+                                              if (!mounted) return;
                                               refreshSellings();
                                               setState(() {});
                                             },
@@ -546,17 +554,25 @@ class _SellingPageState extends State<SellingPage> {
                                               onPressed: () async {
                                                 await Navigator.of(context)
                                                     .push(MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            SellingNavEdit(
-                                                                customer:
-                                                                    _customer,
-                                                                customerAddress:
-                                                                    _address,
-                                                                shop:
-                                                                    widget.shop,
-                                                                selling:
-                                                                    selling)));
+                                                        builder: (context) => SellingNavEdit(
+                                                            customer: _customer ==
+                                                                    null
+                                                                ? CustomerModel(
+                                                                    cName:
+                                                                        'ลูกค้าถูกลบ')
+                                                                : _customer,
+                                                            customerAddress:
+                                                                _address == null
+                                                                    ? CustomerAddressModel(
+                                                                        cPhone:
+                                                                            '-',
+                                                                        cAddress:
+                                                                            '-')
+                                                                    : _address,
+                                                            shop: widget.shop,
+                                                            selling: selling)));
                                                 refreshSellings();
+                                                if (!mounted) return;
                                                 setState(() {});
                                               },
                                               child: Padding(
@@ -646,7 +662,8 @@ class _SellingPageState extends State<SellingPage> {
                                                                                                   }
                                                                                                 }
                                                                                                 isSelectedSelling = false;
-                                                                                                setState(() {});
+                                                                                                if (!mounted) return;
+
                                                                                                 refreshSellings();
 
                                                                                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -712,7 +729,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                                                                 color: Theme.of(context).backgroundColor,
                                                                                                               )),
                                                                                                           Text(
-                                                                                                            '${_customer.cName}',
+                                                                                                            _customer == null ? 'ลูกค้าถูกลบ' : _customer.cName,
                                                                                                             style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
                                                                                                           ),
                                                                                                           Row(
@@ -793,8 +810,11 @@ class _SellingPageState extends State<SellingPage> {
                                                                     .start,
                                                             children: <Widget>[
                                                               Text(
-                                                                _customer
-                                                                    .cName!,
+                                                                _customer ==
+                                                                        null
+                                                                    ? 'ลูกค้าถูกลบ'
+                                                                    : _customer
+                                                                        .cName,
                                                                 style: const TextStyle(
                                                                     fontWeight:
                                                                         FontWeight
@@ -812,8 +832,11 @@ class _SellingPageState extends State<SellingPage> {
                                                                     size: 14,
                                                                   ),
                                                                   Text(
-                                                                    _address
-                                                                        .cPhone!,
+                                                                    _address ==
+                                                                            null
+                                                                        ? '-'
+                                                                        : _address
+                                                                            .cPhone,
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,
@@ -823,8 +846,10 @@ class _SellingPageState extends State<SellingPage> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                _address
-                                                                    .cAddress!,
+                                                                _address == null
+                                                                    ? '-'
+                                                                    : _address
+                                                                        .cAddress,
                                                                 style: const TextStyle(
                                                                     fontSize:
                                                                         12,
@@ -838,7 +863,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                         color: Colors
                                                                             .grey,
                                                                         fontSize:
-                                                                            12)),
+                                                                            11)),
                                                               ),
                                                             ],
                                                           ),
@@ -867,7 +892,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                           .greenAccent,
                                                                     ),
                                                               Text(
-                                                                '${NumberFormat("#,###.##").format(selling.total)} ฿',
+                                                                '${NumberFormat("#,###.##").format(selling.total + selling.shippingCost)} ฿',
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         14,

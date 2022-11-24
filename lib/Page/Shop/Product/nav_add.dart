@@ -1141,6 +1141,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
+
                               // color: Theme.of(context).colorScheme.background,
                               borderRadius: BorderRadius.circular(15)),
                           child: Row(
@@ -1150,7 +1151,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                 width: 10,
                               ),
                               Container(
-                                width: 280,
+                                width:
+                                    (MediaQuery.of(context).size.width) * 0.7,
                                 child: Row(
                                   children: [
                                     Text(
@@ -1217,80 +1219,109 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                               .withOpacity(0.9),
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      height: 320,
-                                      child: Expanded(
-                                        child: Center(
-                                            child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.note_alt_outlined,
-                                              color: Colors.grey,
-                                              size: 20,
-                                            ),
-                                            Text(
-                                              'ไม่มีรูปแบบสินค้า',
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 13),
-                                            ),
-                                          ],
-                                        )),
-                                      ),
+                                      height: 160,
+                                      child: Center(
+                                          child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.note_alt_outlined,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          ),
+                                          Text(
+                                            'ไม่มีรูปแบบสินค้า',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 13),
+                                          ),
+                                        ],
+                                      )),
                                     )
-                                  : Stack(children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .background
-                                                .withOpacity(0.9),
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        height: 320,
-                                        child: ListView.builder(
-                                            // scrollDirection: Axis.horizontal,
-                                            padding: EdgeInsets.zero,
-                                            itemCount: productModels.length,
-                                            itemBuilder: (context, index) {
-                                              final productModelInd =
-                                                  productModels[index];
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background
+                                              .withOpacity(0.9),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      height: 350,
+                                      child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: productModels.length,
+                                          itemBuilder: (context, index) {
+                                            final productModelInd =
+                                                productModels[index];
+                                            bool isEditCategory = false;
 
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10)),
-                                                    child: Column(children: [
-                                                      Row(
+                                            return Dismissible(
+                                              key: UniqueKey(),
+                                              direction:
+                                                  DismissDirection.endToStart,
+                                              resizeDuration:
+                                                  Duration(seconds: 1),
+                                              background: Container(
+                                                margin: EdgeInsets.only(
+                                                    left: 0,
+                                                    top: 10,
+                                                    right: 10,
+                                                    bottom: 10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.redAccent,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Icon(
+                                                      Icons.delete_forever,
+                                                      color: Colors.white,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              onDismissed: (direction) {},
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10.0),
+                                                    child: Row(children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Text(
-                                                            '${index + 1}',
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .backgroundColor),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
                                                           Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
                                                             children: [
+                                                              Text(
+                                                                '${index + 1}',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
                                                               Container(
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
@@ -1316,7 +1347,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                       )),
                                                                 ),
                                                               ),
-                                                              const SizedBox(
+                                                              SizedBox(
                                                                 width: 10,
                                                               ),
                                                               Container(
@@ -1342,94 +1373,70 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                             .white),
                                                                   ),
                                                                 ),
-                                                              )
+                                                              ),
                                                             ],
                                                           ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Spacer(),
-                                                          Positioned(
-                                                            top: 0.0,
-                                                            right: 0,
-                                                            child: IconButton(
-                                                              icon: const Icon(
-                                                                  Icons.close,
-                                                                  size: 25,
-                                                                  color: Colors
-                                                                      .grey),
-                                                              onPressed: () {
-                                                                DialogSetState(
-                                                                  () {
-                                                                    productModels
-                                                                        .removeAt(
-                                                                            index);
-                                                                  },
-                                                                );
-                                                              },
+                                                          Container(
+                                                            width: 240,
+                                                            child: Row(
+                                                              children: [
+                                                                Expanded(
+                                                                  child:
+                                                                      Container(
+                                                                    decoration: BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10)),
+                                                                    child: CustomTextField
+                                                                        .textField(
+                                                                      context,
+                                                                      'ต้นทุน',
+                                                                      _validate,
+                                                                      length:
+                                                                          10,
+                                                                      isNumber:
+                                                                          true,
+                                                                      textController:
+                                                                          editCostControllers[
+                                                                              index],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 10,
+                                                                ),
+                                                                Expanded(
+                                                                  child:
+                                                                      Container(
+                                                                    decoration: BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10)),
+                                                                    child: CustomTextField
+                                                                        .textField(
+                                                                      context,
+                                                                      'ขาย',
+                                                                      _validate,
+                                                                      isNumber:
+                                                                          true,
+                                                                      length:
+                                                                          10,
+                                                                      textController:
+                                                                          editPriceControllers[
+                                                                              index],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           )
                                                         ],
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            height: 60,
-                                                            width: 130,
-                                                            child:
-                                                                CustomTextField
-                                                                    .textField(
-                                                              context,
-                                                              'ต้นทุน',
-                                                              _validate,
-                                                              length: 10,
-                                                              isNumber: true,
-                                                              textController:
-                                                                  editCostControllers[
-                                                                      index],
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            height: 60,
-                                                            width: 130,
-                                                            child:
-                                                                CustomTextField
-                                                                    .textField(
-                                                              context,
-                                                              'ขาย',
-                                                              _validate,
-                                                              isNumber: true,
-                                                              length: 10,
-                                                              textController:
-                                                                  editPriceControllers[
-                                                                      index],
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 10,
                                                       ),
                                                     ]),
                                                   ),
                                                 ),
-                                              );
-                                            }),
-                                      ),
-                                    ]),
+                                              ),
+                                            );
+                                          }),
+                                    ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -1509,7 +1516,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                         dialogProduct_weight();
                                       }
                                     },
-                                    child: Text('ยืนยัน')),
+                                    child: Text('ถัดไป')),
                           ],
                         ),
                       ],
@@ -1705,7 +1712,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                  width: 280,
+                                  width:
+                                      (MediaQuery.of(context).size.width) * 0.7,
                                   child: Row(
                                     children: [
                                       const SizedBox(
@@ -1809,19 +1817,20 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                 ),
                                 Row(
                                   children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      height: 60,
-                                      width: 180,
-                                      child: CustomTextField.textField(
-                                        context,
-                                        'ระบุ${stPropName}',
-                                        _validate,
-                                        length: 30,
-                                        textController:
-                                            productModel_stPropListNameController,
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        height: 60,
+                                        child: CustomTextField.textField(
+                                          context,
+                                          'ระบุ${stPropName}',
+                                          _validate,
+                                          length: 30,
+                                          textController:
+                                              productModel_stPropListNameController,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(
@@ -1887,26 +1896,24 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                             borderRadius:
                                                 BorderRadius.circular(10)),
                                         height: 160,
-                                        child: Expanded(
-                                          child: Center(
-                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.note_alt_outlined,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              ),
-                                              Text(
-                                                'ไม่มี ${stPropName} สินค้า',
-                                                style: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 13),
-                                              ),
-                                            ],
-                                          )),
-                                        ),
+                                        child: Center(
+                                            child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.note_alt_outlined,
+                                              color: Colors.grey,
+                                              size: 20,
+                                            ),
+                                            Text(
+                                              'ไม่มี ${stPropName} สินค้า',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13),
+                                            ),
+                                          ],
+                                        )),
                                       )
                                     : Container(
                                         decoration: BoxDecoration(
@@ -2070,20 +2077,22 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                         ),
                                         Row(
                                           children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              height: 60,
-                                              width: 180,
-                                              child: CustomTextField.textField(
-                                                context,
-                                                'ระบุ${ndPropName}',
-                                                _validate,
-                                                length: 30,
-                                                textController:
-                                                    productModel_ndPropListNameController,
+                                            Expanded(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                height: 60,
+                                                child:
+                                                    CustomTextField.textField(
+                                                  context,
+                                                  'ระบุ${ndPropName}',
+                                                  _validate,
+                                                  length: 30,
+                                                  textController:
+                                                      productModel_ndPropListNameController,
+                                                ),
                                               ),
                                             ),
                                             SizedBox(
@@ -2150,27 +2159,24 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                         BorderRadius.circular(
                                                             10)),
                                                 height: 160,
-                                                child: Expanded(
-                                                  child: Center(
-                                                      child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.note_alt_outlined,
-                                                        color: Colors.grey,
-                                                        size: 20,
-                                                      ),
-                                                      Text(
-                                                        'ไม่มี ${ndPropName} สินค้า',
-                                                        style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 13),
-                                                      ),
-                                                    ],
-                                                  )),
-                                                ),
+                                                child: Center(
+                                                    child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.note_alt_outlined,
+                                                      color: Colors.grey,
+                                                      size: 20,
+                                                    ),
+                                                    Text(
+                                                      'ไม่มี ${ndPropName} สินค้า',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 13),
+                                                    ),
+                                                  ],
+                                                )),
                                               )
                                             : Container(
                                                 decoration: BoxDecoration(
@@ -2403,17 +2409,18 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                         ),
                         Row(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10)),
-                              height: 70,
-                              width: 200,
-                              child: CustomTextField.textField(
-                                context,
-                                'เช่น เสื้อ กางเกง...',
-                                _validate,
-                                length: 20,
-                                textController: productCategoryNameController,
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10)),
+                                height: 70,
+                                child: CustomTextField.textField(
+                                  context,
+                                  'เช่น เสื้อ กางเกง...',
+                                  _validate,
+                                  length: 20,
+                                  textController: productCategoryNameController,
+                                ),
                               ),
                             ),
                             SizedBox(
@@ -2481,24 +2488,22 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                         .withOpacity(0.9),
                                     borderRadius: BorderRadius.circular(10)),
                                 height: 200,
-                                child: Expanded(
-                                  child: Center(
-                                      child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.note_alt_outlined,
-                                        color: Colors.grey,
-                                        size: 35,
-                                      ),
-                                      Text(
-                                        'ไม่มีหมวดหมู่สินค้า',
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 30),
-                                      ),
-                                    ],
-                                  )),
-                                ),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.note_alt_outlined,
+                                      color: Colors.grey,
+                                      size: 35,
+                                    ),
+                                    Text(
+                                      'ไม่มีหมวดหมู่สินค้า',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 30),
+                                    ),
+                                  ],
+                                )),
                               )
                             : Container(
                                 decoration: BoxDecoration(
@@ -2736,58 +2741,89 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                         )),
                                       ),
                                     )
-                                  : Stack(children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .background
-                                                .withOpacity(0.9),
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        height: 320,
-                                        child: ListView.builder(
-                                            // scrollDirection: Axis.horizontal,
-                                            padding: EdgeInsets.zero,
-                                            itemCount: productModels.length,
-                                            itemBuilder: (context, index) {
-                                              final productModelInd =
-                                                  productModels[index];
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background
+                                              .withOpacity(0.9),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      height: 350,
+                                      child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: productModels.length,
+                                          itemBuilder: (context, index) {
+                                            final productModelInd =
+                                                productModels[index];
+                                            bool isEditCategory = false;
 
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10)),
-                                                    child: Column(children: [
-                                                      Row(
+                                            return Dismissible(
+                                              key: UniqueKey(),
+                                              direction:
+                                                  DismissDirection.endToStart,
+                                              resizeDuration:
+                                                  Duration(seconds: 1),
+                                              background: Container(
+                                                margin: EdgeInsets.only(
+                                                    left: 0,
+                                                    top: 10,
+                                                    right: 10,
+                                                    bottom: 10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.redAccent,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Icon(
+                                                      Icons.delete_forever,
+                                                      color: Colors.white,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              onDismissed: (direction) {},
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10.0),
+                                                    child: Row(children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Text(
-                                                            '${index + 1}',
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .backgroundColor),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
                                                           Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
                                                             children: [
+                                                              Text(
+                                                                '${index + 1}',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
                                                               Container(
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
@@ -2813,7 +2849,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                       )),
                                                                 ),
                                                               ),
-                                                              const SizedBox(
+                                                              SizedBox(
                                                                 width: 10,
                                                               ),
                                                               Container(
@@ -2839,79 +2875,54 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                             .white),
                                                                   ),
                                                                 ),
-                                                              )
+                                                              ),
                                                             ],
                                                           ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Spacer(),
-                                                          Positioned(
-                                                            top: 0.0,
-                                                            right: 0,
-                                                            child: IconButton(
-                                                              icon: const Icon(
-                                                                  Icons.close,
-                                                                  size: 25,
-                                                                  color: Colors
-                                                                      .grey),
-                                                              onPressed: () {
-                                                                DialogSetState(
-                                                                  () {
-                                                                    productModels
-                                                                        .removeAt(
-                                                                            index);
-                                                                  },
-                                                                );
-                                                              },
+                                                          Container(
+                                                            width: 240,
+                                                            child: Row(
+                                                              children: [
+                                                                Text(
+                                                                  'น้ำหนัก',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .grey),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 10,
+                                                                ),
+                                                                Container(
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10)),
+                                                                  height: 60,
+                                                                  width: 130,
+                                                                  child: CustomTextField
+                                                                      .textField(
+                                                                    context,
+                                                                    'กรัม',
+                                                                    _validate,
+                                                                    length: 10,
+                                                                    isNumber:
+                                                                        true,
+                                                                    textController:
+                                                                        weightControllers[
+                                                                            index],
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           )
                                                         ],
                                                       ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          Text(
-                                                            'น้ำหนัก',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .grey),
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            height: 60,
-                                                            width: 130,
-                                                            child:
-                                                                CustomTextField
-                                                                    .textField(
-                                                              context,
-                                                              'กรัม',
-                                                              _validate,
-                                                              length: 10,
-                                                              isNumber: true,
-                                                              textController:
-                                                                  weightControllers[
-                                                                      index],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 10,
-                                                      ),
                                                     ]),
                                                   ),
                                                 ),
-                                              );
-                                            }),
-                                      ),
-                                    ]),
+                                              ),
+                                            );
+                                          }),
+                                    ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -2954,9 +2965,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                     primary: Colors.redAccent,
                                     fixedSize: const Size(80, 40)),
                                 onPressed: () {
-                                  amountControllers.clear();
-                                  productModels.clear();
-                                  weightControllers.clear();
+                                  // amountControllers.clear();
+                                  // productModels.clear();
+                                  // weightControllers.clear();
 
                                   Navigator.pop(context);
 
@@ -3025,6 +3036,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         ),
         body: SingleChildScrollView(
           child: Container(
+            // height: (MediaQuery.of(context).size.height),
             decoration: const BoxDecoration(
                 gradient: LinearGradient(
               colors: [
@@ -3079,8 +3091,10 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     ],
                   ),
                   GestureDetector(
-                    onTap: () {
-                      dialogProductChooseCategory();
+                    onTap: () async {
+                      await dialogProductChooseCategory();
+                      refreshProductCategorys();
+                      setState(() {});
                     },
                     child: Container(
                       padding: const EdgeInsets.all(30),
@@ -3127,23 +3141,25 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                         style: TextStyle(color: Colors.white),
                       ),
                       Spacer(),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.redAccent,
-                          ),
-                          onPressed: () {
-                            productModels.clear();
-                            setState(() {});
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete_sweep_rounded),
-                              Text(
-                                'ลบทั้งหมด',
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          )),
+                      productModels.isEmpty
+                          ? Container()
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.redAccent,
+                              ),
+                              onPressed: () {
+                                productModels.clear();
+                                setState(() {});
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_sweep_rounded),
+                                  Text(
+                                    'ลบทั้งหมด',
+                                    style: TextStyle(fontSize: 12),
+                                  )
+                                ],
+                              )),
                       const SizedBox(
                         width: 10,
                       ),
@@ -3162,7 +3178,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                             .background
                             .withOpacity(0.9),
                         borderRadius: BorderRadius.circular(15)),
-                    width: 400,
+                    width: (MediaQuery.of(context).size.width),
                     height: 240,
                     child: Column(
                       children: [

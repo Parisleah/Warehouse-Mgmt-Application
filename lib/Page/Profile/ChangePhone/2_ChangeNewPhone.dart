@@ -127,6 +127,7 @@ class _ChangeNewPhonePageState extends State<ChangeNewPhonePage> {
                     // maxLength: length,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.digitsOnly
                     ],
                     controller: profilePhoneController,
                     //-----------------------------------------------------
