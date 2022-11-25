@@ -154,11 +154,11 @@ class _ProductNavAddState extends State<ProductNavAdd> {
       productModels.clear();
       var i = 0;
       for (var st in stPropsList) {
-        for (var nd in ndPropsList) {
+        if (ndPropsList.isEmpty) {
           final model = ProductModel(
               prodModelname: '${stPropName},${ndPropName}',
               stProperty: '${st.pmstPropName}',
-              ndProperty: '${nd.pmndPropName}',
+              ndProperty: '-',
               cost: int.parse(editCostControllers[i].text),
               price: int.parse(editPriceControllers[i].text),
               weight: double.parse(
@@ -167,7 +167,24 @@ class _ProductNavAddState extends State<ProductNavAdd> {
           productModels.add(model);
           editCostControllers.add(TextEditingController());
           editPriceControllers.add(TextEditingController());
+
           i++;
+        } else {
+          for (var nd in ndPropsList) {
+            final model = ProductModel(
+                prodModelname: '${stPropName},${ndPropName}',
+                stProperty: '${st.pmstPropName}',
+                ndProperty: '${nd.pmndPropName}',
+                cost: int.parse(editCostControllers[i].text),
+                price: int.parse(editPriceControllers[i].text),
+                weight: double.parse(
+                    weightControllers[i].text.replaceAll(RegExp('[^0-9]'), '')),
+                prodId: prodInserted.prodId);
+            productModels.add(model);
+            editCostControllers.add(TextEditingController());
+            editPriceControllers.add(TextEditingController());
+            i++;
+          }
         }
       }
       setState(
@@ -204,13 +221,36 @@ class _ProductNavAddState extends State<ProductNavAdd> {
   _addCostPriceInProdModel(stPropsList, ndPropsList) {
     setState(() {
       productModels.clear();
-      var i = 0;
-      for (var st in stPropsList) {
-        for (var nd in ndPropsList) {
+      if (ndPropsList.isNotEmpty) {
+        var i = 0;
+        for (var st in stPropsList) {
+          for (var nd in ndPropsList) {
+            final model = ProductModel(
+              prodModelname: '${stPropName},${ndPropName}',
+              stProperty: '${st.pmstPropName}',
+              ndProperty: '${nd.pmndPropName}',
+              cost: int.parse(
+                  editCostControllers[i].text.replaceAll(RegExp('[^0-9]'), '')),
+              price: int.parse(editPriceControllers[i]
+                  .text
+                  .replaceAll(RegExp('[^0-9]'), '')),
+              weight: double.parse(
+                  weightControllers[i].text.replaceAll(RegExp('[^0-9]'), '')),
+            );
+            productModels.add(model);
+            editCostControllers.add(TextEditingController());
+            editPriceControllers.add(TextEditingController());
+            weightControllers.add(TextEditingController());
+            i++;
+          }
+        }
+      } else {
+        var i = 0;
+        for (var st in stPropsList) {
           final model = ProductModel(
             prodModelname: '${stPropName},${ndPropName}',
             stProperty: '${st.pmstPropName}',
-            ndProperty: '${nd.pmndPropName}',
+            ndProperty: '-',
             cost: int.parse(
                 editCostControllers[i].text.replaceAll(RegExp('[^0-9]'), '')),
             price: int.parse(

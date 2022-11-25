@@ -399,10 +399,12 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                             Container(
                                               width: 90,
                                               height: 90,
-                                              child: Image.file(
-                                                File(prodImg),
-                                                fit: BoxFit.cover,
-                                              ),
+                                              child: prodImg == null
+                                                  ? Icon(Icons.image)
+                                                  : Image.file(
+                                                      File(prodImg),
+                                                      fit: BoxFit.cover,
+                                                    ),
                                             ),
                                             SizedBox(width: 10),
                                             Expanded(
@@ -442,7 +444,9 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                                               const EdgeInsets
                                                                   .all(3.0),
                                                           child: Text(
-                                                            stProperty,
+                                                            stProperty == null
+                                                                ? '-'
+                                                                : stProperty,
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
@@ -472,7 +476,9 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                                               const EdgeInsets
                                                                   .all(3.0),
                                                           child: Text(
-                                                            ndProperty,
+                                                            ndProperty == null
+                                                                ? '-'
+                                                                : ndProperty,
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:

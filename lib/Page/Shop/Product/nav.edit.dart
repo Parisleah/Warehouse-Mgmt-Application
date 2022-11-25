@@ -78,12 +78,14 @@ class _ProductNavEditState extends State<ProductNavEdit> {
   bool isDialogChooseFst = false;
   bool isDelete_ndProp = false;
   File? _image;
-  late String stPropName = productModels[0].stProperty == null
+
+  late String stPropName = productModels.isEmpty
       ? 'สี'
       : productModels[0].prodModelname.split(',')[0];
-  late String ndPropName = productModels[0].ndProperty == null
+  late String ndPropName = productModels.isEmpty
       ? 'ขนาด'
       : productModels[0].prodModelname.split(',')[1];
+
   late var productCategory = widget.prodCategory;
   List<ProductCategory> productCategorys = [];
   List<ProductModel_stProperty> stPropsList = [];
@@ -174,12 +176,11 @@ class _ProductNavEditState extends State<ProductNavEdit> {
     productModels.clear();
     var i = 0;
     for (var st in stPropsList) {
-      for (var nd in ndPropsList) {
-        print('st ->${st.pmstPropName} nd -> ${nd.pmndPropName}');
+      if (ndPropsList.isEmpty) {
         final model = ProductModel(
             prodModelname: '${stPropName},${ndPropName}',
             stProperty: '${st.pmstPropName}',
-            ndProperty: '${nd.pmndPropName}',
+            ndProperty: '-',
             cost: int.parse(editCostControllers[i].text),
             price: int.parse(editPriceControllers[i].text),
             weight: 0,
@@ -191,6 +192,25 @@ class _ProductNavEditState extends State<ProductNavEdit> {
         weightControllers.add(TextEditingController());
 
         i++;
+      } else {
+        for (var nd in ndPropsList) {
+          print('st ->${st.pmstPropName} nd -> ${nd.pmndPropName}');
+          final model = ProductModel(
+              prodModelname: '${stPropName},${ndPropName}',
+              stProperty: '${st.pmstPropName}',
+              ndProperty: '${nd.pmndPropName}',
+              cost: int.parse(editCostControllers[i].text),
+              price: int.parse(editPriceControllers[i].text),
+              weight: 0,
+              prodId: widget.product.prodId!);
+          await DatabaseManager.instance.createProductModel(model);
+
+          editCostControllers.add(TextEditingController());
+          editPriceControllers.add(TextEditingController());
+          weightControllers.add(TextEditingController());
+
+          i++;
+        }
       }
     }
   }
@@ -246,10 +266,15 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                             style: ElevatedButton.styleFrom(
                                 fixedSize: const Size(80, 40)),
                             onPressed: () async {
-                              await DatabaseManager.instance
-                                  .deleteProductModel(model.prodModelId!);
-                              Navigator.pop(context);
-                              refreshPage();
+                              if (model.prodModelId != null) {
+                                await DatabaseManager.instance
+                                    .deleteProductModel(model.prodModelId!);
+                                Navigator.pop(context);
+                                refreshPage();
+                              } else {
+                                productModels.remove(model);
+                                Navigator.pop(context);
+                              }
                             },
                             child: Text('ลบ')),
                         const SizedBox(
@@ -456,6 +481,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
+
                               // color: Theme.of(context).colorScheme.background,
                               borderRadius: BorderRadius.circular(15)),
                           child: Row(
@@ -465,15 +491,24 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                 width: 10,
                               ),
                               Container(
-                                width: 300,
+                                width:
+                                    (MediaQuery.of(context).size.width) * 0.7,
                                 child: Row(
                                   children: [
                                     Text(
-                                      'กำหนดราคา',
+                                      'กำหนดราคา ',
                                       style: TextStyle(
                                         color:
                                             Color.fromARGB(255, 255, 255, 255),
-                                        fontSize: 25,
+                                        fontSize: 16,
+                                        // fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Text(
+                                      '(2/3)',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 16,
                                         // fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -524,80 +559,109 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                               .withOpacity(0.9),
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      height: 320,
-                                      child: Expanded(
-                                        child: Center(
-                                            child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.note_alt_outlined,
-                                              color: Colors.grey,
-                                              size: 20,
-                                            ),
-                                            Text(
-                                              'ไม่มีรูปแบบสินค้า',
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 13),
-                                            ),
-                                          ],
-                                        )),
-                                      ),
+                                      height: 160,
+                                      child: Center(
+                                          child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.note_alt_outlined,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          ),
+                                          Text(
+                                            'ไม่มีรูปแบบสินค้า',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 13),
+                                          ),
+                                        ],
+                                      )),
                                     )
-                                  : Stack(children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .background
-                                                .withOpacity(0.9),
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        height: 320,
-                                        child: ListView.builder(
-                                            // scrollDirection: Axis.horizontal,
-                                            padding: EdgeInsets.zero,
-                                            itemCount: productModels.length,
-                                            itemBuilder: (context, index) {
-                                              final productModelInd =
-                                                  productModels[index];
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background
+                                              .withOpacity(0.9),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      height: 350,
+                                      child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: productModels.length,
+                                          itemBuilder: (context, index) {
+                                            final productModelInd =
+                                                productModels[index];
+                                            bool isEditCategory = false;
 
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5.0),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10)),
-                                                    child: Column(children: [
-                                                      Row(
+                                            return Dismissible(
+                                              key: UniqueKey(),
+                                              direction:
+                                                  DismissDirection.endToStart,
+                                              resizeDuration:
+                                                  Duration(seconds: 1),
+                                              background: Container(
+                                                margin: EdgeInsets.only(
+                                                    left: 0,
+                                                    top: 10,
+                                                    right: 10,
+                                                    bottom: 10),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.redAccent,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    Icon(
+                                                      Icons.delete_forever,
+                                                      color: Colors.white,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              onDismissed: (direction) {},
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10.0),
+                                                    child: Row(children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Text(
-                                                            '${index + 1}',
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .backgroundColor),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
                                                           Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
                                                             children: [
+                                                              Text(
+                                                                '${index + 1}',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Colors
+                                                                        .white),
+                                                              ),
                                                               Container(
                                                                 decoration: BoxDecoration(
                                                                     color: Theme.of(
@@ -623,7 +687,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                                       )),
                                                                 ),
                                                               ),
-                                                              const SizedBox(
+                                                              SizedBox(
                                                                 width: 10,
                                                               ),
                                                               Container(
@@ -649,94 +713,70 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                                                             .white),
                                                                   ),
                                                                 ),
-                                                              )
+                                                              ),
                                                             ],
                                                           ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Spacer(),
-                                                          Positioned(
-                                                            top: 0.0,
-                                                            right: 0,
-                                                            child: IconButton(
-                                                              icon: const Icon(
-                                                                  Icons.close,
-                                                                  size: 25,
-                                                                  color: Colors
-                                                                      .grey),
-                                                              onPressed: () {
-                                                                DialogSetState(
-                                                                  () {
-                                                                    productModels
-                                                                        .removeAt(
-                                                                            index);
-                                                                  },
-                                                                );
-                                                              },
+                                                          Container(
+                                                            width: 240,
+                                                            child: Row(
+                                                              children: [
+                                                                Expanded(
+                                                                  child:
+                                                                      Container(
+                                                                    decoration: BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10)),
+                                                                    child: CustomTextField
+                                                                        .textField(
+                                                                      context,
+                                                                      'ต้นทุน',
+                                                                      _validate,
+                                                                      length:
+                                                                          10,
+                                                                      isNumber:
+                                                                          true,
+                                                                      textController:
+                                                                          editCostControllers[
+                                                                              index],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 10,
+                                                                ),
+                                                                Expanded(
+                                                                  child:
+                                                                      Container(
+                                                                    decoration: BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10)),
+                                                                    child: CustomTextField
+                                                                        .textField(
+                                                                      context,
+                                                                      'ขาย',
+                                                                      _validate,
+                                                                      isNumber:
+                                                                          true,
+                                                                      length:
+                                                                          10,
+                                                                      textController:
+                                                                          editPriceControllers[
+                                                                              index],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           )
                                                         ],
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            height: 60,
-                                                            width: 130,
-                                                            child:
-                                                                CustomTextField
-                                                                    .textField(
-                                                              context,
-                                                              'ต้นทุน',
-                                                              _validate,
-                                                              length: 10,
-                                                              isNumber: true,
-                                                              textController:
-                                                                  editCostControllers[
-                                                                      index],
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            height: 60,
-                                                            width: 130,
-                                                            child:
-                                                                CustomTextField
-                                                                    .textField(
-                                                              context,
-                                                              'ขาย',
-                                                              _validate,
-                                                              isNumber: true,
-                                                              length: 10,
-                                                              textController:
-                                                                  editPriceControllers[
-                                                                      index],
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 10,
                                                       ),
                                                     ]),
                                                   ),
                                                 ),
-                                              );
-                                            }),
-                                      ),
-                                    ]),
+                                              ),
+                                            );
+                                          }),
+                                    ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -813,14 +853,10 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           duration: Duration(seconds: 3),
                                         ));
                                       } else {
-                                        _addCostPriceInProdModel(
-                                            stPropsList, ndPropsList);
-
-                                        Navigator.pop(dContext2);
-                                        Navigator.pop(context);
+                                        dialogProduct_weight();
                                       }
                                     },
-                                    child: Text('ยืนยัน')),
+                                    child: Text('ถัดไป')),
                           ],
                         ),
                       ],
@@ -2242,12 +2278,12 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
+                              SizedBox(
                                   width:
                                       (MediaQuery.of(context).size.width) * 0.7,
                                   child: Row(
                                     children: [
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       const Text(
@@ -2267,7 +2303,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           // fontWeight: FontWeight.bold),
                                         ),
                                       ),
-                                      Spacer(),
+                                      const Spacer(),
                                       IconButton(
                                         icon: const Icon(
                                           Icons.close,
@@ -2291,7 +2327,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                         // สี
 
                         Container(
-                          height: (MediaQuery.of(context).size.height) * 0.47,
+                          height: 300,
                           decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.circular(20)),
@@ -2309,7 +2345,7 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                       style: const TextStyle(
                                           fontSize: 25, color: Colors.white),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 10,
                                     ),
                                     IconButton(
@@ -2346,21 +2382,22 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                           )
                                   ],
                                 ),
-                                Wrap(
+                                Row(
                                   children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      height: 60,
-                                      width: 200,
-                                      child: CustomTextField.textField(
-                                        context,
-                                        'ระบุ${stPropName}',
-                                        _validate,
-                                        length: 30,
-                                        textController:
-                                            productModel_stPropListNameController,
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        height: 60,
+                                        child: CustomTextField.textField(
+                                          context,
+                                          'ระบุ${stPropName}',
+                                          _validate,
+                                          length: 30,
+                                          textController:
+                                              productModel_stPropListNameController,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(
@@ -2426,26 +2463,24 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                             borderRadius:
                                                 BorderRadius.circular(10)),
                                         height: 160,
-                                        child: Expanded(
-                                          child: Center(
-                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.note_alt_outlined,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              ),
-                                              Text(
-                                                'ไม่มี ${stPropName} สินค้า',
-                                                style: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 13),
-                                              ),
-                                            ],
-                                          )),
-                                        ),
+                                        child: Center(
+                                            child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.note_alt_outlined,
+                                              color: Colors.grey,
+                                              size: 20,
+                                            ),
+                                            Text(
+                                              'ไม่มี ${stPropName} สินค้า',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13),
+                                            ),
+                                          ],
+                                        )),
                                       )
                                     : Container(
                                         decoration: BoxDecoration(
@@ -2524,238 +2559,309 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                           height: 10,
                         ),
 
-                        Stack(children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            height: (MediaQuery.of(context).size.height) * 0.47,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text(
-                                        ndPropName,
-                                        style: const TextStyle(
-                                            fontSize: 25, color: Colors.white),
-                                      ),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
-                                      IconButton(
-                                          onPressed: () async {
-                                            DialogSetState(
-                                              () {
-                                                isDialogChooseFst == false;
-                                              },
-                                            );
-                                            await dialogEdit_PropName(
-                                                productModel_ndPropNameController);
-                                          },
-                                          icon: const Icon(
-                                            Icons.edit,
-                                            color: Colors.white,
-                                          )),
-                                      ndPropsList.isEmpty
-                                          ? Container()
-                                          : Container(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(2.0),
-                                                child: Text(
-                                                  '${NumberFormat("#,###.##").format(ndPropsList.length)}',
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            )
-                                    ],
-                                  ),
-                                  Wrap(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        height: 60,
-                                        width: 200,
-                                        child: CustomTextField.textField(
-                                          context,
-                                          'ระบุ${ndPropName}',
-                                          _validate,
-                                          length: 30,
-                                          textController:
-                                              productModel_ndPropListNameController,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          if (productModel_ndPropListNameController
-                                              .text.isEmpty) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                backgroundColor:
-                                                    Colors.redAccent,
-                                                content: Text(
-                                                    "โปรดระบุชื่อรูปแบบ ${ndPropName} สินค้า"),
-                                                duration: Duration(seconds: 3),
-                                              ),
-                                            );
-                                          } else {
-                                            final ndProp =
-                                                ProductModel_ndProperty(
-                                              pmndPropName:
-                                                  productModel_ndPropListNameController
-                                                      .text,
-                                            );
-
-                                            DialogSetState(
-                                              () {
-                                                ndPropsList.add(ndProp);
-                                              },
-                                            );
-                                            // print(
-                                            //     'Add Prod Prod Model Property 1st : [${prodCategory.prodCategId}, ${prodCategory.prodCategName} ${prodCategory.shopId}] Data Type? -> ${prodCategory.shopId.runtimeType}');
-
-                                            productModel_ndPropListNameController
-                                                .clear();
-
-                                            DialogSetState(() {});
-                                          }
-                                        },
-                                        child: Row(children: const [
-                                          Icon(
-                                            Icons.add_rounded,
-                                            color: Colors.white,
-                                          ),
-                                          Text('เพิ่ม'),
-                                        ]),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  ndPropsList.isEmpty
-                                      ? Container(
-                                          decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .background
-                                                  .withOpacity(0.9),
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          height: 160,
-                                          child: Expanded(
-                                            child: Center(
-                                                child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.note_alt_outlined,
-                                                  color: Colors.grey,
-                                                  size: 20,
-                                                ),
-                                                Text(
-                                                  'ไม่มี ${ndPropName} สินค้า',
-                                                  style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 13),
-                                                ),
-                                              ],
-                                            )),
-                                          ),
-                                        )
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .background
-                                                  .withOpacity(0.9),
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          height: 160,
-                                          child: ListView.builder(
-                                              // scrollDirection: Axis.horizontal,
-                                              padding: EdgeInsets.zero,
-                                              itemCount: ndPropsList.length,
-                                              itemBuilder: (context, index) {
-                                                final ndPropsListInd =
-                                                    ndPropsList[index];
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Container(
-                                                      height: 50,
-                                                      decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10)),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10.0),
-                                                        child: Row(children: [
-                                                          Text(
-                                                            ndPropsListInd
-                                                                .pmndPropName,
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white),
-                                                          ),
-                                                          const Spacer(),
-                                                          IconButton(
-                                                              onPressed: () {
-                                                                ndPropsList
-                                                                    .removeAt(
-                                                                        index);
-                                                                DialogSetState(
-                                                                    () {
-                                                                  ndPropsList =
-                                                                      ndPropsList;
-                                                                });
-                                                              },
-                                                              icon: const Icon(
-                                                                Icons
-                                                                    .close_rounded,
-                                                                color: Colors
-                                                                    .white,
-                                                              ))
-                                                        ]),
+                        // ขนาด
+                        isDelete_ndProp == true
+                            ? ElevatedButton(
+                                child: Row(
+                                  children: const [
+                                    Icon(Icons.add_rounded,
+                                        size: 25,
+                                        color:
+                                            Color.fromARGB(255, 255, 255, 255)),
+                                    Text(
+                                      'เพิ่มอีกรูปแบบ',
+                                      style: TextStyle(color: Colors.white),
+                                    )
+                                  ],
+                                ),
+                                onPressed: () {
+                                  DialogSetState(
+                                    () {
+                                      isDelete_ndProp = false;
+                                    },
+                                  );
+                                },
+                              )
+                            : Stack(children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Container(
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Text(
+                                              ndPropName,
+                                              style: const TextStyle(
+                                                  fontSize: 25,
+                                                  color: Colors.white),
+                                            ),
+                                            const SizedBox(
+                                              width: 20,
+                                            ),
+                                            IconButton(
+                                                onPressed: () async {
+                                                  DialogSetState(
+                                                    () {
+                                                      isDialogChooseFst ==
+                                                          false;
+                                                    },
+                                                  );
+                                                  await dialogEdit_PropName(
+                                                      productModel_ndPropNameController);
+                                                },
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.white,
+                                                )),
+                                            ndPropsList.isEmpty
+                                                ? Container()
+                                                : Container(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              2.0),
+                                                      child: Text(
+                                                        '${NumberFormat("#,###.##").format(ndPropsList.length)}',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ),
-                                                  ),
-                                                );
-                                              }),
+                                                  )
+                                          ],
                                         ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ]),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                height: 60,
+                                                child:
+                                                    CustomTextField.textField(
+                                                  context,
+                                                  'ระบุ${ndPropName}',
+                                                  _validate,
+                                                  length: 30,
+                                                  textController:
+                                                      productModel_ndPropListNameController,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                if (productModel_ndPropListNameController
+                                                    .text.isEmpty) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      backgroundColor:
+                                                          Colors.redAccent,
+                                                      content: Text(
+                                                          "โปรดระบุชื่อรูปแบบ ${ndPropName} สินค้า"),
+                                                      duration:
+                                                          Duration(seconds: 3),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  final ndProp =
+                                                      ProductModel_ndProperty(
+                                                    pmndPropName:
+                                                        productModel_ndPropListNameController
+                                                            .text,
+                                                  );
+
+                                                  DialogSetState(
+                                                    () {
+                                                      ndPropsList.add(ndProp);
+                                                    },
+                                                  );
+                                                  // print(
+                                                  //     'Add Prod Prod Model Property 1st : [${prodCategory.prodCategId}, ${prodCategory.prodCategName} ${prodCategory.shopId}] Data Type? -> ${prodCategory.shopId.runtimeType}');
+
+                                                  productModel_ndPropListNameController
+                                                      .clear();
+
+                                                  DialogSetState(() {});
+                                                }
+                                              },
+                                              child: Row(children: const [
+                                                Icon(
+                                                  Icons.add_rounded,
+                                                  color: Colors.white,
+                                                ),
+                                                Text('เพิ่ม'),
+                                              ]),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        ndPropsList.isEmpty
+                                            ? Container(
+                                                decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .background
+                                                        .withOpacity(0.9),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                height: 160,
+                                                child: Center(
+                                                    child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.note_alt_outlined,
+                                                      color: Colors.grey,
+                                                      size: 20,
+                                                    ),
+                                                    Text(
+                                                      'ไม่มี ${ndPropName} สินค้า',
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 13),
+                                                    ),
+                                                  ],
+                                                )),
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .background
+                                                        .withOpacity(0.9),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                height: 160,
+                                                child: ListView.builder(
+                                                    // scrollDirection: Axis.horizontal,
+                                                    padding: EdgeInsets.zero,
+                                                    itemCount:
+                                                        ndPropsList.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      final ndPropsListInd =
+                                                          ndPropsList[index];
+                                                      return GestureDetector(
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(5.0),
+                                                          child: Container(
+                                                            height: 50,
+                                                            decoration: BoxDecoration(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .primary,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10)),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .all(
+                                                                      10.0),
+                                                              child: Row(
+                                                                  children: [
+                                                                    Text(
+                                                                      ndPropsListInd
+                                                                          .pmndPropName,
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                    const Spacer(),
+                                                                    IconButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          ndPropsList
+                                                                              .removeAt(index);
+                                                                          DialogSetState(
+                                                                              () {
+                                                                            ndPropsList =
+                                                                                ndPropsList;
+                                                                          });
+                                                                        },
+                                                                        icon:
+                                                                            const Icon(
+                                                                          Icons
+                                                                              .close_rounded,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ))
+                                                                  ]),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }),
+                                              ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 0.0,
+                                  right: 0,
+                                  child: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.7),
+                                              spreadRadius: 0,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 4))
+                                        ],
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: IconButton(
+                                        icon: const Icon(Icons.close,
+                                            size: 25,
+                                            color: Color.fromARGB(
+                                                255, 255, 255, 255)),
+                                        onPressed: () {
+                                          DialogSetState(
+                                            () {
+                                              ndPropsList.clear();
+                                              isDelete_ndProp = true;
+                                            },
+                                          );
+                                        },
+                                      )),
+                                ),
+                              ]),
                         SizedBox(
                           height: 20,
                         ),
@@ -2795,10 +2901,13 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                       );
                                       // Setprice
                                       await dialogProduct_CostPrice();
-                                      stPropertySelecteds.clear();
-                                      ndPropertySelecteds.clear();
+                                      if (stPropertySelecteds.isNotEmpty &&
+                                          ndPropertySelecteds.isNotEmpty) {
+                                        stPropertySelecteds.clear();
+                                        ndPropertySelecteds.clear();
+                                      }
                                     },
-                                    child: Text('สร้าง')),
+                                    child: const Text('สร้าง')),
                           ],
                         ),
                       ],
@@ -3338,7 +3447,6 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                                   await DatabaseManager.instance
                                       .createProductCategory(prodCategory);
                                   productCategoryNameController.clear();
-                                  Navigator.pop(context);
 
                                   DialogSetState(() {
                                     refreshProductCategorys();
@@ -3716,26 +3824,28 @@ class _ProductNavEditState extends State<ProductNavEdit> {
                         style: TextStyle(color: Colors.white),
                       ),
                       Spacer(),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.redAccent,
-                          ),
-                          onPressed: () async {
-                            for (var model in productModels) {
-                              await DatabaseManager.instance
-                                  .deleteProductModel(model.prodModelId!);
-                            }
-                            refreshPage();
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete_sweep_rounded),
-                              Text(
-                                'ลบทั้งหมด',
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          )),
+                      productModels.isEmpty
+                          ? Container()
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.redAccent,
+                              ),
+                              onPressed: () async {
+                                for (var model in productModels) {
+                                  await DatabaseManager.instance
+                                      .deleteProductModel(model.prodModelId!);
+                                }
+                                refreshPage();
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_sweep_rounded),
+                                  Text(
+                                    'ลบทั้งหมด',
+                                    style: TextStyle(fontSize: 12),
+                                  )
+                                ],
+                              )),
                       const SizedBox(
                         width: 10,
                       ),

@@ -513,10 +513,14 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                         Container(
                                                           width: 90,
                                                           height: 90,
-                                                          child: Image.file(
-                                                            File(prodImg!),
-                                                            fit: BoxFit.cover,
-                                                          ),
+                                                          child: prodImg == null
+                                                              ? Icon(
+                                                                  Icons.image)
+                                                              : Image.file(
+                                                                  File(prodImg),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
                                                         ),
                                                         SizedBox(width: 10),
                                                         Expanded(
@@ -553,7 +557,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                                               3.0),
                                                                       child:
                                                                           Text(
-                                                                        stProperty,
+                                                                        stProperty ==
+                                                                                null
+                                                                            ? '-'
+                                                                            : stProperty,
                                                                         style: const TextStyle(
                                                                             fontSize:
                                                                                 12,
@@ -581,7 +588,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                                               3.0),
                                                                       child:
                                                                           Text(
-                                                                        ndProperty,
+                                                                        ndProperty ==
+                                                                                null
+                                                                            ? '-'
+                                                                            : ndProperty,
                                                                         style: const TextStyle(
                                                                             fontSize:
                                                                                 12,

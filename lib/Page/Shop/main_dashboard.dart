@@ -1247,7 +1247,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                 ?
                                                                 // Today
                                                                 point.orderedDate.hour.toDouble() +
-                                                                    10
+                                                                    5
                                                                 :
                                                                 // Year
                                                                 tabbarSelectedIndex == 3 ||
@@ -1308,7 +1308,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                               point.orderedDate
                                                                       .hour
                                                                       .toDouble() +
-                                                                  10
+                                                                  5
                                                               :
                                                               // Year
                                                               tabbarSelectedIndex ==
@@ -1365,7 +1365,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                 ?
                                                                 // Today
                                                                 point.orderedDate.hour.toDouble() +
-                                                                    10
+                                                                    5
                                                                 :
                                                                 // Year
                                                                 tabbarSelectedIndex == 3 ||
