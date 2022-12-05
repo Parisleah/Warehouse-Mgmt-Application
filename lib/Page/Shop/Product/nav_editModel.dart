@@ -247,7 +247,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'ต้นทุน',
+                      'ต้นทุน (บาท)',
                       style: TextStyle(color: Colors.white),
                     )
                   ],
@@ -264,7 +264,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'ราคาขาย',
+                      'ราคาขาย (บาท)',
                       style: TextStyle(color: Colors.white),
                     )
                   ],

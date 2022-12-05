@@ -61,9 +61,9 @@ class _AddShopDeliveryCompanyPageState
   List<TextEditingController> startControllers = [];
   List<TextEditingController> endControllers = [];
   List<TextEditingController> costControllers = [];
-  final _formOnlyOneKey = GlobalKey<FormState>();
-  final _formDcNameKey = GlobalKey<FormState>();
-  final _formKey = GlobalKey<FormState>();
+  final _FixedformKey = GlobalKey<FormState>();
+  final _DcNameformKey = GlobalKey<FormState>();
+  final _RangeformKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final onlyOneController = TextEditingController();
   String? deliveryOptions = 'onlyOne';
@@ -235,9 +235,8 @@ class _AddShopDeliveryCompanyPageState
                     SizedBox(
                       height: 10,
                     ),
-
                     Form(
-                      key: _formDcNameKey,
+                      key: _DcNameformKey,
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
@@ -267,7 +266,8 @@ class _AddShopDeliveryCompanyPageState
                                   style: const TextStyle(color: Colors.white),
                                   controller: nameController,
                                   decoration: InputDecoration(
-                                    hintText: 'ชื่อผู้จัดส่ง',
+                                    hintText:
+                                        'ชื่อบริษัทขนส่ง เช่น Kerry Express, Flash...',
                                     filled: true,
                                     fillColor: Colors.transparent,
                                     border: const OutlineInputBorder(
@@ -319,6 +319,7 @@ class _AddShopDeliveryCompanyPageState
                                 onChanged: (value) {
                                   setState(() {
                                     deliveryOptions = value.toString();
+                                    _isSelectedRange = false;
                                   });
                                 },
                               ),
@@ -427,7 +428,7 @@ class _AddShopDeliveryCompanyPageState
                                       ],
                                     )),
                                 Form(
-                                  key: _formKey,
+                                  key: _RangeformKey,
                                   child: Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -851,7 +852,7 @@ class _AddShopDeliveryCompanyPageState
                           )
                         : Center(
                             child: Form(
-                              key: _formOnlyOneKey,
+                              key: _FixedformKey,
                               child: Container(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -921,19 +922,16 @@ class _AddShopDeliveryCompanyPageState
                     const SizedBox(
                       height: 10,
                     ),
-                    // deliveryRates.isEmpty && onlyOneController.text.isEmpty
-                    //     ? Container()
-                    //     :
                     ElevatedButton(
                         onPressed: () async {
                           // Included 3 Form Keys
                           // final _formOnlyOneKey = GlobalKey<FormState>();
                           // final _formDcNameKey = GlobalKey<FormState>();
                           // final _formKey = GlobalKey<FormState>();
-                          if (_isSelectedRange) {
+                          if (_isSelectedRange == true) {
                             // True
-                            if (_formKey.currentState!.validate() &&
-                                _formDcNameKey.currentState!.validate()) {
+                            if (_RangeformKey.currentState!.validate() &&
+                                _DcNameformKey.currentState!.validate()) {
                               final createdShop = await DatabaseManager.instance
                                   .createShop(widget.shop);
                               final company = DeliveryCompanyModel(
@@ -944,8 +942,6 @@ class _AddShopDeliveryCompanyPageState
                               final createdCompany = await DatabaseManager
                                   .instance
                                   .createDeliveryCompany(company);
-                              print(
-                                  'Created Compamy : [ID ${company.dcId}, NAME ${company.dcName} ,isRange? ${company.dcisRange}, Fixed ${company.fixedDeliveryCost}, SHOP ID ${company.shopId}]');
 
                               await DatabaseManager.instance.updateShop(
                                   createdShop.copy(dcId: createdCompany.dcId!));
@@ -969,7 +965,9 @@ class _AddShopDeliveryCompanyPageState
                               ).popUntil((_) => count++ >= 4);
                             }
                           } else {
-                            if (_formOnlyOneKey.currentState!.validate()) {
+                            if (_FixedformKey.currentState!.validate() &&
+                                _DcNameformKey.currentState!.validate()) {
+                              deliveryRates.clear();
                               final createdShop = await DatabaseManager.instance
                                   .createShop(widget.shop);
                               final company = DeliveryCompanyModel(

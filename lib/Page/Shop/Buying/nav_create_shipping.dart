@@ -740,11 +740,10 @@ class _CreateShippingPageState extends State<CreateShippingPage> {
                                   dcName: nameController.text,
                                   dcisRange: isSelectedRange,
                                   fixedDeliveryCost: isSelectedRange
-                                        ? null
-                                        : double.parse(onlyOneController.text
-                                                .replaceAll(
-                                                    RegExp('[^0-9]'), ''))
-                                            .toInt(),
+                                      ? null
+                                      : double.parse(onlyOneController.text
+                                              .replaceAll(RegExp('[^0-9]'), ''))
+                                          .toInt(),
                                   shopId: widget.shop.shopid!);
                               final createdCompany = await DatabaseManager
                                   .instance
@@ -767,7 +766,6 @@ class _CreateShippingPageState extends State<CreateShippingPage> {
                             }
                           },
                           child: Text('บันทึก')),
-                  
                   const SizedBox(
                     height: 10,
                   ),

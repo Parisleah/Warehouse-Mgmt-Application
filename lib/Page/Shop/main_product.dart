@@ -545,14 +545,14 @@ class _ProductPageState extends State<ProductPage> {
                                                               ),
                                                             ),
                                                             Text(
-                                                                'ต้นทุน ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
+                                                                'ต้นทุน (บาท) ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
                                                                 style: const TextStyle(
                                                                     color: Colors
                                                                         .grey,
                                                                     fontSize:
                                                                         12)),
                                                             Text(
-                                                                'ราคา ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
+                                                                'ราคาขาย (บาท) ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
                                                                 style: const TextStyle(
                                                                     color: Colors
                                                                         .white,

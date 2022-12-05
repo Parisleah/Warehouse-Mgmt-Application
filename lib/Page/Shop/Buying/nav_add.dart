@@ -78,8 +78,21 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   }
 
   _addProductInCart(PurchasingItemsModel product) {
+    // Need to be Fixed
+    // if (carts.isNotEmpty) {
+    //   for (var item in carts) {
+    //     if (product.prodModelId == item.prodModelId) {
+    //       carts[carts.indexWhere(
+    //               (element) => element.prodModelId == product.prodModelId)] =
+    //           item.copy(amount: item.amount + product.amount);
+    //     } else {
+    //       carts.add(product);
+    //     }
+    //   }
+    // } else {
+    //   carts.add(product);
+    // }
     carts.add(product);
-    print('Cart (${carts.length}) -> ${carts}');
   }
 
   dialogAlertWeightNotInRange(DeliveryCompanyModel company) async {
@@ -195,7 +208,6 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
@@ -303,13 +315,31 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Flexible(
-                              child: Text(_dealer.dName,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.grey,
-                                    overflow: TextOverflow.ellipsis,
-                                  )),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(_dealer.dName,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.grey,
+                                        overflow: TextOverflow.ellipsis,
+                                      )),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                _dealer.dName == 'ยังไม่ระบุตัวแทนจำหน่าย'
+                                    ? Container()
+                                    : Flexible(
+                                        child: Text(
+                                            '(${_dealer.dPhone.replaceAllMapped(RegExp(r'(\d{3})(\d{3})(\d+)'), (Match m) => "${m[1]}-${m[2]}-${m[3]}")})',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.grey,
+                                              overflow: TextOverflow.ellipsis,
+                                            )),
+                                      ),
+                              ],
                             ),
                             Flexible(
                               child: Text(_dealer.dAddress,
@@ -658,7 +688,8 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                                                         15,
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .backgroundColor,
+                                                                        .bottomNavigationBarTheme
+                                                                        .selectedItemColor,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold)),
@@ -700,7 +731,8 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                           style: TextStyle(
                                               fontSize: 15,
                                               color: Theme.of(context)
-                                                  .backgroundColor,
+                                                  .bottomNavigationBarTheme
+                                                  .selectedItemColor,
                                               fontWeight: FontWeight.bold)),
                                     ),
                                     Text(
@@ -726,8 +758,9 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                       '${NumberFormat("#,###.##").format(carts.length)}',
                                       style: TextStyle(
                                           fontSize: 15,
-                                          color:
-                                              Theme.of(context).backgroundColor,
+                                          color: Theme.of(context)
+                                              .bottomNavigationBarTheme
+                                              .selectedItemColor,
                                           fontWeight: FontWeight.bold)),
                                 ),
                               ),
@@ -749,46 +782,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                   ),
                 ],
               ),
-              // Container of รายการสินค้า
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              // Container of การจัดส่ง
-              // Container(
-              //   decoration: BoxDecoration(
-              //       color: const Color.fromRGBO(56, 48, 77, 1.0),
-              //       borderRadius: BorderRadius.circular(15)),
-              //   width: 400,
-              //   height: 70,
-              //   child: Row(children: [
-              //     const Padding(
-              //       padding: const EdgeInsets.all(20.0),
-              //       child: const Text("การจัดส่ง",
-              //           style: TextStyle(fontSize: 15, color: Colors.white)),
-              //     ),
-              //     const Spacer(),
-              //     Text(_shipping.dcName,
-              //         style: TextStyle(fontSize: 15, color: Colors.grey)),
-              //     IconButton(
-              //       icon: const Icon(Icons.arrow_forward_ios,
-              //           color: Colors.white),
-              //       onPressed: () async {
-              //         await Navigator.push(
-              //             context,
-              //             new MaterialPageRoute(
-              //                 builder: (context) => ChooseShippingNav(
-              //                       shop: widget.shop,
-              //                       update: _updateShipping,
-              //                     )));
 
-              //         _calculate(totalPrice, amount, shippingCost,
-              //             noShippingPrice, totalWeight);
-
-              //         setState(() {});
-              //       },
-              //     ),
-              //   ]),
-              // ),
               // Container of การจัดส่ง
               const SizedBox(
                 height: 10,
@@ -1020,12 +1014,16 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                             ? Icon(
                                 Icons.check_box,
                                 size: 40.0,
-                                color: Theme.of(context).backgroundColor,
+                                color: Theme.of(context)
+                                    .bottomNavigationBarTheme
+                                    .selectedItemColor,
                               )
                             : Icon(
                                 Icons.check_box_outline_blank,
                                 size: 40.0,
-                                color: Theme.of(context).backgroundColor,
+                                color: Theme.of(context)
+                                    .bottomNavigationBarTheme
+                                    .selectedItemColor,
                               ),
                       ),
                     ),
@@ -1118,9 +1116,9 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                               content: Row(
                                 children: [
                                   Text(
-                                      "ทำรายการเสร็จสิ้น ยอด${NumberFormat("#,###,###.##").format(purchased.total)}"),
+                                      "ทำรายการเสร็จสิ้น ยอด ${NumberFormat("#,###,###.##").format(purchased.total)}"),
                                   Text(
-                                    "${df.format(date)}",
+                                    " ${df.format(date)}",
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 ],

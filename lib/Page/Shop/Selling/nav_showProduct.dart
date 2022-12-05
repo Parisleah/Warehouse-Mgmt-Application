@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
@@ -11,6 +12,7 @@ import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_showProduct.dart';
 
 import '../../../db/database.dart';
@@ -492,15 +494,15 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                                           .check_box_rounded,
                                                                       color: Theme.of(
                                                                               context)
-                                                                          .backgroundColor,
-                                                                    )
+                                                                          .bottomNavigationBarTheme
+                                                                          .selectedItemColor)
                                                                   : Icon(
                                                                       Icons
                                                                           .check_box_outline_blank,
                                                                       color: Theme.of(
                                                                               context)
-                                                                          .backgroundColor,
-                                                                    ),
+                                                                          .bottomNavigationBarTheme
+                                                                          .selectedItemColor),
                                                           const SizedBox(
                                                               width: 16),
                                                           Column(
@@ -555,7 +557,8 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                                   decoration: BoxDecoration(
                                                                       color: Theme.of(
                                                                               context)
-                                                                          .backgroundColor,
+                                                                          .bottomNavigationBarTheme
+                                                                          .selectedItemColor,
                                                                       borderRadius:
                                                                           BorderRadius.circular(
                                                                               15)),
@@ -717,16 +720,9 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                               borderRadius: BorderRadius.circular(30),
                               child: Container(
                                 decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                  colors: [
-                                    // Color.fromRGBO(29,
-                                    //     29, 65, 1.0),
-                                    Theme.of(context).backgroundColor,
-                                    Theme.of(context).backgroundColor,
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                )),
+                                    color: Theme.of(context)
+                                        .bottomNavigationBarTheme
+                                        .selectedItemColor),
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 10, right: 10),
@@ -1062,8 +1058,8 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                                   Text(
                                                                       '(คงเหลือ ${NumberFormat("#,###.##").format(getLastestLot.remainAmount)})',
                                                                       style: TextStyle(
-                                                                          color: Theme.of(context)
-                                                                              .backgroundColor,
+                                                                          color: Colors
+                                                                              .white,
                                                                           fontSize:
                                                                               12)),
                                                                 ],
@@ -1076,6 +1072,10 @@ class _SellingNavShowProdState extends State<SellingNavShowProd> {
                                                               5),
                                                       height: 90,
                                                       child: TextFormField(
+                                                          inputFormatters: [
+                                                            FilteringTextInputFormatter
+                                                                .digitsOnly
+                                                          ],
                                                           validator: (value) {
                                                             if (value == null ||
                                                                 value.isEmpty) {

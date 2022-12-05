@@ -364,14 +364,16 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                   .check_box_rounded,
                                                               color: Theme.of(
                                                                       context)
-                                                                  .backgroundColor,
+                                                                  .bottomNavigationBarTheme
+                                                                  .selectedItemColor,
                                                             )
                                                           : Icon(
                                                               Icons
                                                                   .check_box_outline_blank,
                                                               color: Theme.of(
                                                                       context)
-                                                                  .backgroundColor,
+                                                                  .bottomNavigationBarTheme
+                                                                  .selectedItemColor,
                                                             ),
                                                       const SizedBox(width: 16),
                                                       Column(
@@ -419,7 +421,8 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                         decoration: BoxDecoration(
                                                             color: Theme.of(
                                                                     context)
-                                                                .backgroundColor,
+                                                                .bottomNavigationBarTheme
+                                                                .selectedItemColor,
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
@@ -494,7 +497,8 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                 .check_box_rounded,
                                                             color: Theme.of(
                                                                     context)
-                                                                .backgroundColor,
+                                                                .bottomNavigationBarTheme
+                                                                .selectedItemColor,
                                                           ),
                                                           const SizedBox(
                                                               width: 10),
@@ -628,14 +632,16 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                         .check_box_rounded,
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .backgroundColor,
+                                                                        .bottomNavigationBarTheme
+                                                                        .selectedItemColor,
                                                                   )
                                                                 : Icon(
                                                                     Icons
                                                                         .check_box_outline_blank,
                                                                     color: Theme.of(
                                                                             context)
-                                                                        .backgroundColor,
+                                                                        .bottomNavigationBarTheme
+                                                                        .selectedItemColor,
                                                                   ),
                                                             Text(
                                                               '${indItem.stProperty} ${(indItem.ndProperty)}',
@@ -706,6 +712,8 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                                 true),
                                                                     inputFormatters: <
                                                                         TextInputFormatter>[
+                                                                      FilteringTextInputFormatter
+                                                                          .digitsOnly,
                                                                       FilteringTextInputFormatter
                                                                           .allow(
                                                                               RegExp(r'^\d+\.?\d*')),

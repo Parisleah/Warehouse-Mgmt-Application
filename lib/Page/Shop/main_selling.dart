@@ -422,7 +422,7 @@ class _SellingPageState extends State<SellingPage> {
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Container(
                                   height:
-                                      MediaQuery.of(context).size.height * 0.60,
+                                      MediaQuery.of(context).size.height * 0.55,
                                   width: 440.0,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(14),
@@ -583,7 +583,11 @@ class _SellingPageState extends State<SellingPage> {
                                                   borderRadius:
                                                       BorderRadius.circular(20),
                                                   child: Container(
-                                                    height: 80,
+                                                    height:
+                                                        (MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            4),
                                                     width: 400,
                                                     color: Theme.of(context)
                                                         .colorScheme
@@ -835,8 +839,11 @@ class _SellingPageState extends State<SellingPage> {
                                                                     _address ==
                                                                             null
                                                                         ? '-'
-                                                                        : _address
-                                                                            .cPhone,
+                                                                        : _address.cPhone.replaceAllMapped(
+                                                                            RegExp(
+                                                                                r'(\d{3})(\d{3})(\d+)'),
+                                                                            (Match m) =>
+                                                                                "${m[1]}-${m[2]}-${m[3]}"),
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,

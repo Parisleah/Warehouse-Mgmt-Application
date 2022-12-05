@@ -141,8 +141,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
     } else if (productNameController.text.isNotEmpty) {
       // Insert Product -> Database
       final product = Product(
-          prodName: productNameController.text,
-          prodDescription: productDescriptionController.text,
+          prodName: productNameController.text.trim(),
+          prodDescription: productDescriptionController.text.trim(),
           prodImage: productImgController.path,
           prodCategId: productCategory.prodCategId == null
               ? null
@@ -328,7 +328,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         return StatefulBuilder(
             builder: (context, EditPropCostPriceDialogSetState) {
           return AlertDialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Row(
@@ -697,7 +697,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         return StatefulBuilder(
             builder: (context, EditPropCostPriceDialogSetState) {
           return AlertDialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Row(
@@ -1167,7 +1167,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         builder: (BuildContext dContext2) {
           return StatefulBuilder(builder: (dContext2, DialogSetState) {
             return Dialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0)), //th
               child: SizedBox(
@@ -1296,182 +1296,165 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                 productModels[index];
                                             bool isEditCategory = false;
 
-                                            return Dismissible(
-                                              key: UniqueKey(),
-                                              direction:
-                                                  DismissDirection.endToStart,
-                                              resizeDuration:
-                                                  Duration(seconds: 1),
-                                              background: Container(
-                                                margin: EdgeInsets.only(
-                                                    left: 0,
-                                                    top: 10,
-                                                    right: 10,
-                                                    bottom: 10),
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Container(
                                                 decoration: BoxDecoration(
-                                                    color: Colors.redAccent,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10)),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    Icon(
-                                                      Icons.delete_forever,
-                                                      color: Colors.white,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 20,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              onDismissed: (direction) {},
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(5.0),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            10.0),
-                                                    child: Row(children: [
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                '${index + 1}',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        15,
-                                                                    color: Colors
-                                                                        .white),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Row(children: [
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              '${index + 1} ',
+                                                              style: TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                            Container(
+                                                              decoration: BoxDecoration(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondary,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10)),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        3.0),
+                                                                child: Text(
+                                                                    '${productModelInd.stProperty}',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    )),
                                                               ),
-                                                              Container(
-                                                                decoration: BoxDecoration(
-                                                                    color: Theme.of(
-                                                                            context)
-                                                                        .colorScheme
-                                                                        .primary,
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10)),
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          3.0),
-                                                                  child: Text(
-                                                                      '${productModelInd.stProperty}',
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            15,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      )),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Container(
+                                                              decoration: BoxDecoration(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondary,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10)),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        3.0),
+                                                                child: Text(
+                                                                  '${productModelInd.ndProperty}',
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .white),
                                                                 ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Container(
+                                                          width: (MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              1.6),
+                                                          child: Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child:
+                                                                    Container(
+                                                                        decoration: BoxDecoration(
+                                                                            borderRadius: BorderRadius.circular(
+                                                                                10)),
+                                                                        child:
+                                                                            Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Text('ต้นทุน (บาท)',
+                                                                                style: TextStyle(
+                                                                                  fontSize: 15,
+                                                                                  color: Colors.white,
+                                                                                )),
+                                                                            CustomTextField.textField(
+                                                                              context,
+                                                                              'ราคา',
+                                                                              _validate,
+                                                                              length: 10,
+                                                                              isNumber: true,
+                                                                              textController: editCostControllers[index],
+                                                                            ),
+                                                                          ],
+                                                                        )),
                                                               ),
                                                               SizedBox(
                                                                 width: 10,
                                                               ),
-                                                              Container(
-                                                                decoration: BoxDecoration(
-                                                                    color: Theme.of(
-                                                                            context)
-                                                                        .colorScheme
-                                                                        .primary,
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10)),
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          3.0),
-                                                                  child: Text(
-                                                                    '${productModelInd.ndProperty}',
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            15,
-                                                                        color: Colors
-                                                                            .white),
-                                                                  ),
-                                                                ),
+                                                              Expanded(
+                                                                child:
+                                                                    Container(
+                                                                        decoration: BoxDecoration(
+                                                                            borderRadius: BorderRadius.circular(
+                                                                                10)),
+                                                                        child:
+                                                                            Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Text('ราคาขาย (บาท)',
+                                                                                style: TextStyle(
+                                                                                  fontSize: 15,
+                                                                                  color: Colors.white,
+                                                                                )),
+                                                                            CustomTextField.textField(
+                                                                              context,
+                                                                              'ราคา',
+                                                                              _validate,
+                                                                              isNumber: true,
+                                                                              length: 10,
+                                                                              textController: editPriceControllers[index],
+                                                                            ),
+                                                                          ],
+                                                                        )),
                                                               ),
                                                             ],
                                                           ),
-                                                          Container(
-                                                            width: 240,
-                                                            child: Row(
-                                                              children: [
-                                                                Expanded(
-                                                                  child:
-                                                                      Container(
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10)),
-                                                                    child: CustomTextField
-                                                                        .textField(
-                                                                      context,
-                                                                      'ต้นทุน',
-                                                                      _validate,
-                                                                      length:
-                                                                          10,
-                                                                      isNumber:
-                                                                          true,
-                                                                      textController:
-                                                                          editCostControllers[
-                                                                              index],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  width: 10,
-                                                                ),
-                                                                Expanded(
-                                                                  child:
-                                                                      Container(
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10)),
-                                                                    child: CustomTextField
-                                                                        .textField(
-                                                                      context,
-                                                                      'ขาย',
-                                                                      _validate,
-                                                                      isNumber:
-                                                                          true,
-                                                                      length:
-                                                                          10,
-                                                                      textController:
-                                                                          editPriceControllers[
-                                                                              index],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ]),
-                                                  ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ]),
                                                 ),
                                               ),
                                             );
@@ -1645,8 +1628,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                       ),
                     );
                   } else {
-                    final updatedprodCateg =
-                        prodCategory.copy(prodCategName: controller.text);
+                    final updatedprodCateg = prodCategory.copy(
+                        prodCategName: controller.text.trim());
                     await DatabaseManager.instance
                         .updateProductCategory(updatedprodCateg);
                     Navigator.of(context).pop();
@@ -1732,7 +1715,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         builder: (BuildContext dContext1) {
           return StatefulBuilder(builder: (dContext1, DialogSetState) {
             return Dialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0)), //th
               child: SizedBox(
@@ -1894,7 +1877,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                               ProductModel_stProperty(
                                             pmstPropName:
                                                 productModel_stPropListNameController
-                                                    .text,
+                                                    .text
+                                                    .trim(),
                                           );
 
                                           DialogSetState(
@@ -2158,7 +2142,8 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                       ProductModel_ndProperty(
                                                     pmndPropName:
                                                         productModel_ndPropListNameController
-                                                            .text,
+                                                            .text
+                                                            .trim(),
                                                   );
 
                                                   DialogSetState(
@@ -2400,7 +2385,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
           return StatefulBuilder(
               builder: (prodCategContext, CategoryDialogSetState) {
             return Dialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0)), //th
               child: SizedBox(
@@ -2669,7 +2654,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         builder: (BuildContext dContext3) {
           return StatefulBuilder(builder: (dContext3, DialogSetState) {
             return Dialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0)), //th
               child: SizedBox(
@@ -2857,7 +2842,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                     .start,
                                                             children: [
                                                               Text(
-                                                                '${index + 1}',
+                                                                '${index + 1} ',
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         15,
@@ -2869,7 +2854,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                     color: Theme.of(
                                                                             context)
                                                                         .colorScheme
-                                                                        .primary,
+                                                                        .secondary,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),
@@ -2897,7 +2882,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                     color: Theme.of(
                                                                             context)
                                                                         .colorScheme
-                                                                        .primary,
+                                                                        .secondary,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),
@@ -2921,6 +2906,9 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                           Container(
                                                             width: 240,
                                                             child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
                                                               children: [
                                                                 Text(
                                                                   'น้ำหนัก',
@@ -2941,7 +2929,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                   child: CustomTextField
                                                                       .textField(
                                                                     context,
-                                                                    'กรัม',
+                                                                    'ระบุ',
                                                                     _validate,
                                                                     length: 10,
                                                                     isNumber:
@@ -2950,6 +2938,12 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                         weightControllers[
                                                                             index],
                                                                   ),
+                                                                ),
+                                                                Text(
+                                                                  'กรัม',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .grey),
                                                                 ),
                                                               ],
                                                             ),
@@ -3278,137 +3272,151 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.all(10.0),
-                                              child: Row(children: [
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                              child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
                                                   children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '${index + 1}',
-                                                          style: TextStyle(
-                                                              fontSize: 15,
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .backgroundColor),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .background,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(3.0),
-                                                            child: Text(
-                                                              '${productModel.stProperty}',
-                                                              style: const TextStyle(
-                                                                  fontSize: 15,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .background,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(3.0),
-                                                            child: Text(
-                                                              '${productModel.ndProperty}',
-                                                              style: const TextStyle(
-                                                                  fontSize: 15,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Text(
-                                                      'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
-                                                      style: TextStyle(
-                                                          color: Colors.grey,
-                                                          fontSize: 12),
-                                                    ),
                                                     const SizedBox(
                                                       width: 10,
                                                     ),
-                                                    Text(
-                                                      'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
-                                                      style: TextStyle(
-                                                          color: Colors.grey,
-                                                          fontSize: 12),
-                                                    ),
-                                                    Text(
-                                                      'น้ำหนัก ${NumberFormat("#,###,###.##").format(productModel.weight)} กรัม',
-                                                      style: TextStyle(
-                                                          color: Colors.grey,
-                                                          fontSize: 12),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const Spacer(),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .background,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Row(
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        Text('คงเหลือ ',
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 15,
-                                                              color:
-                                                                  Colors.white,
-                                                            )),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              '${index + 1}',
+                                                              style: TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .backgroundColor),
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Container(
+                                                              decoration: BoxDecoration(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .background,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10)),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        3.0),
+                                                                child: Text(
+                                                                  '${productModel.stProperty}',
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Container(
+                                                              decoration: BoxDecoration(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .background,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10)),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        3.0),
+                                                                child: Text(
+                                                                  '${productModel.ndProperty}',
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                         Text(
-                                                            '${NumberFormat("#,###.##").format(amountOfProd)}',
-                                                            style: const TextStyle(
-                                                                fontSize: 15,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
+                                                          'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey,
+                                                              fontSize: 12),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        Text(
+                                                          'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey,
+                                                              fontSize: 12),
+                                                        ),
+                                                        Text(
+                                                          'น้ำหนัก ${NumberFormat("#,###,###.##").format(productModel.weight)} กรัม',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey,
+                                                              fontSize: 12),
+                                                        ),
                                                       ],
                                                     ),
-                                                  ),
-                                                ),
-                                              ]),
+                                                    const Spacer(),
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .background,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10)),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(5.0),
+                                                        child: Row(
+                                                          children: [
+                                                            Text('คงเหลือ ',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .white,
+                                                                )),
+                                                            Text(
+                                                                '${NumberFormat("#,###.##").format(amountOfProd)}',
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        15,
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]),
                                             ),
                                           ),
                                         ),

@@ -48,7 +48,7 @@ class _selling_nav_createCustomerState
             ],
           ),
           centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          
         ),
       ),
       body: Container(
@@ -89,6 +89,7 @@ class _selling_nav_createCustomerState
             child: TextField(
                 style: const TextStyle(color: Colors.white),
                 controller: cusNameController,
+                
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromRGBO(56, 48, 77, 1.0),

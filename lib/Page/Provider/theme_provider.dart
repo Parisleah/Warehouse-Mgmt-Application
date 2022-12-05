@@ -40,15 +40,17 @@ const tabbarGred = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
 );
-
-const dark_primary_accent_color = Color.fromRGBO(141, 106, 225, 1);
-
+// Dark
+const dark_primary_accent_color = Color.fromARGB(255, 101, 82, 150);
+const dark_secondary_accent_color = Color.fromARGB(255, 106, 81, 170);
+// Light
 const light_primary_accent_color = Color.fromARGB(255, 72, 179, 127);
 
 class MyThemes {
   static final darkTheme = ThemeData(
-    snackBarTheme:
-        SnackBarThemeData(contentTextStyle: TextStyle(color: Colors.white)),
+    snackBarTheme: SnackBarThemeData(
+        backgroundColor: dark_secondary_accent_color,
+        contentTextStyle: TextStyle(color: Colors.white)),
     // Font
     fontFamily: 'NotoSansThai',
 
@@ -73,7 +75,7 @@ class MyThemes {
     ),
 
     textTheme: const TextTheme(
-      headline2: TextStyle(color: dark_primary_accent_color, fontSize: 20),
+      headline2: TextStyle(color: dark_secondary_accent_color, fontSize: 20),
     ),
 
     // App bar
@@ -85,11 +87,12 @@ class MyThemes {
         fontFamily: 'NotoSansThai',
       ),
       elevation: 10.0,
-      backgroundColor: Color.fromARGB(255, 16, 16, 16),
+      backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
     ),
-
+    dialogTheme: DialogTheme(backgroundColor: Color.fromRGBO(30, 30, 65, 1.0)),
+    dialogBackgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
     // Tabbar
     tabBarTheme: TabBarTheme(
         labelStyle: TextStyle(fontSize: 12, fontFamily: 'NotoSansThai'),
@@ -104,7 +107,7 @@ class MyThemes {
                   offset: Offset(0, 3))
             ],
             borderRadius: BorderRadius.circular(15),
-            color: dark_primary_accent_color),
+            color: Colors.red),
         indicatorSize: TabBarIndicatorSize.tab,
         unselectedLabelStyle:
             TextStyle(fontSize: 10, fontFamily: 'NotoSansThai')),
@@ -112,8 +115,8 @@ class MyThemes {
     // BottomAppBar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       unselectedItemColor: Colors.white,
-      selectedItemColor: dark_primary_accent_color,
-      backgroundColor: Color.fromARGB(255, 16, 16, 16),
+      selectedItemColor: dark_secondary_accent_color,
+      backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
       type: BottomNavigationBarType.fixed,
     ),
     switchTheme: SwitchThemeData(

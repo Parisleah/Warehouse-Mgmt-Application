@@ -356,7 +356,6 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
             icon: Icon(Icons.add),
           )
         ],
-        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -484,7 +483,12 @@ class _buying_nav_chooseDealerState extends State<BuyingNavChooseDealer> {
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  Text(dealer.dPhone,
+                                                  Text(
+                                                      dealer.dPhone.replaceAllMapped(
+                                                          RegExp(
+                                                              r'(\d{3})(\d{3})(\d+)'),
+                                                          (Match m) =>
+                                                              "${m[1]}-${m[2]}-${m[3]}"),
                                                       style: TextStyle(
                                                           overflow: TextOverflow
                                                               .ellipsis,

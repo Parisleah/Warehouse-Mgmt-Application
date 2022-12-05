@@ -34,7 +34,7 @@ class _ShopPageState extends State<ShopPage> {
   Shop? shop;
   ThemeMode themeMode = ThemeMode.dark;
   DeliveryCompanyModel? company;
-  bool get isDark => themeMode == ThemeMode.dark;
+
   @override
   void initState() {
     refreshShop();
@@ -79,7 +79,6 @@ class _ShopPageState extends State<ShopPage> {
       await DatabaseManager.instance.updateShop(shop);
     }
 
-    ThemeProvider themeProvider;
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -90,7 +89,7 @@ class _ShopPageState extends State<ShopPage> {
             automaticallyImplyLeading: false,
             actions: [
               PopupMenuButton<int>(
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).appBarTheme.backgroundColor,
                 icon: Icon(
                   Icons.more_vert,
                   color: Colors.white,
@@ -111,8 +110,9 @@ class _ShopPageState extends State<ShopPage> {
                               return StatefulBuilder(
                                   builder: (context, DialogSetState) {
                                 return Dialog(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.background,
+                                  backgroundColor: Theme.of(context)
+                                      .appBarTheme
+                                      .backgroundColor,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           30.0)), //this right here
@@ -661,7 +661,7 @@ class _ShopPageState extends State<ShopPage> {
                               builder: (context, menuDialogSetState) {
                             return AlertDialog(
                               backgroundColor:
-                                  Theme.of(context).colorScheme.background,
+                                  Theme.of(context).appBarTheme.backgroundColor,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30.0)),
                               title: Container(
@@ -732,7 +732,7 @@ class _ShopPageState extends State<ShopPage> {
                 elevation: 2,
               ),
             ],
-            title: const Text(
+            title: Text(
               "ร้านของฉัน",
               textAlign: TextAlign.start,
             ),
@@ -741,7 +741,15 @@ class _ShopPageState extends State<ShopPage> {
         body: SingleChildScrollView(
           child: Container(
             height: (MediaQuery.of(context).size.height),
-            decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(29, 29, 65, 1.0),
+                Color.fromRGBO(31, 31, 31, 1.0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),

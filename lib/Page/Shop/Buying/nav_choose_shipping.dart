@@ -50,7 +50,7 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (dContext, DialogSetState) {
           return AlertDialog(
-            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Container(
@@ -120,24 +120,6 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
           ],
         ),
         centerTitle: true,
-        // actions: [
-        //   IconButton(
-        //     onPressed: () async {
-        //       await Navigator.push(
-        //           context,
-        //           new MaterialPageRoute(
-        //               builder: (context) => CreateShippingPage(
-        //                     shop: widget.shop!,
-        //                   )));
-        //       refreshPage();
-        //       setState(() {});s
-        //     },
-        //     icon: const Icon(
-        //       Icons.add,
-        //       size: 30,
-        //     ),
-        //   )
-        // ],
         backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
       ),
       body: SingleChildScrollView(
@@ -156,7 +138,7 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
           )),
           child: Column(children: [
             const SizedBox(
-              height: 80,
+              height: 90,
             ),
             companys.isEmpty
                 ? Expanded(

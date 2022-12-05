@@ -155,8 +155,6 @@ class _EditShippingPageState extends State<EditShippingPage> {
                     height: 70,
                     child: Row(
                       children: [
-                        Text("${_isSelectedRange}",
-                            style: TextStyle(fontSize: 14)),
                         SizedBox(
                           width: 180,
                           child: RadioListTile(

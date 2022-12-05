@@ -40,7 +40,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   DateTime date = DateTime.now();
-  String rangeDate = '';
+  String rangeDate = '-';
   final DateRangePickerController _controller = DateRangePickerController();
 
   ThemeMode themeMode = ThemeMode.light;
@@ -98,8 +98,8 @@ class _DashboardPageState extends State<DashboardPage> {
   tabbarChanging() async {
     if (tabbarSelectedIndex == 0) {
       // Today
-      var start = DateTime(date.year, date.month, date.day - 1);
-      var end = DateTime(date.year, date.month, date.day + 1);
+      var start = DateTime(date.year, date.month, date.day - 1, date.hour);
+      var end = DateTime(date.year, date.month, date.day + 1, date.hour);
 
       purchasings = await DatabaseManager.instance
           .readPurchasingsWHEREisReceivedANDRangeDate(
@@ -143,8 +143,8 @@ class _DashboardPageState extends State<DashboardPage> {
       print('purchasings (${purchasings.length})');
     } else if (tabbarSelectedIndex == 2) {
       // Month
-      var start = DateTime(date.year, date.month - 1, date.day);
-      var end = DateTime(date.year, date.month, date.day + 15);
+      var start = DateTime(date.year - 1, date.month, date.day);
+      var end = DateTime(date.year, date.month, date.day);
       purchasings = await DatabaseManager.instance
           .readPurchasingsWHEREisReceivedANDRangeDate(
               'Month',
@@ -162,7 +162,7 @@ class _DashboardPageState extends State<DashboardPage> {
       setState(() {});
     } else if (tabbarSelectedIndex == 3) {
 // Year
-      var start = DateTime(date.year - 1, date.month, date.day);
+      var start = DateTime(date.year - 10, date.month, date.day);
       var end = DateTime(date.year, date.month, date.day + 1);
       purchasings = await DatabaseManager.instance
           .readPurchasingsWHEREisReceivedANDRangeDate(
@@ -210,10 +210,10 @@ class _DashboardPageState extends State<DashboardPage> {
       return 6.0;
     } else if (tabbarSelectedIndex == 2) {
       // Month
-      return 31.0;
+      return 12.0;
     } else {
       // Year
-      return 12.0;
+      return 10.0;
     }
   }
 
@@ -488,7 +488,7 @@ class _DashboardPageState extends State<DashboardPage> {
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.only(
-                  bottom: 40.0, left: 10, right: 10, top: 10),
+                  bottom: 50.0, left: 10, right: 10, top: 10),
               child: Column(
                 children: [
                   const SizedBox(
@@ -511,7 +511,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       gradient: LinearGradient(
                         colors: [
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          Theme.of(context).backgroundColor,
+                          dark_secondary_accent_color
                         ],
                         begin: Alignment.bottomLeft,
                         end: Alignment.topRight,
@@ -578,14 +578,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  ' ${DateFormat.yMMMd().format(DateTime(date.year, date.month - 1, date.day))}',
-
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.white),
-                                  // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
-                                ),
-                                Text(
-                                  ' - ${DateFormat.yMMMd().format(date)}',
+                                  ' Jan - Dec ${DateFormat.y().format(DateTime(date.year, date.month, date.day))}',
 
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.white),
@@ -604,7 +597,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  ' ${DateFormat.yMMMd().format(DateTime(date.year - 1, date.month, date.day))}',
+                                  ' ${DateFormat.yMMMd().format(DateTime(date.year - 10, date.month, date.day))}',
 
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.white),
@@ -636,13 +629,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                       fontSize: 12, color: Colors.white),
                                   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
                                 ),
-                                // Text(
-                                //   ' - ${DateFormat.yMMMd().format(date)}',
+                                Text(
+                                  ' - ${DateFormat.yMMMd().format(date)}',
 
-                                //   style: TextStyle(
-                                //       fontSize: 12, color: Colors.white),
-                                //   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
-                                // ),
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                  // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+                                ),
                               ],
                             ),
                         ]),
@@ -665,7 +658,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           'ยอดขาย',
                           sale,
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          Theme.of(context).backgroundColor,
+                          dark_secondary_accent_color,
                           90,
                           Colors.white),
                       MoneyBox(
@@ -674,7 +667,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           'ยอดต้นทุน',
                           cost,
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          Theme.of(context).backgroundColor,
+                          dark_secondary_accent_color,
                           90,
                           Colors.white),
                       MoneyBox(
@@ -683,7 +676,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           'กำไร',
                           profit < 0 ? 0 : profit,
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          Theme.of(context).backgroundColor,
+                          dark_secondary_accent_color,
                           90,
                           Colors.white),
                     ],
@@ -813,21 +806,21 @@ class _DashboardPageState extends State<DashboardPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'เดือน ${DateFormat.MMM().format(DateTime(date.year, date.month - 1, date.day))} -  ${DateFormat.MMM().format(DateTime(date.year, date.month, date.day))}',
+                                            'เดือน Jan - Dec ${DateFormat.y().format(DateTime(date.year, date.month, date.day))}',
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 color: Color.fromARGB(
                                                     255, 255, 255, 255),
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Text(
-                                            '${DateFormat.yMMMd().format(DateTime(date.year, date.month - 1, date.day))} - ${DateFormat.yMMMd().format(date)}',
+                                          // Text(
+                                          //   '${DateFormat.yMMMd().format(DateTime(date.year, date.month - 1, date.day))} - ${DateFormat.yMMMd().format(date)}',
 
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white),
-                                            // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
-                                          ),
+                                          //   style: TextStyle(
+                                          //       fontSize: 12,
+                                          //       color: Colors.white),
+                                          //   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+                                          // ),
                                         ],
                                       ),
                                     if (tabbarSelectedIndex == 3)
@@ -836,7 +829,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'ปี ${DateFormat.y().format(DateTime(date.year - 1))} -  ${DateFormat.y().format(DateTime(date.year))}',
+                                            'ปี ${DateFormat.y().format(DateTime(date.year - 10))} -  ${DateFormat.y().format(DateTime(date.year))}',
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 color: Color.fromARGB(
@@ -844,7 +837,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(
-                                            '${DateFormat.yMMMd().format(DateTime(date.year - 1, date.month, date.day))} - ${DateFormat.yMMMd().format(date)}',
+                                            '${DateFormat.yMMMd().format(DateTime(date.year - 10, date.month, date.day))} - ${DateFormat.yMMMd().format(date)}',
 
                                             style: TextStyle(
                                                 fontSize: 12,
@@ -1098,10 +1091,57 @@ class _DashboardPageState extends State<DashboardPage> {
                                               getTitles: (value) {
                                                 // Today
                                                 if (tabbarSelectedIndex == 0) {
-                                                  for (value;
-                                                      value < 24;
-                                                      value++) {
-                                                    return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour + value.toInt() + 12)))}';
+                                                  switch (value.toInt()) {
+                                                    case 0:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 1:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 2:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 3:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 4:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 5:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 6:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 7:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 8:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 9:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 10:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 11:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 12:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 13:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 14:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 15:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 16:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 17:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 18:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 19:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 20:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 21:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 22:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 23:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                    case 24:
+                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
                                                   }
                                                 } else if (tabbarSelectedIndex ==
                                                     1) {
@@ -1128,81 +1168,85 @@ class _DashboardPageState extends State<DashboardPage> {
 
                                                   switch (value.toInt()) {
                                                     case 0:
-                                                      return '${DateFormat.MMM().format(DateTime(date.year, date.month - 1, date.day))} ${DateFormat.d().format(DateTime(date.year, date.month, date.day))}';
+                                                      return 'Jan';
+                                                    case 1:
+                                                      return 'Jan';
+                                                    case 2:
+                                                      return 'Feb';
+                                                    case 3:
+                                                      return 'Mar';
+                                                    case 4:
+                                                      return 'April';
                                                     case 5:
-                                                      return '${DateFormat.MMM().format(date.day - 25 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(DateTime(date.year, date.month - 1, date.day + 5))}';
+                                                      return 'May';
+                                                    case 6:
+                                                      return 'June';
+                                                    case 7:
+                                                      return 'July';
+                                                    case 8:
+                                                      return 'Aug';
+                                                    case 9:
+                                                      return 'Sep';
                                                     case 10:
-                                                      return '${DateFormat.MMM().format(date.day - 20 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 20 <= 0 ? DateTime(date.year, date.month, date.day + 20) : DateTime(date.year, date.month, date.day - 20))}';
-                                                    case 15:
-                                                      return '${DateFormat.MMM().format(date.day - 15 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 15 <= 0 ? DateTime(date.year, date.month, date.day + 25) : DateTime(date.year, date.month, date.day - 15))}';
-                                                    case 20:
-                                                      return '${DateFormat.MMM().format(date.day - 10 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 10 <= 0 ? DateTime(date.year, date.month, date.day + 30) : DateTime(date.year, date.month, date.day - 10))}';
-                                                    case 25:
-                                                      return '${DateFormat.MMM().format(date.day - 5 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 5 <= 0 ? DateTime(date.year, date.month, date.day + 31) : DateTime(date.year, date.month, date.day - 5))}';
-                                                    case 30:
-                                                      return '${DateFormat.MMM().format(date)} ${DateFormat.d().format(DateTime(date.year, date.month, date.day))}';
+                                                      return 'Oct';
+                                                    case 11:
+                                                      return 'Nov';
+                                                    case 12:
+                                                      return 'Dec';
                                                   }
                                                 } else if (tabbarSelectedIndex ==
                                                     3) {
                                                   // Year
                                                   switch (value.toInt()) {
                                                     case 0:
-                                                      return 'Jan';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 10, date.month, date.day))}';
                                                     case 1:
-                                                      return 'Jan';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 9, date.month, date.day))}';
                                                     case 2:
-                                                      return 'Feb';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 8, date.month, date.day))}';
                                                     case 3:
-                                                      return 'Mar';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 7, date.month, date.day))}';
                                                     case 4:
-                                                      return 'April';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 6, date.month, date.day))}';
                                                     case 5:
-                                                      return 'May';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 5, date.month, date.day))}';
                                                     case 6:
-                                                      return 'June';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 4, date.month, date.day))}';
                                                     case 7:
-                                                      return 'July';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 3, date.month, date.day))}';
                                                     case 8:
-                                                      return 'Aug';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 2, date.month, date.day))}';
                                                     case 9:
-                                                      return 'Sep';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 1, date.month, date.day))}';
                                                     case 10:
-                                                      return 'Oct';
-                                                    case 11:
-                                                      return 'Nov';
-                                                    case 12:
-                                                      return 'Dec';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year, date.month, date.day))}';
                                                   }
                                                 } else if (tabbarSelectedIndex ==
                                                     4) {
                                                   // Year
                                                   switch (value.toInt()) {
                                                     case 0:
-                                                      return 'Jan';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 10, date.month, date.day))}';
                                                     case 1:
-                                                      return 'Jan';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 9, date.month, date.day))}';
                                                     case 2:
-                                                      return 'Feb';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 8, date.month, date.day))}';
                                                     case 3:
-                                                      return 'Mar';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 7, date.month, date.day))}';
                                                     case 4:
-                                                      return 'April';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 6, date.month, date.day))}';
                                                     case 5:
-                                                      return 'May';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 5, date.month, date.day))}';
                                                     case 6:
-                                                      return 'June';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 4, date.month, date.day))}';
                                                     case 7:
-                                                      return 'July';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 3, date.month, date.day))}';
                                                     case 8:
-                                                      return 'Aug';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 2, date.month, date.day))}';
                                                     case 9:
-                                                      return 'Sep';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year - 1, date.month, date.day))}';
                                                     case 10:
-                                                      return 'Oct';
-                                                    case 11:
-                                                      return 'Nov';
-                                                    case 12:
-                                                      return 'Dec';
+                                                      return '${DateFormat('yyyy').format(DateTime(date.year, date.month, date.day))}';
                                                   }
                                                 }
 
@@ -1239,66 +1283,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         lineBarsData: [
                                           if (sellings.isNotEmpty)
                                             LineChartBarData(
-                                                spots: isShowSelling
-                                                    ? sellings
-                                                        .map((point) => FlSpot(
-                                                            tabbarSelectedIndex ==
-                                                                    0
-                                                                ?
-                                                                // Today
-                                                                point.orderedDate.hour.toDouble() +
-                                                                    5
-                                                                :
-                                                                // Year
-                                                                tabbarSelectedIndex == 3 ||
-                                                                        tabbarSelectedIndex ==
-                                                                            4
-                                                                    ? point
-                                                                        .orderedDate
-                                                                        .month
-                                                                        .toDouble()
-                                                                    :
-                                                                    // Week
-                                                                    tabbarSelectedIndex ==
-                                                                            1
-                                                                        ? point.orderedDate.month <
-                                                                                date
-                                                                                    .month
-                                                                            ? (date.day - point.orderedDate.day).toDouble() /
-                                                                                8
-                                                                            : ((49 - date.day) + date.day) /
-                                                                                8
-                                                                                    .toDouble()
-                                                                        : point.orderedDate.month <
-                                                                                date
-                                                                                    .month
-                                                                            ? (date.day - point.orderedDate.day)
-                                                                                .toDouble()
-                                                                                .abs()
-                                                                            : 31 -
-                                                                                (date.day - point.orderedDate.day)
-                                                                                    .toDouble()
-
-                                                            // Month
-
-                                                            ,
-                                                            point.total
-                                                                .toDouble()))
-                                                        .toList()
-                                                    : null,
-                                                isCurved: false,
-                                                colors: [
-                                                  Color.fromARGB(
-                                                      255, 255, 40, 40),
-                                                ],
-                                                barWidth: 2,
-                                                belowBarData: BarAreaData(
-                                                    gradientFrom: Offset(0, 1),
-                                                    show: true,
-                                                    colors: sellingGradientColors.map((e) => e.withOpacity(0.5)).toList())),
-                                          if (sellings.isNotEmpty)
-                                            LineChartBarData(
-                                              spots: isShowProfit
+                                              spots: isShowSelling
                                                   ? sellings
                                                       .map((point) => FlSpot(
                                                           tabbarSelectedIndex ==
@@ -1306,19 +1291,19 @@ class _DashboardPageState extends State<DashboardPage> {
                                                               ?
                                                               // Today
                                                               point.orderedDate
-                                                                      .hour
-                                                                      .toDouble() +
-                                                                  5
+                                                                  .hour
+                                                                  .toDouble()
                                                               :
                                                               // Year
                                                               tabbarSelectedIndex ==
                                                                           3 ||
                                                                       tabbarSelectedIndex ==
                                                                           4
-                                                                  ? point
-                                                                      .orderedDate
-                                                                      .month
-                                                                      .toDouble()
+                                                                  ? point.orderedDate
+                                                                          .year /
+                                                                      (date.year
+                                                                              .toDouble() /
+                                                                          10)
                                                                   :
                                                                   // Week
                                                                   tabbarSelectedIndex ==
@@ -1331,15 +1316,65 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                           : ((49 - date.day) + date.day) /
                                                                               8
                                                                                   .toDouble()
-                                                                      : point.orderedDate.month <
+                                                                      : point
+                                                                          .orderedDate
+                                                                          .month
+                                                                          .toDouble()
+                                                          // Month
+
+                                                          ,
+                                                          point.total
+                                                              .toDouble()))
+                                                      .toList()
+                                                  : null,
+                                              isCurved: false,
+                                              colors: [
+                                                Color.fromARGB(
+                                                    255, 255, 40, 40),
+                                              ],
+                                              barWidth: 2,
+                                            ),
+                                          if (sellings.isNotEmpty)
+                                            LineChartBarData(
+                                              spots: isShowProfit
+                                                  ? sellings
+                                                      .map((point) => FlSpot(
+                                                          tabbarSelectedIndex ==
+                                                                  0
+                                                              ?
+                                                              // Today
+                                                              point.orderedDate
+                                                                  .hour
+                                                                  .toDouble()
+                                                              :
+                                                              // Year
+                                                              tabbarSelectedIndex ==
+                                                                          3 ||
+                                                                      tabbarSelectedIndex ==
+                                                                          4
+                                                                  ? point.orderedDate
+                                                                          .year
+                                                                          .toDouble() -2000/
+                                                                      (point.orderedDate
+                                                                          .year
+                                                                          .toDouble()-2000 /
+                                                                          10)
+                                                                  :
+                                                                  // Week
+                                                                  tabbarSelectedIndex ==
+                                                                          1
+                                                                      ? point.orderedDate.month <
                                                                               date
                                                                                   .month
-                                                                          ? (date.day - point.orderedDate.day)
-                                                                              .toDouble()
-                                                                              .abs()
-                                                                          : 31 -
-                                                                              (date.day - point.orderedDate.day)
+                                                                          ? (date.day - point.orderedDate.day).toDouble() /
+                                                                              8
+                                                                          : ((49 - date.day) + date.day) /
+                                                                              8
                                                                                   .toDouble()
+                                                                      : point
+                                                                          .orderedDate
+                                                                          .month
+                                                                          .toDouble()
 
                                                           // Month
 
@@ -1364,17 +1399,19 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                     0
                                                                 ?
                                                                 // Today
-                                                                point.orderedDate.hour.toDouble() +
-                                                                    5
+                                                                point
+                                                                    .orderedDate
+                                                                    .hour
+                                                                    .toDouble()
                                                                 :
                                                                 // Year
-                                                                tabbarSelectedIndex == 3 ||
+                                                                tabbarSelectedIndex ==
+                                                                            3 ||
                                                                         tabbarSelectedIndex ==
                                                                             4
-                                                                    ? point
-                                                                        .orderedDate
-                                                                        .month
-                                                                        .toDouble()
+                                                                    ? point.orderedDate.year.toDouble() /
+                                                                        (date.year /
+                                                                            10)
                                                                     :
                                                                     // Week
                                                                     tabbarSelectedIndex ==
@@ -1387,15 +1424,10 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                             : ((49 - date.day) + date.day) /
                                                                                 8
                                                                                     .toDouble()
-                                                                        : point.orderedDate.month <
-                                                                                date
-                                                                                    .month
-                                                                            ? (date.day - point.orderedDate.day)
-                                                                                .toDouble()
-                                                                                .abs()
-                                                                            : 31 -
-                                                                                (date.day - point.orderedDate.day)
-                                                                                    .toDouble()
+                                                                        : point
+                                                                            .orderedDate
+                                                                            .month
+                                                                            .toDouble()
 
                                                             // Month
 
@@ -1406,14 +1438,15 @@ class _DashboardPageState extends State<DashboardPage> {
                                                     : null,
                                                 isCurved: false,
                                                 colors: [
-                                                  Theme.of(context)
-                                                      .backgroundColor,
+                                                  dark_secondary_accent_color,
                                                 ],
                                                 barWidth: 2,
                                                 belowBarData: BarAreaData(
                                                     gradientFrom: Offset(0, 1),
                                                     show: true,
-                                                    colors: gradientColors.map((e) => e.withOpacity(0.8)).toList())),
+                                                    colors: gradientColors
+                                                        .map((e) => e.withOpacity(0.5))
+                                                        .toList())),
                                         ])),
                                   ),
                                 ),
@@ -1569,9 +1602,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  tabbarSelectedIndex != 0
-                      ? Container()
-                      : sellings.isEmpty
+                  tabbarSelectedIndex == 0
+                      ? sellings.isNotEmpty
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: const [
@@ -1585,7 +1617,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               ],
                             )
-                          : Container(),
+                          : Container()
+                      : Container(),
                   tabbarSelectedIndex != 0
                       ? Container()
                       : Container(
@@ -1734,9 +1767,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                 );
                               }),
                         ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: sellingIndicators(sellings.length)),
+                  tabbarSelectedIndex == 0
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: sellingIndicators(sellings.length))
+                      : Container(),
 
                   const SizedBox(
                     height: 10,

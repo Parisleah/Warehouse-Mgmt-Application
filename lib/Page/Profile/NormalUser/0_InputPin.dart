@@ -335,7 +335,7 @@ class _OtpScreenState extends State<OtpScreen> {
     } else {
       DateTime date = DateTime.now();
 
-      Duration addDuration = Duration(seconds: 20);
+      Duration addDuration = Duration(minutes: 5);
 
       final addedDuration = widget.profile!
           .copy(isDisable: true, loginDateTime: date.add(addDuration));
@@ -480,7 +480,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       style: TextStyle(color: Colors.redAccent, fontSize: 15),
                     )
                   : Text(
-                      "เบอร์โทรศัพท์ไม่ถูกต้อง ${invalidCount}",
+                      "รหัสไม่ถูกต้อง ${invalidCount}",
                       style: TextStyle(color: Colors.redAccent, fontSize: 15),
                     )
               : Container(),

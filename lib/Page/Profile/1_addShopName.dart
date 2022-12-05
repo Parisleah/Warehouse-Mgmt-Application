@@ -1,13 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:warehouse_mnmt/Page/Model/Profile.dart';
-
-// Components
-
-// Models
+import 'package:warehouse_mnmt/db/database.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Profile/2._addShopPhone.dart';
 import 'package:warehouse_mnmt/Page/Profile/AllShop.dart';
@@ -25,8 +21,15 @@ class AddShopPage extends StatefulWidget {
 }
 
 class _AddShopPageState extends State<AddShopPage> {
+  List<Shop> shops = [];
   void initState() {
     super.initState();
+    refreshAllShops();
+  }
+
+  Future refreshAllShops() async {
+    shops = await DatabaseManager.instance.readAllShops();
+    setState(() {});
   }
 
   Color primary_color = Color.fromRGBO(56, 48, 77, 1);
@@ -34,25 +37,78 @@ class _AddShopPageState extends State<AddShopPage> {
 
   final profileNameController = TextEditingController();
   bool _validate = false;
-  void _Validation() {
-    setState(() {
-      if (profileNameController.text.isEmpty ||
-          profileNameController.text == null) {
-        _validate = true;
-      } else {
-        _validate = false;
 
+  _Validation() {
+    print('SHOP length : ${shops.length}');
+    if (profileNameController.text.isEmpty ||
+        profileNameController.text == null) {
+      _validate = true;
+    } else {
+      _validate = false;
+      if (shops.isNotEmpty) {
+        var foundDupNameShop = shops.indexWhere(
+          (shop) => shop.name == profileNameController.text.trim(),
+        );
+        if (foundDupNameShop == -1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AddShopPhonePage(
+                    profile: widget.profile,
+                    shopName: profileNameController.text.trim())
+
+                // profileName: profileNameController.text,
+                ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Theme.of(context).backgroundColor,
+              behavior: SnackBarBehavior.floating,
+              content: Text(
+                  "มีชื่อร้าน ${profileNameController.text.trim()} อยู่แล้ว"),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
+
+        // for (var shop in shops) {
+        //   if (profileNameController.text.trim() == shop.name) {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       SnackBar(
+        //         backgroundColor: Theme.of(context).backgroundColor,
+        //         behavior: SnackBarBehavior.floating,
+        //         content: Text("มีชื่อร้าน ${shop.name} อยู่แล้ว"),
+        //         duration: Duration(seconds: 1),
+        //       ),
+        //     );
+        //   } else {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //           builder: (context) => AddShopPhonePage(
+        //               profile: widget.profile,
+        //               shopName: profileNameController.text.trim())
+
+        //           // profileName: profileNameController.text,
+        //           ),
+        //     );
+        //   }
+
+        // }
+      } else {
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => AddShopPhonePage(
-                  profile: widget.profile, shopName: profileNameController.text)
+                  profile: widget.profile,
+                  shopName: profileNameController.text.trim())
 
               // profileName: profileNameController.text,
               ),
         );
       }
-    });
+    }
   }
 
   @override
@@ -186,7 +242,7 @@ class _AddShopPageState extends State<AddShopPage> {
                   onPressed: () {
                     _Validation();
                   },
-                  child: Text('ยืนยัน'))
+                  child: Text('ถัดไป'))
             ]),
           ),
         ),

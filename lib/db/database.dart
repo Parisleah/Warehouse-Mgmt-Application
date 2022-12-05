@@ -10,7 +10,6 @@ import 'package:warehouse_mnmt/Page/Model/ProductModel_ndProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel_stProperty.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
 import 'package:warehouse_mnmt/Page/Model/Selling.dart';
-
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import '../Page/Model/Customer.dart';
 import '../Page/Model/CustomerAdress.dart';
@@ -31,7 +30,7 @@ class DatabaseManager {
   Future<Database> get database async {
     if (_database != null) return _database!;
     //57
-    _database = await _initDB('main78.db');
+    _database = await _initDB('main80.db');
     return _database!;
   }
 
@@ -56,7 +55,6 @@ class DatabaseManager {
       await db.execute(createTableSellingItem);
       await db.execute(createTableCustomer);
       await db.execute(createTableCustomerAddress);
-
       await db.execute(createTableDeliveryCompany);
       await db.execute(createTableDeliveryRate);
     });
@@ -241,9 +239,8 @@ ${DealerFields.shopId} $integerType
   Future<List<Profile>> readAllProfiles() async {
     final db = await instance.database;
     final orderBy = '${ProfileFields.id} ASC';
-    // final result = await db.rawQuery('SELECT * FROM $tableShops ORDER BY $orderBy');
-    final result = await db.query(tableProfile, orderBy: orderBy);
 
+    final result = await db.query(tableProfile, orderBy: orderBy);
     return result.map((json) => Profile.fromJson(json)).toList();
   }
 
@@ -258,7 +255,6 @@ ${DealerFields.shopId} $integerType
       return Profile.fromJson(maps.first);
     } else {
       return null;
-      throw Exception('ID $id not found');
     }
   }
 
@@ -593,7 +589,7 @@ ${DealerFields.shopId} $integerType
         '-----------------------------Range [${selectedTabbar}]----------------------------------');
 
     print(
-        'Start Data [${DateFormat('yyyy-MM-dd').format(DateTime.parse(fromDate))}]-[${DateFormat('yyyy-MM-dd').format(DateTime.parse(toDate))}]');
+        'Start Data [${DateFormat('HH:mm:ss, yyyy-MM-dd').format(DateTime.parse(fromDate))}]-[${DateFormat('HH:mm:ss, yyyy-MM-dd').format(DateTime.parse(toDate))}]');
 
     for (var pur
         in result.map((json) => SellingModel.fromJson(json)).toList()) {

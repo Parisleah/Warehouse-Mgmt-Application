@@ -49,6 +49,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
   late var vat7percent = noShippingPrice * 7 / 100;
   double noVatPrice = 0.0;
   var profit = 0;
+  var totalWeight = 0;
   late bool isDelivered = widget.selling.isDelivered;
   List<Product> products = [];
   List<ProductModel> models = [];
@@ -87,6 +88,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
       for (var model in models) {
         if (item.prodModelId == model.prodModelId) {
           profit = (item.amount * model.price) - (item.amount * model.cost);
+          totalWeight += (model.weight * item.amount).toInt();
         }
       }
     }
@@ -280,7 +282,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                       ),
                       Spacer(),
                       Text(
-                        '${DateFormat('H:m:s, y-MMM-d').format(widget.selling.orderedDate)}',
+                        '${DateFormat('HH:mm:ss, y-MMM-d').format(widget.selling.orderedDate)}',
                         style: TextStyle(color: Colors.grey),
                       )
                     ],
@@ -405,175 +407,56 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                             }
                                           }
 
-                                          return Dismissible(
-                                            key: UniqueKey(),
-                                            onDismissed: (direction) async {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor:
-                                                    Colors.redAccent,
-                                                content: Container(
-                                                    child: Row(
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
-                                                      child: Container(
-                                                        width: 20,
-                                                        height: 20,
-                                                        child: Image.file(
-                                                          File(prodImg),
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
+                                          return Padding(
+                                            padding: EdgeInsets.all(5),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Container(
+                                                height: 80,
+                                                width: 400,
+                                                color: Color.fromRGBO(
+                                                        56, 54, 76, 1.0)
+                                                    .withOpacity(0.4),
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Container(
+                                                      width: 90,
+                                                      height: 90,
+                                                      child: prodImg == null
+                                                          ? Icon(Icons.image)
+                                                          : Image.file(
+                                                              File(prodImg),
+                                                              fit: BoxFit.cover,
+                                                            ),
                                                     ),
-                                                    Text(" ลบสินค้า"),
-                                                    Text(
-                                                      ' ${prodName}',
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.white),
-                                                    ),
-                                                  ],
-                                                )),
-                                                duration: Duration(seconds: 5),
-                                              ));
-                                              sellingItems.remove(selling);
-                                              for (var lot in lots) {
-                                                if (lot.prodLotId ==
-                                                    selling.prodLotId) {
-                                                  final updateAmountDeletedProductLot =
-                                                      lot.copy(
-                                                          remainAmount: selling!
-                                                                  .amount +
-                                                              lot.remainAmount);
-
-                                                  await DatabaseManager.instance
-                                                      .updateProductLot(
-                                                          updateAmountDeletedProductLot);
-                                                }
-                                              }
-
-                                              setState(() {});
-                                            },
-                                            background: Container(
-                                              margin: EdgeInsets.only(
-                                                  left: 0,
-                                                  top: 10,
-                                                  right: 10,
-                                                  bottom: 10),
-                                              decoration: BoxDecoration(
-                                                  color: Colors.redAccent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Icon(
-                                                    Icons.delete_forever,
-                                                    color: Colors.white,
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            direction:
-                                                DismissDirection.endToStart,
-                                            resizeDuration:
-                                                Duration(seconds: 1),
-                                            child: TextButton(
-                                              onPressed: () {
-                                                // Navigator.of(context).push(MaterialPageRoute(
-                                                //     builder: (context) => sellingNavShowProd(
-                                                //         product: product)));
-                                              },
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 0.0,
-                                                    horizontal: 0.0),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  child: Container(
-                                                    height: 80,
-                                                    width: 400,
-                                                    color: Color.fromRGBO(
-                                                            56, 54, 76, 1.0)
-                                                        .withOpacity(0.4),
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        Container(
-                                                          width: 90,
-                                                          height: 90,
-                                                          child: prodImg == null
-                                                              ? Icon(
-                                                                  Icons.image)
-                                                              : Image.file(
-                                                                  File(prodImg),
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
-                                                        ),
-                                                        SizedBox(width: 10),
-                                                        Expanded(
-                                                          child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: <Widget>[
-                                                              Text(
-                                                                '${prodName}',
-                                                                style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Colors
-                                                                        .white),
-                                                              ),
-                                                              Row(
-                                                                children: [
-                                                                  Container(
-                                                                    decoration: BoxDecoration(
+                                                    SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            '${prodName}',
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                decoration:
+                                                                    BoxDecoration(
                                                                         // Theme.of(context)
                                                                         //       .colorScheme
                                                                         //       .background
-                                                                        color: Color.fromRGBO(36, 33, 50, 1.0),
-                                                                        borderRadius: BorderRadius.circular(10)),
-                                                                    child:
-                                                                        Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                              3.0),
-                                                                      child:
-                                                                          Text(
-                                                                        stProperty ==
-                                                                                null
-                                                                            ? '-'
-                                                                            : stProperty,
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                12,
-                                                                            color:
-                                                                                Colors.white),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    width: 10,
-                                                                  ),
-                                                                  Container(
-                                                                    decoration: BoxDecoration(
                                                                         color: Color.fromRGBO(
                                                                             36,
                                                                             33,
@@ -581,72 +464,96 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                                             1.0),
                                                                         borderRadius:
                                                                             BorderRadius.circular(10)),
-                                                                    child:
-                                                                        Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                              3.0),
-                                                                      child:
-                                                                          Text(
-                                                                        ndProperty ==
-                                                                                null
-                                                                            ? '-'
-                                                                            : ndProperty,
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                12,
-                                                                            color:
-                                                                                Colors.white),
-                                                                      ),
-                                                                    ),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                    stProperty ==
+                                                                            null
+                                                                        ? '-'
+                                                                        : stProperty,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .white),
                                                                   ),
-                                                                ],
+                                                                ),
                                                               ),
-                                                              Text(
-                                                                  'ราคา ${NumberFormat("#,###.##").format(selling.total)}',
-                                                                  style: const TextStyle(
-                                                                      color: Colors
-                                                                          .grey,
-                                                                      fontSize:
-                                                                          12)),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Color
+                                                                        .fromRGBO(
+                                                                            36,
+                                                                            33,
+                                                                            50,
+                                                                            1.0),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          3.0),
+                                                                  child: Text(
+                                                                    ndProperty ==
+                                                                            null
+                                                                        ? '-'
+                                                                        : ndProperty,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ],
                                                           ),
-                                                        ),
-                                                        Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Color
-                                                                  .fromRGBO(
-                                                                      30,
-                                                                      30,
-                                                                      49,
-                                                                      1.0),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(3.0),
-                                                            child: Text(
-                                                                '${NumberFormat("#,###.##").format(selling.amount)}',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        15,
-                                                                    color: Theme.of(
-                                                                            context)
-                                                                        .backgroundColor,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold)),
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        )
-                                                      ],
+                                                          Text(
+                                                              'ราคา ${NumberFormat("#,###.##").format(selling.total)}',
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize:
+                                                                      12)),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                          color: Color.fromRGBO(
+                                                              30, 30, 49, 1.0),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10)),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(3.0),
+                                                        child: Text(
+                                                            '${NumberFormat("#,###.##").format(selling.amount)}',
+                                                            style: TextStyle(
+                                                                fontSize: 15,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .backgroundColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold)),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    )
+                                                  ],
                                                 ),
                                               ),
                                             ),
@@ -661,11 +568,29 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                     SizedBox(
                       height: 5,
                     ),
+
                     sellingItems.isEmpty
                         ? Container()
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              Text(
+                                'น้ำหนักรวม ',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                  '${NumberFormat("#,###.##").format(totalWeight)}',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Theme.of(context)
+                                          .bottomNavigationBarTheme
+                                          .selectedItemColor,
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                ' กรัม',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              const Spacer(),
                               Text(
                                 'ทั้งหมด ',
                                 style: const TextStyle(color: Colors.white),

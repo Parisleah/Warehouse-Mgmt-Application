@@ -70,7 +70,7 @@ class _SellingNavCreateCustomerAddressState
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (dContext, DialogSetState) {
           return AlertDialog(
-            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Container(
@@ -158,7 +158,7 @@ class _SellingNavCreateCustomerAddressState
           final eCusAddressController =
               TextEditingController(text: address.cAddress);
           return AlertDialog(
-            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(dContext).appBarTheme.backgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Container(
@@ -252,7 +252,7 @@ class _SellingNavCreateCustomerAddressState
         return StatefulBuilder(builder: (dContext, DialogSetState) {
           final CusNameController = TextEditingController(text: customer.cName);
           return AlertDialog(
-            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Container(
@@ -283,7 +283,7 @@ class _SellingNavCreateCustomerAddressState
                     '${customer.cName}',
                     isNumber: true,
                     _validate,
-                    length: 10,
+                    length: 30,
                     textController: CusNameController,
                   ),
                 ],
@@ -334,7 +334,6 @@ class _SellingNavCreateCustomerAddressState
             ],
           ),
           centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
@@ -553,7 +552,12 @@ class _SellingNavCreateCustomerAddressState
                                                             width: 10,
                                                           ),
                                                           Text(
-                                                            addresss.cPhone,
+                                                            addresss.cPhone
+                                                                .replaceAllMapped(
+                                                                    RegExp(
+                                                                        r'(\d{3})(\d{3})(\d+)'),
+                                                                    (Match m) =>
+                                                                        "${m[1]}-${m[2]}-${m[3]}"),
                                                             style: const TextStyle(
                                                                 fontWeight:
                                                                     FontWeight

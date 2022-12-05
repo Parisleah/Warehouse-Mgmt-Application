@@ -43,7 +43,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
 
   DateTime date = DateTime.now();
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
-
+  var totalWeight = 0;
   late var shippingCost = widget.purchasing.shippingCost;
   late var totalPrice = widget.purchasing.total;
   late var noShippingPrice = widget.purchasing.total - shippingCost;
@@ -52,7 +52,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
 
   void initState() {
     super.initState();
-    print(widget.purchasing.isReceive);
+
     refreshPage();
   }
 
@@ -65,7 +65,14 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
     models = await DatabaseManager.instance.readAllProductModels();
     dealers =
         await DatabaseManager.instance.readAllDealers(widget.shop.shopid!);
-
+    for (var item in purchasingItems) {
+      noShippingPrice += item.total;
+      for (var model in models) {
+        if (item.prodModelId == model.prodModelId) {
+          totalWeight += (model.weight * item.amount).toInt();
+        }
+      }
+    }
     setState(() {});
   }
 
@@ -285,7 +292,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                   ),
                   Spacer(),
                   Text(
-                    '${DateFormat('H:m:s, y-MMM-d').format(widget.purchasing.orderedDate)}',
+                    '${DateFormat('HH:mm:ss, y-MMM-d').format(widget.purchasing.orderedDate)}',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ]),
@@ -530,8 +537,34 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                           ),
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            Container(
+                              width: 180,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'น้ำหนักรวม ',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                        '${NumberFormat("#,###.##").format(totalWeight)}',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            color: Theme.of(context)
+                                                .bottomNavigationBarTheme
+                                                .selectedItemColor,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                  Text(
+                                    ' กรัม',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Spacer(),
                             Text(
                               'ทั้งหมด ',
                               style: const TextStyle(color: Colors.white),
@@ -546,13 +579,14 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                     '${NumberFormat("#,###.##").format(purchasingItems.length)}',
                                     style: TextStyle(
                                         fontSize: 15,
-                                        color:
-                                            Theme.of(context).backgroundColor,
+                                        color: Theme.of(context)
+                                            .bottomNavigationBarTheme
+                                            .selectedItemColor,
                                         fontWeight: FontWeight.bold)),
                               ),
                             ),
                             Text(
-                              'รายการ ',
+                              ' รายการ ',
                               style: const TextStyle(color: Colors.white),
                             ),
                           ],
@@ -570,28 +604,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
               ),
               // Container of รายการสินค้า
 
-              // Container of การจัดส่ง
-              // Container(
-              //   decoration:
-              //       BoxDecoration(borderRadius: BorderRadius.circular(15)),
-              //   width: 400,
-              //   height: 30,
-              //   child: Row(children: [
-              //     Padding(
-              //       padding: const EdgeInsets.only(left: 20),
-              //       child: const Text("วิธีจัดส่ง",
-              //           style: TextStyle(fontSize: 15, color: Colors.white)),
-              //     ),
-              //     Spacer(),
-              //     Text('${_shipping.dcName}',
-              //         style: TextStyle(fontSize: 15, color: Colors.grey)),
-              //   ]),
-              // ),
-              // // Container of การจัดส่ง
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              // Container of ค่าจัดส่ง
               Container(
                 decoration:
                     BoxDecoration(borderRadius: BorderRadius.circular(15)),

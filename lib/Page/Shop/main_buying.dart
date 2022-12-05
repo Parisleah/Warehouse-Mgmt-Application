@@ -587,7 +587,11 @@ class _BuyingPageState extends State<BuyingPage> {
                                                   borderRadius:
                                                       BorderRadius.circular(20),
                                                   child: Container(
-                                                    height: 80,
+                                                    height:
+                                                        (MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            4),
                                                     width: 400,
                                                     color: Theme.of(context)
                                                         .colorScheme
@@ -848,7 +852,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                     _dealer ==
                                                                             null
                                                                         ? '-'
-                                                                        : ' ${_dealer.dPhone!}',
+                                                                        : ' ${_dealer.dPhone.replaceAllMapped(RegExp(r'(\d{3})(\d{3})(\d+)'), (Match m) => "${m[1]}-${m[2]}-${m[3]}")!}',
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,

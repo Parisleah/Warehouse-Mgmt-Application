@@ -57,15 +57,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       name: profileNameController.text,
     );
     await DatabaseManager.instance.updateProfile(profile);
-    print('UPDATE PROFILE NAME -> ${profile.name}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Theme.of(context).backgroundColor,
-        behavior: SnackBarBehavior.floating,
-        content: Text("เปลี่ยนชื่อผู้ใช้"),
-        duration: Duration(seconds: 2),
-      ),
-    );
   }
 
   Future refreshProfile() async {
@@ -343,7 +334,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               Text(
                                 profile!.phone.replaceAllMapped(
                                     RegExp(r'(\d{3})(\d{3})(\d+)'),
-                                    (Match m) => "${m[1]}-${m[2]}-${m[3]}"),
+                                    (Match m) => "${m[1]}-${m[2]}-${'XXXX'}"),
                                 style: TextStyle(
                                     color: Color.fromARGB(255, 136, 136, 136),
                                     fontSize: 14),

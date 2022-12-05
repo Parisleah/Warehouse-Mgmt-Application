@@ -65,18 +65,20 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   DeliveryCompanyModel company =
       DeliveryCompanyModel(dcName: 'ระบุการจัดส่ง', dcisRange: false);
   _addSellingItem(SellingItemModel product) {
-    // for (var item in carts) {
-    //   if (carts.isNotEmpty) {
-    //     if (item.prodModelId == product.prodModelId) {
-    //       carts[carts.indexWhere(
-    //               (element) => element.prodModelId == product.prodModelId)]
-    //           .copy(amount: item.amount + product.amount);
-
+    // Need to be Fixed
+    // if (carts.isNotEmpty) {
+    //   for (var item in carts) {
+    //     if (product.prodModelId == item.prodModelId) {
+    //       final newItem = item.copy(amount: item.amount + product.amount);
+    //       carts.add(newItem);
+    //       carts.remove(item);
     //       setState(() {});
+    //     } else {
+    //       carts.add(product);
     //     }
-    //   } else {
-    //     carts.add(product);
     //   }
+    // } else {
+    //   carts.add(product);
     // }
     carts.add(product);
   }
@@ -226,21 +228,13 @@ class _SellingNavAddState extends State<SellingNavAdd> {
       }
     }
     List<DeliveryRateModel> deliveryRates = [];
-    print('###');
-    print(
-        '*************************** Shipping Medthod ***************************');
-    print('Total Weight : ${totalWeight}');
 
-    print('[Condition Receiving]');
-    print(
-        'Shipping : [Name ${_newShipping.dcName}, Range ${_newShipping.dcisRange}, FixedRate ${_newShipping.fixedDeliveryCost}]');
     if (carts.isNotEmpty) {
       if (_newShipping.dcId != null) {
         if (_newShipping.dcisRange == true) {
-          print('Condition (1) is Range == TRUE');
           deliveryRates = await DatabaseManager.instance
               .readDeliveryRatesWHEREdcId(widget.shop.dcId!);
-          print('Delivery Rates = (${deliveryRates.length})');
+
           if (deliveryRates.isNotEmpty) {
             for (var rate in deliveryRates) {
               if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
@@ -251,93 +245,28 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 print('${rate}');
               }
             }
-            print(
-                'Condition (1.1) Found Range : Shipping Cost = ${shippingCost}');
+
             if (shippingCost == 0) {
               shippingCost = 0;
-              print(
-                  'Condition (1.2) Not Found : ไม่มี Range, But หาไม่เจอ Then Alert ');
+
               dialogAlertWeightNotInRange(company!);
             }
           }
         } else {
-          // Delivery Company Chosen [Fixed Rate]
           shippingCost = _newShipping.fixedDeliveryCost!;
         }
       } else {
-        print('Condition (2) == is Range == FALSE');
-        // Condition of [dcisRange] == false
         if (_newShipping.dcName == 'รับสินค้าเอง') {
-          print('Condition (2.1) == รับสินค้าเอง');
           shippingCost = 0;
         } else if (_newShipping.dcName == 'ระบุราคา') {
-          print('Condition (2.2) == ระบุราคา');
           shippingCost = _newShipping.fixedDeliveryCost!;
-        } else {
-          print('Condition (2.3) == is Range == FALSE');
-          // shippingCost = (company.fixedDeliveryCost == null
-          //     ? 0
-          //     : _newShipping.fixedDeliveryCost!);
-          // print('Fixed Rate ${shippingCost}');
-          // Delivery Company Chosen [Fixed Rate]
-        }
+        } else {}
       }
     } else {
-      print(
-          'Condition (5) == (สินค้า isEmpty == TRUE) && (อื่น ๆ ที่ ไม่ใช่ Delivery Company ID == Null)');
       shippingCost = 0;
     }
-
-    // if (carts.isNotEmpty) {
-    //   if (_newShipping.dcName != 'ระบุการจัดส่ง') {
-    //     if (_newShipping.dcId != null) {
-    //       deliveryRates = await DatabaseManager.instance
-    //           .readDeliveryRatesWHEREdcId(widget.shop.dcId!);
-    //     }
-    //     print('Delivery Rates (${deliveryRates.length})');
-    //     for (var rate in deliveryRates) {
-    //       if (rate.weightRange == 'only-one') {
-    //       } else if (rate.weightRange == 'รับสินค้าเอง') {
-    //         shippingCost = 0;
-    //       } else {
-    //         if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
-    //                 totalWeight.toInt() &&
-    //             oldTotalWeight.toInt() <=
-    //                 double.parse(rate.weightRange.split('-')[1]).toInt()) {
-    //           shippingCost = rate.cost;
-    //           print('Shipping : ${shippingCost}');
-    //         }
-    //       }
-
-    //       // if (double.parse(rate.weightRange.split('-')[0]).toInt() <=
-    //       //         totalWeight.toInt() &&
-    //       //     oldTotalWeight.toInt() <=
-    //       //         double.parse(rate.weightRange.split('-')[1]).toInt()) {
-    //       //   shippingCost = rate.cost;
-    //       //   print('Shipping : ${shippingCost}');
-    //       // } else if (rate.weightRange == 'รับสินค้าเอง') {
-    //       //   shippingCost = 0;
-    //       // } else if (rate.weightRange == 'only-one') {
-    //       //   shippingCost = rate.cost;
-    //       // }
-    //     }
-    //     if (shippingCost == 0) {
-    //       dialogAlertWeightNotInRange(_shipping);
-    //     }
-    //   } else {
-    //     shippingCost = 0;
-    //   }
-    // } else {
-    //   shippingCost = 0;
-    // }
-    // discount
     discountPercent = oldDiscountPercent;
     discountPercentPrice = (oldTotal * oldDiscountPercent / 100).toInt();
-    print('--------------------- Calculation  ------------------------');
-    print('Discont                                ${discountPercent} %');
-    print('Discount Cost                          ${discountPercentPrice}');
-    print('Shipping Cost                          ${shippingCost}');
-
     noShippingPrice = oldTotal;
     vat7percent = oldTotal * 7 / 100;
     noVatPrice = oldTotal - vat7percent;
@@ -346,16 +275,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
     amount = oldAmount;
     totalPrice = oldTotal - discountPercentPrice;
     showtotalPrice = oldTotal + oldShippingPrice - discountPercentPrice;
-
-    print('Total Weight                           ${totalWeight}');
-    print('Shipping Cost                          ${shippingCost}');
-    print('Product Total                          ${noShippingPrice}');
-    print('Vat 7%                                 ${vat7percent}');
-    print('Without Vat 7%                         ${noVatPrice}');
-    print('Profit                                 ${profit}');
-    print('------------------------------------------------------------');
-    print('Total                                  ${totalPrice}');
-    print('--------------------- Calculation  ------------------------');
 
     setState(() {});
   }
@@ -382,16 +301,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
             // Return Back Selling Items Remaining Amount
             onPressed: () async {
               if (carts.isNotEmpty) {
-                // for (var item in carts) {
-                //   for (var lot in productLots) {
-                //     if (item.prodLotId == lot.prodLotId) {
-                //       final updateAmountSelectedProductLot = lot.copy(
-                //           remainAmount: lot.remainAmount + item.amount);
-                //       await DatabaseManager.instance
-                //           .updateProductLot(updateAmountSelectedProductLot);
-                //     }
-                //   }
-                // }
                 for (var i = 0; carts.length > i; i++) {
                   for (var lot in productLots) {
                     if (carts[i].prodLotId == lot.prodLotId) {
@@ -420,7 +329,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
@@ -547,7 +455,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                       width: 0,
                                     )
                                   : Text(
-                                      '(${_address.cPhone.replaceAllMapped(RegExp(r'(\d{3})(\d{3})(\d+)'), (Match m) => "${m[1]}-${m[2]}-${m[3]}")})',
+                                      ' (${_address.cPhone.replaceAllMapped(RegExp(r'(\d{3})(\d{3})(\d+)'), (Match m) => "${m[1]}-${m[2]}-${m[3]}")})',
                                       style: TextStyle(
                                           fontSize: 17,
                                           // fontWeight: FontWeight.bold,
@@ -945,7 +853,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                           fontSize:
                                                                               15,
                                                                           color: Theme.of(context)
-                                                                              .backgroundColor,
+                                                                              .bottomNavigationBarTheme
+                                                                              .selectedItemColor,
                                                                           fontWeight:
                                                                               FontWeight.bold)),
                                                                 ),
@@ -983,7 +892,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                   '${NumberFormat("#,###.##").format(totalWeight)}',
                                   style: TextStyle(
                                       fontSize: 15,
-                                      color: Theme.of(context).backgroundColor,
+                                      color: Theme.of(context)
+                                          .bottomNavigationBarTheme
+                                          .selectedItemColor,
                                       fontWeight: FontWeight.bold)),
                               Text(
                                 ' กรัม',
@@ -1006,8 +917,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                       '${NumberFormat("#,###").format(carts.length)}',
                                       style: TextStyle(
                                           fontSize: 12,
-                                          color:
-                                              Theme.of(context).backgroundColor,
+                                          color: Theme.of(context)
+                                              .bottomNavigationBarTheme
+                                              .selectedItemColor,
                                           fontWeight: FontWeight.bold)),
                                 ),
                               ),
@@ -1580,12 +1492,16 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                             ? Icon(
                                 Icons.check_box,
                                 size: 40.0,
-                                color: Theme.of(context).backgroundColor,
+                                color: Theme.of(context)
+                                    .bottomNavigationBarTheme
+                                    .selectedItemColor,
                               )
                             : Icon(
                                 Icons.check_box_outline_blank,
                                 size: 40.0,
-                                color: Theme.of(context).backgroundColor,
+                                color: Theme.of(context)
+                                    .bottomNavigationBarTheme
+                                    .selectedItemColor,
                               ),
                       ),
                     ),

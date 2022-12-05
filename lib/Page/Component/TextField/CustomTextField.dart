@@ -39,6 +39,7 @@ class CustomTextField {
                 isNumber
                     ? FilteringTextInputFormatter.digitsOnly
                     : LengthLimitingTextInputFormatter(length),
+                LengthLimitingTextInputFormatter(length)
               ],
               controller: textController,
               //-----------------------------------------------------

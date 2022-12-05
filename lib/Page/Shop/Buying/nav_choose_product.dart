@@ -175,8 +175,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
             // ListView
             products.isEmpty
                 ? Container(
-                    width: 440,
-                    height: 518.0,
+                    height: MediaQuery.of(context).size.height * 0.7,
                     child: Center(
                         child: Text(
                       searchController.text.isEmpty
@@ -188,8 +187,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                 : Padding(
                     padding: const EdgeInsets.only(top: 5),
                     child: Container(
-                      height: 518.0,
-                      width: 440.0,
+                      height: MediaQuery.of(context).size.height * 0.7,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         color: Colors.transparent,
@@ -317,12 +315,12 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                                 ),
                                               ),
                                               Text(
-                                                  'ต้นทุน ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
+                                                  'ต้นทุน (บาท) ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
                                                   style: const TextStyle(
                                                       color: Colors.grey,
                                                       fontSize: 12)),
                                               Text(
-                                                  'ราคา ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
+                                                  'ราคาขาย (บาท) ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
                                                   style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12)),
