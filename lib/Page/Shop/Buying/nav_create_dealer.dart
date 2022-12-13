@@ -2,7 +2,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/db/database.dart';
 
 import '../../Model/Shop.dart';
@@ -39,6 +41,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -63,15 +66,17 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
           height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Column(children: [
             const SizedBox(height: 90),
             // Text & Container Text Field of ชื่อ - นามสกุล
@@ -82,7 +87,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                 children: [
                   const Text(
                     "ชื่อ",
-                    style: TextStyle(fontSize: 15, color: Colors.white),
+                    style: TextStyle(fontSize: 15),
                   ),
                 ],
               ),
@@ -137,7 +142,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                 children: [
                   const Text(
                     " ที่อยู่               ",
-                    style: TextStyle(fontSize: 15, color: Colors.white),
+                    style: TextStyle(fontSize: 15),
                   ),
                 ],
               ),
@@ -203,7 +208,7 @@ class _BuyingNavCreateDealerState extends State<BuyingNavCreateDealer> {
                   Expanded(
                     child: Text(
                       "หมายเลขเบอร์โทรศัพท์",
-                      style: TextStyle(fontSize: 15, color: Colors.white),
+                      style: TextStyle(fontSize: 15),
                     ),
                   ),
                 ],

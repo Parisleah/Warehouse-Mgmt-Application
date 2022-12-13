@@ -173,25 +173,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                       stPropName,
                       style: TextStyle(color: Colors.white),
                     ),
-                    // IconButton(
-                    //     onPressed: () async {
-                    //       setState(
-                    //         () {
-                    //           isDialogChooseFst = true;
-                    //         },
-                    //       );
-                    //       await dialogEdit_PropName(editPropertyName);
-                    //       setState(
-                    //         () {
-                    //           isDialogChooseFst = false;
-                    //         },
-                    //       );
-                    //     },
-                    //     icon: const Icon(
-                    //       Icons.edit,
-                    //       color: Colors.white,
-                    //       size: 20,
-                    //     ))
+                  
                   ],
                 ),
                 CustomTextField.textField(
@@ -208,15 +190,7 @@ class _ProductEditModelState extends State<ProductEditModel> {
                       ndPropName,
                       style: TextStyle(color: Colors.white),
                     ),
-                    // IconButton(
-                    //     onPressed: () async {
-                    //       await dialogEdit_PropName(editPropertyName);
-                    //     },
-                    //     icon: const Icon(
-                    //       Icons.edit,
-                    //       color: Colors.white,
-                    //       size: 20,
-                    //     ))
+                  
                   ],
                 ),
                 CustomTextField.textField(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Component/SearchBox.dart';
 // Component
 
@@ -33,12 +34,12 @@ class _SellingPageState extends State<SellingPage> {
   List<CustomerAddressModel> addresses = [];
   List<ProductLot> productLots = [];
 
-  TextEditingController searchDealerController = new TextEditingController();
+  TextEditingController searchCustomerController = new TextEditingController();
   @override
   void initState() {
     super.initState();
     refreshSellings();
-    searchDealerController.addListener(() => setState(() {}));
+    searchCustomerController.addListener(() => setState(() {}));
   }
 
   Future refreshSellings() async {
@@ -70,7 +71,7 @@ class _SellingPageState extends State<SellingPage> {
 
   Future searchCustomerByName() async {
     selllings = await DatabaseManager.instance.readAllSellingByCusName(
-        widget.shop.shopid!, searchDealerController.text);
+        widget.shop.shopid!, searchCustomerController.text);
     selllings.toSet();
     if (!mounted) return;
     setState(() {});
@@ -171,6 +172,8 @@ class _SellingPageState extends State<SellingPage> {
   final df = new DateFormat('dd-MM-yyyy hh:mm a');
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -178,7 +181,9 @@ class _SellingPageState extends State<SellingPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(180),
           child: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: themeProvider.isDark
+                ? Colors.transparent
+                : Theme.of(context).appBarTheme.backgroundColor,
             elevation: 0,
             automaticallyImplyLeading: false,
             title: const Text(
@@ -223,13 +228,18 @@ class _SellingPageState extends State<SellingPage> {
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(100),
                         ],
-                        controller: searchDealerController,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 15),
+                        controller: searchCustomerController,
+                        style: TextStyle(
+                            color: themeProvider.isDark
+                                ? Colors.white
+                                : Colors.black,
+                            fontSize: 15),
                         decoration: InputDecoration(
                           // labelText: title,
                           filled: true,
-                          fillColor: Theme.of(context).colorScheme.background,
+                          fillColor: themeProvider.isDark
+                              ? Theme.of(context).colorScheme.background
+                              : Theme.of(context).colorScheme.onPrimary,
                           border: const OutlineInputBorder(
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(20),
@@ -249,20 +259,24 @@ class _SellingPageState extends State<SellingPage> {
                           hintText: 'ชื่อตัวแทนจำหน่าย หรือ เบอร์โทรศัพท์',
                           hintStyle:
                               const TextStyle(color: Colors.grey, fontSize: 14),
-                          prefixIcon:
-                              const Icon(Icons.search, color: Colors.white),
-                          suffixIcon: searchDealerController.text.isEmpty
+                          prefixIcon: Icon(Icons.search,
+                              color: themeProvider.isDark
+                                  ? Colors.white
+                                  : Color.fromRGBO(14, 14, 14, 1.0)),
+                          suffixIcon: searchCustomerController.text.isEmpty
                               ? Container(
                                   width: 0,
                                 )
                               : IconButton(
                                   onPressed: () {
-                                    searchDealerController.clear();
+                                    searchCustomerController.clear();
                                     refreshSellings();
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.close_sharp,
-                                    color: Colors.white,
+                                    color: themeProvider.isDark
+                                        ? Colors.white
+                                        : Color.fromRGBO(14, 14, 14, 1.0),
                                   ),
                                 ),
                         )),
@@ -343,7 +357,17 @@ class _SellingPageState extends State<SellingPage> {
         body: SingleChildScrollView(
           child: Container(
             height: (MediaQuery.of(context).size.height),
-            decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            decoration: BoxDecoration(
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 255, 255, 255),
+                          Color.fromARGB(255, 255, 255, 255),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -498,7 +522,7 @@ class _SellingPageState extends State<SellingPage> {
                                                         ? 'ลบรากายขาย ลูกค้า - '
                                                         : "ลบรายการขาย ${_customer.cName}"),
                                                     Text(
-                                                        ' ยอด ${NumberFormat("#,###.##").format(selling.total)}',
+                                                        ' ยอด ฿${NumberFormat("#,###.##").format(selling.total)}',
                                                         style: const TextStyle(
                                                             color: Colors.grey,
                                                             fontWeight:
@@ -589,9 +613,12 @@ class _SellingPageState extends State<SellingPage> {
                                                                 .width /
                                                             4),
                                                     width: 400,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
+                                                    color: themeProvider.isDark
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .primary
+                                                        : Color.fromRGBO(
+                                                            10, 10, 10, 1.0),
                                                     child: Row(
                                                       children: <Widget>[
                                                         Container(
@@ -751,7 +778,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                                                                       size: 15,
                                                                                                                     ),
                                                                                                               Text(
-                                                                                                                '${NumberFormat("#,###.##").format(indItem.total)} ฿',
+                                                                                                                '฿${NumberFormat("#,###.##").format(indItem.total)}',
                                                                                                                 style: TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold),
                                                                                                               ),
                                                                                                             ],
@@ -899,7 +926,7 @@ class _SellingPageState extends State<SellingPage> {
                                                                           .greenAccent,
                                                                     ),
                                                               Text(
-                                                                '${NumberFormat("#,###.##").format(selling.total + selling.shippingCost)} ฿',
+                                                                '฿${NumberFormat("#,###.##").format(selling.total + selling.shippingCost)}',
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         14,

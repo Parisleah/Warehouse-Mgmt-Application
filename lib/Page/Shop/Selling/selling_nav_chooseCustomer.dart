@@ -1,11 +1,14 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // Components
 import 'package:warehouse_mnmt/Page/Component/searchBox.dart';
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
 import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/nav_chooseCusAddress.dart';
 // Page
 import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_createCustomer.dart';
@@ -31,7 +34,7 @@ class SellingNavChooseCustomer extends StatefulWidget {
 
 class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
   List<CustomerModel> customers = [];
-
+  TextEditingController searchCustomerController = new TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -50,8 +53,17 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
     });
   }
 
+  Future searchCustomerByName() async {
+    customers = await DatabaseManager.instance.readAllCustomerByCusName(
+        widget.shop.shopid!, searchCustomerController.text);
+
+    if (!mounted) return;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -83,29 +95,98 @@ class _SellingNavChooseCustomerState extends State<SellingNavChooseCustomer> {
             )
           ],
           flexibleSpace: Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(10.0),
             child: Baseline(
-              child: SearchBox("ชื่อลูกค้า หรือ เบอร์โทรศัพท์"),
+              baseline: 110,
               baselineType: TextBaseline.alphabetic,
-              baseline: 120,
+              child:
+                  // SearchBox("ชื่อลูกค้า หรือ เบอร์โทรศัพท์")
+                  Column(
+                children: [
+                  TextFormField(
+                      keyboardType: TextInputType.text,
+                      onChanged: (text) {
+                        searchCustomerByName();
+                      },
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(30),
+                      ],
+                      controller: searchCustomerController,
+                      style: TextStyle(
+                          color: themeProvider.isDark
+                              ? Colors.white
+                              : Colors.black,
+                          fontSize: 15),
+                      decoration: InputDecoration(
+                        // labelText: title,
+                        filled: true,
+                        fillColor: themeProvider.isDark
+                            ? Theme.of(context).colorScheme.background
+                            : Theme.of(context).colorScheme.onPrimary,
+                        border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
+                                bottomLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20)),
+                            borderSide: BorderSide.none),
+
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(20.0),
+                          ),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                        hintText: 'ชื่อตัวแทนจำหน่าย หรือ เบอร์โทรศัพท์',
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
+                        prefixIcon: Icon(Icons.search,
+                            color: themeProvider.isDark
+                                ? Colors.white
+                                : Color.fromRGBO(14, 14, 14, 1.0)),
+                        suffixIcon: searchCustomerController.text.isEmpty
+                            ? Container(
+                                width: 0,
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  searchCustomerController.clear();
+                                  refreshCustomers();
+                                },
+                                icon: Icon(
+                                  Icons.close_sharp,
+                                  color: themeProvider.isDark
+                                      ? Colors.white
+                                      : Color.fromRGBO(14, 14, 14, 1.0),
+                                ),
+                              ),
+                      )),
+                ],
+              ),
             ),
           ),
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: themeProvider.isDark
+              ? Theme.of(context).colorScheme.onSecondary
+              : Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
         child: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Column(children: [
             SizedBox(height: 180),
             customers.isEmpty

@@ -1,9 +1,11 @@
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryRate.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_create_shipping.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit_deliveryCompany.dart';
 import 'package:warehouse_mnmt/db/database.dart';
@@ -105,7 +107,7 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
   @override
   Widget build(BuildContext context) {
     bool _validate = false;
-
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -120,22 +122,26 @@ class _ChooseShippingNavState extends State<ChooseShippingNav> {
           ],
         ),
         centerTitle: true,
-        backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+        backgroundColor: themeProvider.isDark
+            ? Theme.of(context).colorScheme.onSecondary
+            : Theme.of(context).colorScheme.primary,
       ),
       body: SingleChildScrollView(
         child: Container(
           height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Column(children: [
             const SizedBox(
               height: 90,

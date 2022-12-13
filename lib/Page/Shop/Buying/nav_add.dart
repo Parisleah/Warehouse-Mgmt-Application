@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryRate.dart';
@@ -14,6 +15,7 @@ import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit_deliveryCompany.dart';
 
 import '../../../db/database.dart';
@@ -78,20 +80,6 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
   }
 
   _addProductInCart(PurchasingItemsModel product) {
-    // Need to be Fixed
-    // if (carts.isNotEmpty) {
-    //   for (var item in carts) {
-    //     if (product.prodModelId == item.prodModelId) {
-    //       carts[carts.indexWhere(
-    //               (element) => element.prodModelId == product.prodModelId)] =
-    //           item.copy(amount: item.amount + product.amount);
-    //     } else {
-    //       carts.add(product);
-    //     }
-    //   }
-    // } else {
-    //   carts.add(product);
-    // }
     carts.add(product);
   }
 
@@ -192,6 +180,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -214,15 +203,17 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
         child: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(children: [
@@ -284,7 +275,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 children: [
                   Text(
                     "ตัวแทนจำหน่าย",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -371,7 +362,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 children: [
                   Text(
                     "รายการสั่งซื้อ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -656,7 +647,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                  'รวม ${NumberFormat("#,###.##").format(purchasing.total)}',
+                                                                  'รวม ฿${NumberFormat("#,###.##").format(purchasing.total)}',
                                                                   style: const TextStyle(
                                                                       color: Colors
                                                                           .grey,
@@ -778,7 +769,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 children: [
                   Text(
                     "ค่าจัดส่ง",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -856,36 +847,6 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                           : null,
                     )),
               ),
-              // Container of ค่าจัดส่ง
-              // const SizedBox(
-              //   height: 10,
-              // ),
-
-              // Container of ค่าจัดส่ง self-gen
-              // Container(
-              //   decoration: BoxDecoration(
-              //       color: const Color.fromRGBO(56, 48, 77, 1.0),
-              //       borderRadius: BorderRadius.circular(15)),
-              //   width: 400,
-              //   height: 70,
-              //   child: Row(children: [
-              //     Padding(
-              //       padding: const EdgeInsets.all(20.0),
-              //       child: const Text("ค่าจัดส่ง",
-              //           style: TextStyle(fontSize: 15, color: Colors.white)),
-              //     ),
-              //     Spacer(),
-              //     Padding(
-              //       padding: const EdgeInsets.all(20.0),
-              //       child: Text(
-              //           '${NumberFormat("#,###,###,###").format(shippingCost)}',
-              //           textAlign: TextAlign.left,
-              //           style:
-              //               const TextStyle(fontSize: 15, color: Colors.grey)),
-              //     ),
-              //   ]),
-              // ),
-              // Container of ค่าจัดส่ง self-gen
 
               const SizedBox(
                 height: 10,
@@ -896,7 +857,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                 children: [
                   Text(
                     "สรุปรายการสั่งซื้อ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -956,7 +917,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                   width: 0,
                                 )
                               : Text(
-                                  'สินค้า(${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                  'สินค้า (฿${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                       fontSize: 15, color: Colors.grey)),
@@ -965,7 +926,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                                   width: 0,
                                 )
                               : Text(
-                                  '   + ค่าส่ง (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                  '   + ค่าส่ง (฿${NumberFormat("#,###,###,###.##").format(shippingCost)})',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                       fontSize: 15,
@@ -976,7 +937,7 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Text(
-                            '${NumberFormat("#,###,###,###.##").format(totalPrice)}',
+                            '฿${NumberFormat("#,###,###,###.##").format(totalPrice)}',
                             textAlign: TextAlign.left,
                             style: const TextStyle(
                                 fontSize: 15, color: Colors.grey)),
@@ -998,11 +959,6 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                     onTap: () {
                       setState(() {
                         isReceived = !isReceived;
-                        if (isReceived == false) {
-                          print('ยังไม่ได้รับสินค้า');
-                        } else {
-                          print('ได้รับสินค้าแล้ว');
-                        }
                       });
                     },
                     child: Container(
@@ -1036,12 +992,13 @@ class _BuyingNavAddState extends State<BuyingNavAdd> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: Colors.white,
                         ),
                       ),
                       Text(
                         "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
-                        style: TextStyle(fontSize: 15, color: Colors.white),
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
                       ),
                     ],
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
@@ -18,6 +19,7 @@ import '../../Component/ImagePickerController.dart';
 import '../../Component/ImagePickerWidget.dart';
 import '../../Component/TextField/CustomTextField.dart';
 import '../../Model/ProductModel_ndProperty.dart';
+import '../../Provider/theme_provider.dart';
 
 class ProductNavAdd extends StatefulWidget {
   final Shop shop;
@@ -1403,14 +1405,14 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                           crossAxisAlignment:
                                                                               CrossAxisAlignment.start,
                                                                           children: [
-                                                                            Text('ต้นทุน (บาท)',
+                                                                            Text('ต้นทุน ฿',
                                                                                 style: TextStyle(
                                                                                   fontSize: 15,
                                                                                   color: Colors.white,
                                                                                 )),
                                                                             CustomTextField.textField(
                                                                               context,
-                                                                              'ราคา',
+                                                                              'ราคาขาย ฿',
                                                                               _validate,
                                                                               length: 10,
                                                                               isNumber: true,
@@ -1433,7 +1435,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                                           crossAxisAlignment:
                                                                               CrossAxisAlignment.start,
                                                                           children: [
-                                                                            Text('ราคาขาย (บาท)',
+                                                                            Text('ราคาขาย ฿',
                                                                                 style: TextStyle(
                                                                                   fontSize: 15,
                                                                                   color: Colors.white,
@@ -3055,6 +3057,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -3071,15 +3074,17 @@ class _ProductNavAddState extends State<ProductNavAdd> {
         body: SingleChildScrollView(
           child: Container(
             // height: (MediaQuery.of(context).size.height),
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(29, 29, 65, 1.0),
-                Color.fromRGBO(31, 31, 31, 1.0),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            )),
+            decoration: BoxDecoration(
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 219, 219, 219),
+                          Color.fromARGB(255, 219, 219, 219),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -3104,7 +3109,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     children: const [
                       Text(
                         'ชื่อสินค้า',
-                        style: TextStyle(color: Colors.white),
                       )
                     ],
                   ),
@@ -3120,7 +3124,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     children: [
                       Text(
                         'หมวดหมู่สินค้า',
-                        style: TextStyle(color: Colors.white),
                       )
                     ],
                   ),
@@ -3156,7 +3159,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     children: [
                       Text(
                         'รายละเอียดสินค้า',
-                        style: TextStyle(color: Colors.white),
                       )
                     ],
                   ),
@@ -3172,7 +3174,6 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                     children: [
                       const Text(
                         'รูปแบบสินค้า',
-                        style: TextStyle(color: Colors.white),
                       ),
                       Spacer(),
                       productModels.isEmpty
@@ -3353,7 +3354,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                           ],
                                                         ),
                                                         Text(
-                                                          'ต้นทุน ${NumberFormat("#,###,###.##").format(productModel.cost)} ฿',
+                                                          'ต้นทุน ฿${NumberFormat("#,###,###.##").format(productModel.cost)}',
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.grey,
@@ -3363,7 +3364,7 @@ class _ProductNavAddState extends State<ProductNavAdd> {
                                                           width: 10,
                                                         ),
                                                         Text(
-                                                          'ราคาขาย ${NumberFormat("#,###,###.##").format(productModel.price)} ฿',
+                                                          'ราคาขาย ฿${NumberFormat("#,###,###.##").format(productModel.price)}',
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.grey,

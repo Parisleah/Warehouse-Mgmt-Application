@@ -2,6 +2,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 // Components ?
 import 'package:warehouse_mnmt/Page/Component/styleButton.dart';
@@ -11,6 +12,7 @@ import 'package:warehouse_mnmt/db/database.dart';
 
 import '../../Component/TextField/CustomTextField.dart';
 import '../../Model/Shop.dart';
+import '../../Provider/theme_provider.dart';
 
 class SellingNavCreateCustomerAddress extends StatefulWidget {
   final CustomerModel customer;
@@ -318,6 +320,7 @@ class _SellingNavCreateCustomerAddressState
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -340,15 +343,17 @@ class _SellingNavCreateCustomerAddressState
         child: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Column(children: [
             SizedBox(height: 90),
             // Text & Container Text Field of ชื่อ - นามสกุล
@@ -357,12 +362,11 @@ class _SellingNavCreateCustomerAddressState
               children: [
                 Icon(
                   Icons.person_pin_circle,
-                  color: Colors.white,
                   size: 25,
                 ),
                 Text(
                   'คุณ ${customer.cName}',
-                  style: TextStyle(fontSize: 25, color: Colors.white),
+                  style: TextStyle(fontSize: 25),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -370,8 +374,10 @@ class _SellingNavCreateCustomerAddressState
                   onPressed: () {
                     dialogEditCusName();
                   },
-                  child: const Icon(Icons.edit,
-                      color: Color.fromARGB(255, 205, 205, 205)),
+                  child: Icon(Icons.edit,
+                      color: themeProvider.isDark
+                          ? Colors.white
+                          : Color.fromRGBO(14, 14, 14, 1.0)),
                 ),
               ],
             ),
@@ -404,7 +410,7 @@ class _SellingNavCreateCustomerAddressState
                       children: [
                         Text(
                           'เลือกที่อยู่',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                          style: TextStyle(fontSize: 20),
                         ),
                         Spacer(),
                         ElevatedButton(
@@ -521,9 +527,12 @@ class _SellingNavCreateCustomerAddressState
                                               BorderRadius.circular(10),
                                           child: Container(
                                             height: 80,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .background,
+                                            color: themeProvider.isDark
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Color.fromRGBO(
+                                                    10, 10, 10, 1.0),
                                             child: Row(
                                               children: <Widget>[
                                                 Padding(

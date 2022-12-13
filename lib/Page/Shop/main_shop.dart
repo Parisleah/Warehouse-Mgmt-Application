@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import 'package:warehouse_mnmt/Page/Component/change_theme_btn.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
@@ -18,7 +19,9 @@ import '../Model/Shop.dart';
 
 class ShopPage extends StatefulWidget {
   final Shop shop;
-  const ShopPage({required this.shop, Key? key}) : super(key: key);
+  final Profile;
+  const ShopPage({required this.Profile, required this.shop, Key? key})
+      : super(key: key);
 
   @override
   State<ShopPage> createState() => _ShopPageState();
@@ -79,6 +82,8 @@ class _ShopPageState extends State<ShopPage> {
       await DatabaseManager.instance.updateShop(shop);
     }
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -86,6 +91,9 @@ class _ShopPageState extends State<ShopPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: AppBar(
+            backgroundColor: themeProvider.isDark
+                ? Theme.of(context).colorScheme.onSecondary
+                : Theme.of(context).appBarTheme.backgroundColor,
             automaticallyImplyLeading: false,
             actions: [
               PopupMenuButton<int>(
@@ -652,7 +660,6 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                   PopupMenuItem(
                     onTap: () {
-                      String? gender;
                       Future.delayed(
                         const Duration(seconds: 0),
                         () => showDialog(
@@ -673,7 +680,8 @@ class _ShopPageState extends State<ShopPage> {
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 15),
                                     ),
-                                    ChangeThemeButtonWidget(),
+                                    ChangeThemeButtonWidget(
+                                        profile: widget.Profile),
                                     Spacer(),
                                     IconButton(
                                         onPressed: (() {
@@ -742,14 +750,16 @@ class _ShopPageState extends State<ShopPage> {
           child: Container(
             height: (MediaQuery.of(context).size.height),
             decoration: BoxDecoration(
-                gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(29, 29, 65, 1.0),
-                Color.fromRGBO(31, 31, 31, 1.0),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            )),
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 219, 219, 219),
+                          Color.fromARGB(255, 219, 219, 219),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -783,10 +793,12 @@ class _ShopPageState extends State<ShopPage> {
                   Container(
                     height: 80,
                     decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .background
-                            .withOpacity(1.0),
+                        color: themeProvider.isDark
+                            ? Theme.of(context)
+                                .colorScheme
+                                .background
+                                .withOpacity(1.0)
+                            : Color.fromRGBO(10, 10, 10, 1.0),
                         borderRadius: BorderRadius.circular(20)),
                     child: Padding(
                       padding: const EdgeInsets.all(10),
@@ -820,10 +832,12 @@ class _ShopPageState extends State<ShopPage> {
                   Container(
                     height: 80,
                     decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .background
-                            .withOpacity(1.0),
+                        color: themeProvider.isDark
+                            ? Theme.of(context)
+                                .colorScheme
+                                .background
+                                .withOpacity(1.0)
+                            : Color.fromRGBO(10, 10, 10, 1.0),
                         borderRadius: BorderRadius.circular(20)),
                     child: Padding(
                       padding: const EdgeInsets.all(10),
@@ -872,10 +886,12 @@ class _ShopPageState extends State<ShopPage> {
                     child: Container(
                       height: 80,
                       decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .background
-                              .withOpacity(1.0),
+                          color: themeProvider.isDark
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .background
+                                  .withOpacity(1.0)
+                              : Color.fromRGBO(10, 10, 10, 1.0),
                           borderRadius: BorderRadius.circular(20)),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
@@ -887,7 +903,7 @@ class _ShopPageState extends State<ShopPage> {
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Icon(Icons.settings),
+                                    Icon(Icons.settings, color: Colors.white),
                                     SizedBox(
                                       width: 10,
                                     ),

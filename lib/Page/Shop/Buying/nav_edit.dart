@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
@@ -12,6 +13,7 @@ import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_showProduct.dart';
 
 import '../../../db/database.dart';
@@ -148,6 +150,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -259,22 +262,26 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
               elevation: 2,
             ),
           ],
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: themeProvider.isDark
+              ? Theme.of(context).colorScheme.onSecondary
+              : Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
         child: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(children: [
@@ -288,7 +295,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 child: Row(children: [
                   Icon(
                     Icons.calendar_month,
-                    color: Colors.white,
                   ),
                   Spacer(),
                   Text(
@@ -301,7 +307,9 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 children: [
                   Text(
                     "ตัวแทนจำหน่าย",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 25,
+                    ),
                   ),
                 ],
               ),
@@ -336,7 +344,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 children: [
                   Text(
                     "รายการสั่งซื้อ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -399,15 +407,20 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                       child: Container(
                                         height: 80,
                                         width: 400,
-                                        color: Color.fromRGBO(56, 54, 76, 1.0)
-                                            .withOpacity(0.4),
+                                        color: themeProvider.isDark
+                                            ? Color.fromRGBO(56, 54, 76, 1.0)
+                                                .withOpacity(0.4)
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .primary,
                                         child: Row(
                                           children: <Widget>[
                                             Container(
                                               width: 90,
                                               height: 90,
                                               child: prodImg == null
-                                                  ? Icon(Icons.image)
+                                                  ? Icon(Icons
+                                                      .image_not_supported_rounded)
                                                   : Image.file(
                                                       File(prodImg),
                                                       fit: BoxFit.cover,
@@ -422,7 +435,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                                     CrossAxisAlignment.start,
                                                 children: <Widget>[
                                                   Text(
-                                                    '${prodName}',
+                                                    '${prodName == null ? '-' : prodName}',
                                                     style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -498,7 +511,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                                     ],
                                                   ),
                                                   Text(
-                                                      'ราคา ${NumberFormat("#,###.##").format(purchasing.total)}',
+                                                      'รวม ฿${NumberFormat("#,###.##").format(purchasing.total)}',
                                                       style: const TextStyle(
                                                           color: Colors.grey,
                                                           fontSize: 12)),
@@ -544,7 +557,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                 children: [
                                   Text(
                                     'น้ำหนักรวม ',
-                                    style: const TextStyle(color: Colors.white),
                                   ),
                                   Flexible(
                                     child: Text(
@@ -559,7 +571,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                   ),
                                   Text(
                                     ' กรัม',
-                                    style: const TextStyle(color: Colors.white),
                                   ),
                                 ],
                               ),
@@ -567,7 +578,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                             const Spacer(),
                             Text(
                               'ทั้งหมด ',
-                              style: const TextStyle(color: Colors.white),
                             ),
                             Container(
                               decoration: BoxDecoration(
@@ -587,7 +597,6 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                             ),
                             Text(
                               ' รายการ ',
-                              style: const TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
@@ -598,7 +607,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 children: [
                   Text(
                     "ค่าจัดส่ง",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -612,12 +621,12 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: const Text("ค่าจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    child:
+                        const Text("ค่าจัดส่ง", style: TextStyle(fontSize: 15)),
                   ),
                   Spacer(),
                   Text(
-                      '${NumberFormat("#,###.##").format(widget.purchasing.shippingCost)}',
+                      '฿${NumberFormat("#,###.##").format(widget.purchasing.shippingCost)}',
                       style: TextStyle(fontSize: 15, color: Colors.grey)),
                 ]),
               ),
@@ -632,7 +641,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 children: [
                   Text(
                     "สรุปรายการสั่งซื้อ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -650,8 +659,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: const Text("จำนวน",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    child: const Text("จำนวน", style: TextStyle(fontSize: 15)),
                   ),
                   Spacer(),
                   Text('${NumberFormat("#,###,###,### ชิ้น").format(amount)}',
@@ -672,9 +680,8 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                     Row(children: [
                       Padding(
                         padding: const EdgeInsets.only(left: 20),
-                        child: const Text("รวม",
-                            style:
-                                TextStyle(fontSize: 15, color: Colors.white)),
+                        child:
+                            const Text("รวม", style: TextStyle(fontSize: 15)),
                       ),
                       Spacer(),
                       Column(
@@ -684,7 +691,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                   width: 0,
                                 )
                               : Text(
-                                  'สินค้า(${NumberFormat("#,###,###,###.##").format(noShippingPrice + shippingCost)})',
+                                  'สินค้า (฿${NumberFormat("#,###,###,###.##").format(totalPrice)})',
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                       fontSize: 15, color: Colors.grey)),
@@ -693,7 +700,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                                   width: 0,
                                 )
                               : Text(
-                                  '   + ค่าส่ง (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                  '   + ค่าส่ง (฿${NumberFormat("#,###,###,###.##").format(shippingCost)})',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                       fontSize: 15,
@@ -704,7 +711,7 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                       Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Text(
-                            '${NumberFormat("#,###,###,###.##").format(totalPrice + shippingCost)}',
+                            '฿${NumberFormat("#,###,###,###.##").format(totalPrice + shippingCost)}',
                             textAlign: TextAlign.left,
                             style: const TextStyle(
                                 fontSize: 15, color: Colors.grey)),
@@ -769,17 +776,23 @@ class _BuyingNavEditState extends State<BuyingNavEdit> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color:
-                              isReceived == true ? Colors.grey : Colors.white,
+                          color: isReceived == true
+                              ? Colors.grey
+                              : themeProvider.isDark
+                                  ? Colors.white
+                                  : Colors.black,
                         ),
                       ),
                       Text(
                         "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
                         style: TextStyle(
-                            fontSize: 15,
-                            color: isReceived == true
-                                ? Colors.grey
-                                : Colors.white),
+                          fontSize: 15,
+                          color: isReceived == true
+                              ? Colors.grey
+                              : themeProvider.isDark
+                                  ? Colors.white
+                                  : Colors.black,
+                        ),
                       ),
                     ],
                   ),

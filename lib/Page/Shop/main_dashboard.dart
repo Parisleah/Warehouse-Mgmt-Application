@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:warehouse_mnmt/Page/Component/PieChart.dart';
-import 'package:warehouse_mnmt/Page/Component/RaisedGradientButton%20.dart';
+
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
 import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
@@ -24,7 +24,6 @@ import 'package:warehouse_mnmt/Page/Shop/main_shop.dart';
 
 import '../../db/database.dart';
 import '../Component/MoneyBox.dart';
-import '../Component/ImgCarouselWidget.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -74,7 +73,6 @@ class _DashboardPageState extends State<DashboardPage> {
   var sale = 0;
   var cost = 0;
   var profit = 0;
-  var _maxPurchasing = 0;
   bool isToday = true;
   late PageController _pageController;
   int activePage = 1;
@@ -82,8 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     initializeDateFormatting();
-    print(
-        'SHOP : ID ${widget.shop.shopid} NAME ${widget.shop.name} DC ${widget.shop.dcId}');
+
     super.initState();
     refreshPage();
     _pageController = PageController(viewportFraction: 0.8);
@@ -98,8 +95,8 @@ class _DashboardPageState extends State<DashboardPage> {
   tabbarChanging() async {
     if (tabbarSelectedIndex == 0) {
       // Today
-      var start = DateTime(date.year, date.month, date.day - 1, date.hour);
-      var end = DateTime(date.year, date.month, date.day + 1, date.hour);
+      var start = DateTime(date.year, date.month, date.day - 1, 0);
+      var end = DateTime(date.year, date.month, date.day + 1, 0);
 
       purchasings = await DatabaseManager.instance
           .readPurchasingsWHEREisReceivedANDRangeDate(
@@ -118,11 +115,7 @@ class _DashboardPageState extends State<DashboardPage> {
       setState(() {});
     } else if (tabbarSelectedIndex == 1) {
       // Week
-      // var start = DateFormat('dd-MM-yyyy')
-      //     .format(DateTime(date.year, date.month, date.day - 7));
-      // var end = DateFormat('dd-MM-yyyy')
-      //     .format(DateTime(date.year, date.month, date.day));
-      var start = DateTime(date.year, date.month - 1, date.day - 19);
+      var start = DateTime(date.year, date.month, 1);
       var end = DateTime(date.year, date.month, date.day + 1);
 
       purchasings = await DatabaseManager.instance
@@ -144,7 +137,7 @@ class _DashboardPageState extends State<DashboardPage> {
     } else if (tabbarSelectedIndex == 2) {
       // Month
       var start = DateTime(date.year - 1, date.month, date.day);
-      var end = DateTime(date.year, date.month, date.day);
+      var end = DateTime(date.year, date.month, date.day + 1, 0);
       purchasings = await DatabaseManager.instance
           .readPurchasingsWHEREisReceivedANDRangeDate(
               'Month',
@@ -207,7 +200,7 @@ class _DashboardPageState extends State<DashboardPage> {
       return 24.0;
     } else if (tabbarSelectedIndex == 1) {
       // Week
-      return 6.0;
+      return date.day.toDouble();
     } else if (tabbarSelectedIndex == 2) {
       // Month
       return 12.0;
@@ -245,13 +238,8 @@ class _DashboardPageState extends State<DashboardPage> {
         margin: EdgeInsets.all(3),
         width: 10,
         height: 10,
-        decoration: BoxDecoration(
-            color:
-                // currentIndex == index
-                //     ? Theme.of(context).backgroundColor
-                //     :
-                Colors.black26,
-            shape: BoxShape.circle),
+        decoration:
+            BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
       );
     });
   }
@@ -309,23 +297,20 @@ class _DashboardPageState extends State<DashboardPage> {
     for (var pur in purchasings) {
       spotPurchasingList
           .add(FlSpot(pur.amount.toDouble(), pur.total.toDouble()));
-      // if (spotWeightList.length >= 19) {
-      //   spotWeightList.removeAt(0);
-      //   removedSpotWeightList = spotWeightList;
-      //   return removedSpotWeightList;
-      // }
     }
     return spotPurchasingList;
   }
 
-  dialogPickDateTimeRange() async {
+  dialogPickDateTimeRange(themeProvider) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (dContext, DialogSetState) {
           return AlertDialog(
-            backgroundColor: Theme.of(dContext).scaffoldBackgroundColor,
+            backgroundColor: themeProvider.isDark
+                ? Theme.of(context).colorScheme.onSecondary
+                : Theme.of(context).colorScheme.primary,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)),
             title: Container(
@@ -334,7 +319,10 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.date_range_rounded),
+                  Icon(
+                    Icons.date_range_rounded,
+                    color: Colors.white,
+                  ),
                   Text(
                     'ระบุช่วง',
                     style: TextStyle(color: Colors.white),
@@ -353,11 +341,16 @@ class _DashboardPageState extends State<DashboardPage> {
                 // Style
                 selectionTextStyle: const TextStyle(color: Colors.white),
                 selectionColor: Colors.blue,
-                startRangeSelectionColor: Color.fromRGBO(29, 29, 65, 1.0),
-                endRangeSelectionColor: Color.fromRGBO(29, 29, 65, 1.0),
+                startRangeSelectionColor:
+                    Theme.of(dContext).colorScheme.primary,
+                endRangeSelectionColor: Theme.of(dContext).colorScheme.primary,
                 rangeSelectionColor: Theme.of(context).backgroundColor,
                 rangeTextStyle:
-                    const TextStyle(color: Colors.white, fontSize: 14),
+                    const TextStyle(color: Colors.white, fontSize: 18),
+                selectionRadius: 10,
+                selectionShape: DateRangePickerSelectionShape.circle,
+                todayHighlightColor: Theme.of(context).backgroundColor,
+
                 // Style
               ),
             ),
@@ -372,19 +365,21 @@ class _DashboardPageState extends State<DashboardPage> {
               ElevatedButton(
                 child: const Text('เลือกวัน'),
                 onPressed: () async {
-                  var start = _controller.selectedRange!.startDate;
-                  var end = _controller.selectedRange!.endDate;
-                  purchasings = await DatabaseManager.instance
-                      .readPurchasingsWHEREisReceivedANDRangeDate(
-                          'Year',
-                          start!.toIso8601String(),
-                          end!.toIso8601String(),
-                          widget.shop.shopid!);
-                  rangeDate =
-                      '${DateFormat('yyyy-MM-dd').format(start)} ถึง ${DateFormat('yyyy-MM-dd').format(end)}';
-                  _calculateDashboard(sale, cost, profit);
+                  if (_controller.selectedRange != null) {
+                    var start = _controller.selectedRange!.startDate;
+                    var end = _controller.selectedRange!.endDate;
+                    purchasings = await DatabaseManager.instance
+                        .readPurchasingsWHEREisReceivedANDRangeDate(
+                            'Year',
+                            start!.toIso8601String(),
+                            end!.toIso8601String(),
+                            widget.shop.shopid!);
+                    rangeDate =
+                        '${DateFormat('yyyy-MM-dd').format(start)} ถึง ${DateFormat('yyyy-MM-dd').format(end)}';
+                    _calculateDashboard(sale, cost, profit);
 
-                  setState(() {});
+                    setState(() {});
+                  }
 
                   Navigator.pop(context);
                 },
@@ -400,7 +395,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     DateFormat dateFormat;
     dateFormat = new DateFormat.yMMMMd('th');
-
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -459,7 +454,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   tabbarSelectedIndex = value;
                   setState(() {});
                   if (value == 4) {
-                    dialogPickDateTimeRange();
+                    dialogPickDateTimeRange(themeProvider);
                   }
                   tabbarChanging();
                 },
@@ -484,7 +479,17 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         body: SingleChildScrollView(
           child: Container(
-            decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            decoration: BoxDecoration(
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 255, 255, 255),
+                          Color.fromARGB(255, 255, 255, 255),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.only(
@@ -495,29 +500,42 @@ class _DashboardPageState extends State<DashboardPage> {
                     height: 160,
                   ),
 
-                  // Color.fromARGB(255, 37, 37, 82),
-                  // Color.fromARGB(255, 123, 52, 255),
                   Container(
                     padding: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
-                        BoxShadow(
-                            color: Theme.of(context).colorScheme.primary,
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 4))
+                        themeProvider.isDark
+                            ? BoxShadow(
+                                color: Theme.of(context).colorScheme.primary,
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 4))
+                            : BoxShadow(
+                                color: Colors.transparent,
+                              )
                       ],
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromRGBO(29, 29, 65, 1.0),
-                          dark_secondary_accent_color
-                        ],
-                        begin: Alignment.bottomLeft,
-                        end: Alignment.topRight,
-                        stops: [0.1, 0.8],
-                        tileMode: TileMode.clamp,
-                      ),
+                      gradient: themeProvider.isDark
+                          ? LinearGradient(
+                              colors: [
+                                Color.fromRGBO(29, 29, 65, 1.0),
+                                Theme.of(context).backgroundColor,
+                              ],
+                              begin: Alignment.bottomLeft,
+                              end: Alignment.topRight,
+                              stops: [0.1, 0.8],
+                              tileMode: TileMode.clamp,
+                            )
+                          : LinearGradient(
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.primary,
+                              ],
+                              begin: Alignment.bottomLeft,
+                              end: Alignment.topRight,
+                              stops: [0.1, 0.8],
+                              tileMode: TileMode.clamp,
+                            ),
                     ),
                     child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,7 +570,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  ' ${DateFormat.yMMMd().format(DateTime(date.year, date.month, date.day - 7))}',
+                                  ' ${DateFormat.yMMMd().format(DateTime(date.year, date.month, 1))}',
 
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.white),
@@ -629,13 +647,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                       fontSize: 12, color: Colors.white),
                                   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
                                 ),
-                                Text(
-                                  ' - ${DateFormat.yMMMd().format(date)}',
-
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.white),
-                                  // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
-                                ),
                               ],
                             ),
                         ]),
@@ -658,7 +669,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           'ยอดขาย',
                           sale,
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          dark_secondary_accent_color,
+                          themeProvider.isDark == true
+                              ? dark_secondary_accent_color
+                              : Theme.of(context).backgroundColor,
                           90,
                           Colors.white),
                       MoneyBox(
@@ -667,7 +680,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           'ยอดต้นทุน',
                           cost,
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          dark_secondary_accent_color,
+                          themeProvider.isDark == true
+                              ? dark_secondary_accent_color
+                              : Theme.of(context).backgroundColor,
                           90,
                           Colors.white),
                       MoneyBox(
@@ -676,7 +691,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           'กำไร',
                           profit < 0 ? 0 : profit,
                           Color.fromRGBO(29, 29, 65, 1.0),
-                          dark_secondary_accent_color,
+                          themeProvider.isDark == true
+                              ? dark_secondary_accent_color
+                              : Theme.of(context).backgroundColor,
                           90,
                           Colors.white),
                     ],
@@ -687,46 +704,89 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   // Graph Container
                   sellings.isEmpty && purchasings.isEmpty
-                      ? Container(
-                          width: (MediaQuery.of(context).size.width),
-                          height: (MediaQuery.of(context).size.width),
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 4))
-                            ],
-                            gradient: LinearGradient(
-                              colors: [
-                                Color.fromRGBO(29, 29, 65, 1.0),
-                                Theme.of(context).colorScheme.primary,
-                              ],
-                              begin: Alignment.bottomLeft,
-                              end: Alignment.topRight,
-                              stops: [0.0, 0.8],
-                              tileMode: TileMode.clamp,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_chart_rounded,
-                                color: Colors.white,
-                                size: 40,
+                      ? tabbarSelectedIndex == 0
+                          ? Container(
+                              width: (MediaQuery.of(context).size.width),
+                              height: (MediaQuery.of(context).size.width),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 4))
+                                ],
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Theme.of(context).colorScheme.primary,
+                                    Theme.of(context).colorScheme.primary,
+                                  ],
+                                  begin: Alignment.bottomLeft,
+                                  end: Alignment.topRight,
+                                  stops: [0.0, 0.8],
+                                  tileMode: TileMode.clamp,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              Text('แสดงผลรูปแบบกราฟ'),
-                              Text('(ไม่มีการขาย หรือ สั่งซื้อ)',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        )
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_chart_rounded,
+                                    color: Colors.white,
+                                    size: 40,
+                                  ),
+                                  Text('แสดงผลรูปแบบกราฟ'),
+                                  Text('(วันนี้ไม่มีการขาย หรือ สั่งซื้อ)',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            )
+                          : Container(
+                              width: (MediaQuery.of(context).size.width),
+                              height: (MediaQuery.of(context).size.width),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 4))
+                                ],
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Theme.of(context).colorScheme.primary,
+                                    Theme.of(context).colorScheme.primary,
+                                  ],
+                                  begin: Alignment.bottomLeft,
+                                  end: Alignment.topRight,
+                                  stops: [0.0, 0.8],
+                                  tileMode: TileMode.clamp,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_chart_rounded,
+                                    color: Colors.white,
+                                    size: 40,
+                                  ),
+                                  Text('แสดงผลรูปแบบกราฟ'),
+                                  Text('(ไม่มีการขาย หรือ สั่งซื้อ)',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            )
                       : Container(
                           decoration: BoxDecoration(
                             boxShadow: [
@@ -736,16 +796,27 @@ class _DashboardPageState extends State<DashboardPage> {
                                   blurRadius: 5,
                                   offset: Offset(0, 4))
                             ],
-                            gradient: LinearGradient(
-                              colors: [
-                                Color.fromRGBO(29, 29, 65, 1.0),
-                                Theme.of(context).colorScheme.primary,
-                              ],
-                              begin: Alignment.bottomLeft,
-                              end: Alignment.topRight,
-                              stops: [0.0, 0.8],
-                              tileMode: TileMode.clamp,
-                            ),
+                            gradient: themeProvider.isDark
+                                ? LinearGradient(
+                                    colors: [
+                                      Color.fromRGBO(29, 29, 65, 1.0),
+                                      Theme.of(context).colorScheme.primary,
+                                    ],
+                                    begin: Alignment.bottomLeft,
+                                    end: Alignment.topRight,
+                                    stops: [0.0, 0.8],
+                                    tileMode: TileMode.clamp,
+                                  )
+                                : LinearGradient(
+                                    colors: [
+                                      Theme.of(context).colorScheme.primary,
+                                      Theme.of(context).colorScheme.primary,
+                                    ],
+                                    begin: Alignment.bottomLeft,
+                                    end: Alignment.topRight,
+                                    stops: [0.0, 0.8],
+                                    tileMode: TileMode.clamp,
+                                  ),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Column(
@@ -791,7 +862,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(
-                                            '${DateFormat.yMMMd().format(DateTime(date.year, date.month - 1, date.day))} - ${DateFormat.yMMMd().format(date)}',
+                                            '${DateFormat.yMMMd().format(DateTime(date.year, date.month, 1))} - ${DateFormat.yMMMd().format(date)}',
 
                                             style: TextStyle(
                                                 fontSize: 12,
@@ -838,6 +909,29 @@ class _DashboardPageState extends State<DashboardPage> {
                                           ),
                                           Text(
                                             '${DateFormat.yMMMd().format(DateTime(date.year - 10, date.month, date.day))} - ${DateFormat.yMMMd().format(date)}',
+
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white),
+                                            // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+                                          ),
+                                        ],
+                                      ),
+                                    if (tabbarSelectedIndex == 4)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'ช่วง',
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Color.fromARGB(
+                                                    255, 255, 255, 255),
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            '${rangeDate}',
 
                                             style: TextStyle(
                                                 fontSize: 12,
@@ -898,7 +992,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                     .bold),
                                                       ),
                                                       Text(
-                                                        ' ${NumberFormat("#,###,###.##").format(sale)} ฿',
+                                                        ' ฿${NumberFormat("#,###,###.##").format(sale)}',
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -961,7 +1055,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                     .bold),
                                                       ),
                                                       Text(
-                                                        ' ${NumberFormat("#,###,###.##").format(cost)} ฿',
+                                                        ' ฿${NumberFormat("#,###,###.##").format(cost)}',
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -1023,7 +1117,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                     .bold),
                                                       ),
                                                       Text(
-                                                        ' ${NumberFormat("#,###,###.##").format(profit)} ฿',
+                                                        ' ฿${NumberFormat("#,###,###.##").format(profit)}',
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -1091,76 +1185,18 @@ class _DashboardPageState extends State<DashboardPage> {
                                               getTitles: (value) {
                                                 // Today
                                                 if (tabbarSelectedIndex == 0) {
-                                                  switch (value.toInt()) {
-                                                    case 0:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 1:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 2:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 3:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 4:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 5:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 6:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 7:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 8:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 9:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 10:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 11:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 12:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 13:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 14:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 15:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 16:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 17:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 18:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 19:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 20:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 21:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 22:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 23:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
-                                                    case 24:
-                                                      return '${DateFormat.Hms().format(DateTime(date.year, date.month, date.day, (date.hour)))}';
+                                                  for (value;
+                                                      value <= 24;
+                                                      value++) {
+                                                    return '${value.toInt()}:00';
                                                   }
                                                 } else if (tabbarSelectedIndex ==
                                                     1) {
                                                   // Week
-                                                  switch (value.toInt()) {
-                                                    case 0:
-                                                      return '${DateFormat.MMM().format(date.day - 42 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 42 <= 0 ? DateTime(date.year, date.month, date.day - 14) : DateTime(date.year, date.month, date.day - 42))}';
-                                                    case 1:
-                                                      return '${DateFormat.MMM().format(date.day - 35 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 35 <= 0 ? DateTime(date.year, date.month, date.day - 7) : DateTime(date.year, date.month, date.day - 35))}';
-                                                    case 2:
-                                                      return '${DateFormat.MMM().format(date.day - 28 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 28 <= 0 ? DateTime(date.year, date.month, date.day + 1) : DateTime(date.year, date.month, date.day - 28))}';
-                                                    case 3:
-                                                      return '${DateFormat.MMM().format(date.day - 21 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 21 <= 0 ? DateTime(date.year, date.month, date.day + 3) : DateTime(date.year, date.month, date.day - 21))}';
-                                                    case 4:
-                                                      return '${DateFormat.MMM().format(date.day - 14 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 14 <= 0 ? DateTime(date.year, date.month, date.day - 4) : DateTime(date.year, date.month, date.day - 14))}';
-                                                    case 5:
-                                                      return '${DateFormat.MMM().format(date.day - 7 <= 0 ? DateTime(date.year, date.month - 1, date.day) : DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(date.day - 7 <= 0 ? DateTime(date.year, date.month, date.day - 11) : DateTime(date.year, date.month, date.day - 7))}';
-                                                    case 6:
-                                                      return '${DateFormat.MMM().format(DateTime(date.year, date.month, date.day))} ${DateFormat.d().format(DateTime(date.year, date.month, date.day))}';
+                                                  for (value;
+                                                      value <= date.day;
+                                                      value++) {
+                                                    return '${DateFormat.MMM().format(DateTime(date.year, value == 0 ? date.month - 1 : date.month, date.day))} ${DateFormat.d().format(DateTime(date.year, date.month, 0 + value.toInt()))}';
                                                   }
                                                 } else if (tabbarSelectedIndex ==
                                                     2) {
@@ -1283,7 +1319,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         lineBarsData: [
                                           if (sellings.isNotEmpty)
                                             LineChartBarData(
-                                              spots: isShowSelling
+                                              spots: isShowPurchasing
                                                   ? sellings
                                                       .map((point) => FlSpot(
                                                           tabbarSelectedIndex ==
@@ -1300,26 +1336,23 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                       tabbarSelectedIndex ==
                                                                           4
                                                                   ? point.orderedDate
-                                                                          .year /
-                                                                      (date.year
-                                                                              .toDouble() /
+                                                                          .year
+                                                                          .toDouble() /
+                                                                      (date.year /
                                                                           10)
                                                                   :
                                                                   // Week
                                                                   tabbarSelectedIndex ==
                                                                           1
-                                                                      ? point.orderedDate.month <
-                                                                              date
-                                                                                  .month
-                                                                          ? (date.day - point.orderedDate.day).toDouble() /
-                                                                              8
-                                                                          : ((49 - date.day) + date.day) /
-                                                                              8
-                                                                                  .toDouble()
+                                                                      ? point
+                                                                          .orderedDate
+                                                                          .day
+                                                                          .toDouble()
                                                                       : point
                                                                           .orderedDate
                                                                           .month
                                                                           .toDouble()
+
                                                           // Month
 
                                                           ,
@@ -1336,7 +1369,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             ),
                                           if (sellings.isNotEmpty)
                                             LineChartBarData(
-                                              spots: isShowProfit
+                                              spots: isShowPurchasing
                                                   ? sellings
                                                       .map((point) => FlSpot(
                                                           tabbarSelectedIndex ==
@@ -1354,23 +1387,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                           4
                                                                   ? point.orderedDate
                                                                           .year
-                                                                          .toDouble() -2000/
-                                                                      (point.orderedDate
-                                                                          .year
-                                                                          .toDouble()-2000 /
+                                                                          .toDouble() /
+                                                                      (date.year /
                                                                           10)
                                                                   :
                                                                   // Week
                                                                   tabbarSelectedIndex ==
                                                                           1
-                                                                      ? point.orderedDate.month <
-                                                                              date
-                                                                                  .month
-                                                                          ? (date.day - point.orderedDate.day).toDouble() /
-                                                                              8
-                                                                          : ((49 - date.day) + date.day) /
-                                                                              8
-                                                                                  .toDouble()
+                                                                      ? point
+                                                                          .orderedDate
+                                                                          .day
+                                                                          .toDouble()
                                                                       : point
                                                                           .orderedDate
                                                                           .month
@@ -1386,7 +1413,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               isCurved: false,
                                               colors: [
                                                 Color.fromARGB(
-                                                    255, 40, 255, 126),
+                                                    255, 40, 255, 180)
                                               ],
                                               barWidth: 2,
                                             ),
@@ -1409,21 +1436,19 @@ class _DashboardPageState extends State<DashboardPage> {
                                                                             3 ||
                                                                         tabbarSelectedIndex ==
                                                                             4
-                                                                    ? point.orderedDate.year.toDouble() /
+                                                                    ? point.orderedDate
+                                                                            .year
+                                                                            .toDouble() /
                                                                         (date.year /
                                                                             10)
                                                                     :
                                                                     // Week
                                                                     tabbarSelectedIndex ==
                                                                             1
-                                                                        ? point.orderedDate.month <
-                                                                                date
-                                                                                    .month
-                                                                            ? (date.day - point.orderedDate.day).toDouble() /
-                                                                                8
-                                                                            : ((49 - date.day) + date.day) /
-                                                                                8
-                                                                                    .toDouble()
+                                                                        ? point
+                                                                            .orderedDate
+                                                                            .day
+                                                                            .toDouble()
                                                                         : point
                                                                             .orderedDate
                                                                             .month
@@ -1445,7 +1470,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                                     gradientFrom: Offset(0, 1),
                                                     show: true,
                                                     colors: gradientColors
-                                                        .map((e) => e.withOpacity(0.5))
+                                                        .map((e) =>
+                                                            e.withOpacity(0.5))
                                                         .toList())),
                                         ])),
                                   ),
@@ -1459,160 +1485,20 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  // sellings.isEmpty && products.isEmpty
-                  //     ? Container()
-                  //     : Container(
-                  //         height: 300,
-                  //         // decoration: BoxDecoration(
-                  //         //   boxShadow: [
-                  //         //     BoxShadow(
-                  //         //         color: Theme.of(context).colorScheme.primary,
-                  //         //         spreadRadius: 2,
-                  //         //         blurRadius: 5,
-                  //         //         offset: Offset(0, 4))
-                  //         //   ],
-                  //         //   gradient: LinearGradient(
-                  //         //     colors: [
-                  //         //       Color.fromRGBO(29, 29, 65, 1.0),
-                  //         //       Theme.of(context).backgroundColor,
-                  //         //     ],
-                  //         //     begin: Alignment.bottomLeft,
-                  //         //     end: Alignment.topRight,
-                  //         //     stops: [0.1, 0.8],
-                  //         //     tileMode: TileMode.clamp,
-                  //         //   ),
-                  //         //   borderRadius: BorderRadius.circular(20),
-                  //         // ),
-                  //         child: Column(
-                  //           children: [
-                  //             Row(
-                  //               children: [
-                  //                 Padding(
-                  //                   padding: const EdgeInsets.all(10.0),
-                  //                   child: Text(
-                  //                     "สินค้าขายดี",
-                  //                     style: TextStyle(
-                  //                         fontSize: 20, color: Colors.white),
-                  //                   ),
-                  //                 ),
-                  //               ],
-                  //             ),
-                  //             ClipRRect(
-                  //               borderRadius: BorderRadius.circular(20),
-                  //               child: SizedBox(
-                  //                 width: MediaQuery.of(context).size.width,
-                  //                 height: 220,
-                  //                 child: PageView.builder(
-                  //                     itemCount: products.length,
-                  //                     pageSnapping: true,
-                  //                     controller: _pageController,
-                  //                     onPageChanged: (page) {
-                  //                       setState(() {
-                  //                         activePage = page;
-                  //                       });
-                  //                     },
-                  //                     itemBuilder: (context, pagePosition) {
-                  //                       return Container(
-                  //                         margin: EdgeInsets.all(10),
-                  //                         child: Column(
-                  //                           children: [
-                  //                             Stack(
-                  //                               children: [
-                  //                                 ClipRRect(
-                  //                                   borderRadius:
-                  //                                       BorderRadius.circular(
-                  //                                           10),
-                  //                                   child: Container(
-                  //                                     width: 300,
-                  //                                     height: 175,
-                  //                                     child: Image.file(
-                  //                                       File(products[
-                  //                                               pagePosition]
-                  //                                           .prodImage!),
-                  //                                       fit: BoxFit.cover,
-                  //                                     ),
-                  //                                   ),
-                  //                                 ),
-                  //                                 Positioned(
-                  //                                   top: 0.0,
-                  //                                   right: 0.0,
-                  //                                   child: Container(
-                  //                                       decoration:
-                  //                                           BoxDecoration(
-                  //                                         boxShadow: [
-                  //                                           BoxShadow(
-                  //                                               color: Colors
-                  //                                                   .black
-                  //                                                   .withOpacity(
-                  //                                                       0.7),
-                  //                                               spreadRadius: 0,
-                  //                                               blurRadius: 5,
-                  //                                               offset: Offset(
-                  //                                                   0, 4))
-                  //                                         ],
-                  //                                         color:
-                  //                                             Colors.redAccent,
-                  //                                         borderRadius:
-                  //                                             BorderRadius
-                  //                                                 .circular(10),
-                  //                                       ),
-                  //                                       child: Padding(
-                  //                                         padding:
-                  //                                             const EdgeInsets
-                  //                                                 .all(3.0),
-                  //                                         child: Row(
-                  //                                           children: [
-                  //                                             Icon(
-                  //                                               Icons
-                  //                                                   .sell_rounded,
-                  //                                               color: Colors
-                  //                                                   .white,
-                  //                                               size: 15,
-                  //                                             ),
-                  //                                             Text(
-                  //                                               'ขายดี',
-                  //                                               style:
-                  //                                                   TextStyle(
-                  //                                                 fontSize: 9,
-                  //                                                 color: Colors
-                  //                                                     .white,
-                  //                                               ),
-                  //                                             )
-                  //                                           ],
-                  //                                         ),
-                  //                                       )),
-                  //                                 )
-                  //                               ],
-                  //                             ),
-                  //                             Text(
-                  //                                 '${products[pagePosition].prodName}'),
-                  //                           ],
-                  //                         ),
-                  //                       );
-                  //                     }),
-                  //               ),
-                  //             ),
-                  //             Row(
-                  //                 mainAxisAlignment: MainAxisAlignment.center,
-                  //                 children: productIndicators(
-                  //                     products.length, activePage))
-                  //           ],
-                  //         ),
-                  //       ),
-                  const SizedBox(
-                    height: 10,
-                  ),
                   tabbarSelectedIndex == 0
                       ? sellings.isNotEmpty
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: Text(
                                     "ขายวันนี้",
                                     style: TextStyle(
-                                        fontSize: 20, color: Colors.white),
+                                        fontSize: 20,
+                                        color: themeProvider.isDark
+                                            ? Colors.white
+                                            : Colors.black),
                                   ),
                                 ),
                               ],
@@ -1705,7 +1591,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                     color: Colors.white),
                                               ),
                                               Text(
-                                                '${NumberFormat("#,###.##").format(selling.total)} ฿',
+                                                '฿${NumberFormat("#,###.##").format(selling.total)}',
                                                 style: TextStyle(
                                                   fontSize: 20,
                                                   color: Colors.white,

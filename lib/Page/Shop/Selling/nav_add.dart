@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
 import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
@@ -14,6 +15,7 @@ import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/Selling.dart';
 import 'package:warehouse_mnmt/Page/Model/Selling_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_choose_shipping.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_edit_deliveryCompany.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_chooseCustomer.dart';
@@ -65,21 +67,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   DeliveryCompanyModel company =
       DeliveryCompanyModel(dcName: 'ระบุการจัดส่ง', dcisRange: false);
   _addSellingItem(SellingItemModel product) {
-    // Need to be Fixed
-    // if (carts.isNotEmpty) {
-    //   for (var item in carts) {
-    //     if (product.prodModelId == item.prodModelId) {
-    //       final newItem = item.copy(amount: item.amount + product.amount);
-    //       carts.add(newItem);
-    //       carts.remove(item);
-    //       setState(() {});
-    //     } else {
-    //       carts.add(product);
-    //     }
-    //   }
-    // } else {
-    //   carts.add(product);
-    // }
     carts.add(product);
   }
 
@@ -122,6 +109,9 @@ class _SellingNavAddState extends State<SellingNavAdd> {
   }
 
   dialogAlertWeightNotInRange(DeliveryCompanyModel company) async {
+    List<DeliveryRateModel> deliveryRates = [];
+    deliveryRates = await DatabaseManager.instance
+        .readDeliveryRatesWHEREdcId(widget.shop.dcId!);
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -138,7 +128,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ต้องเพิ่มช่วงน้ำของ ?',
+                      'ต้องเพิ่มช่วงน้ำหนักของ ',
                       style: TextStyle(color: Colors.white),
                     ),
                     Text(
@@ -150,8 +140,8 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 ),
               ),
             ),
-            content: const Text(
-              '"น้ำหนักรวม" ไม่อยู่ในช่วง',
+            content: Text(
+              '"น้ำหนักรวม" = ${totalWeight} กรัม ไม่อยู่ในช่วง \n ช่วงสูงสุดคือ ${deliveryRates.last.weightRange}',
               style: TextStyle(color: Colors.grey),
             ),
             actions: <Widget>[
@@ -290,6 +280,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -335,15 +326,17 @@ class _SellingNavAddState extends State<SellingNavAdd> {
         child: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(children: [
@@ -410,7 +403,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 children: [
                   Text(
                     "ลูกค้า",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -494,7 +487,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 children: [
                   Text(
                     "รายการสินค้า",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -823,7 +816,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                                                       ],
                                                                     ),
                                                                     Text(
-                                                                        'ราคา ${NumberFormat("#,###.##").format(selling.total)}',
+                                                                        'รวม ฿${NumberFormat("#,###.##").format(selling.total)}',
                                                                         style: const TextStyle(
                                                                             color:
                                                                                 Colors.grey,
@@ -1009,7 +1002,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     child: Text(
                         company?.dcName == 'รับสินค้าเอง'
                             ? 'ไม่คิดค่าจัดส่ง'
-                            : '${NumberFormat("#,###,###,###").format(shippingCost)}',
+                            : '฿${NumberFormat("#,###,###,###").format(shippingCost)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -1020,92 +1013,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
               const SizedBox(
                 height: 10,
               ),
-              // Container of ค่าจัดส่ง
-              // Container(
-              //   padding: const EdgeInsets.all(5),
-              //   decoration: BoxDecoration(
-              //       color: const Color.fromRGBO(56, 48, 77, 1.0),
-              //       borderRadius: BorderRadius.circular(15)),
-              //   width: 400,
-              //   height: 70,
-              //   child: TextField(
-              //       onChanged: ((value) {
-              //         if (shipPricController.text.isNotEmpty &&
-              //             shipPricController.text != null &&
-              //             shipPricController.text != '') {
-              //           _calculate(
-              //               totalPrice,
-              //               amount,
-              //               double.parse(shipPricController.text
-              //                       .replaceAll(RegExp('[^0-9]'), ''))
-              //                   .toInt(),
-              //               noShippingPrice,
-              //               vat7percent,
-              //               noVatPrice,
-              //               discountPercent,
-              //               discountPercentPrice,
-              //               profit,
-              //               totalWeight,
-              //               _shipping);
-              //         } else {
-              //           shippingCost = 0;
-              //         }
-              //       }),
-              //       textAlign: TextAlign.end,
-              //       keyboardType: TextInputType.number,
-              //       onSubmitted: (context) {
-              //         // if (shipPricController.text.isEmpty == true) {
-              //         //   _calculateShip(0.0);
-              //         // } else {
-              //         //   _calculateShip(double.parse(shipPricController.text));
-              //         // }
-              //       },
-              //       //-----------------------------------------------------
-              //       style: const TextStyle(color: Colors.grey),
-              //       controller: shipPricController,
-              //       decoration: InputDecoration(
-              //         filled: true,
-              //         fillColor: Colors.transparent,
-              //         border: const OutlineInputBorder(
-              //             borderRadius: BorderRadius.all(Radius.circular(10)),
-              //             borderSide: BorderSide.none),
-              //         hintText: "ใส่ค่าจัดส่ง",
-              //         hintStyle:
-              //             const TextStyle(color: Colors.grey, fontSize: 14),
-              //         prefixIcon:
-              //             const Icon(Icons.local_shipping, color: Colors.white),
-              //         suffixIcon: !shipPricController.text.isEmpty
-              //             ? IconButton(
-              //                 onPressed: () {
-              //                   shippingCost = 0;
-              //                   shipPricController.clear();
-              //                   _calculate(
-              //                       totalPrice,
-              //                       amount,
-              //                       shippingCost,
-              //                       noShippingPrice,
-              //                       vat7percent,
-              //                       noVatPrice,
-              //                       discountPercent,
-              //                       discountPercentPrice,
-              //                       profit,
-              //                       totalWeight,
-              //                       _shipping);
-              //                 },
-              //                 icon: const Icon(
-              //                   Icons.close_sharp,
-              //                   color: Colors.white,
-              //                 ),
-              //               )
-              //             : null,
-              //       )),
-              // ),
-              // Container of ค่าจัดส่ง
 
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              // Container of ราคาสุทธิ
               Container(
                 decoration: BoxDecoration(
                     color: const Color.fromRGBO(56, 48, 77, 1.0),
@@ -1123,7 +1031,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     padding: const EdgeInsets.all(20.0),
                     child: Text(
                         //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
-                        '${NumberFormat("#,###.##").format(noShippingPrice - vat7percent)}',
+                        '฿${NumberFormat("#,###.##").format(noShippingPrice - vat7percent)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -1151,7 +1059,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Text(
-                        '${NumberFormat("#,###.##").format(vat7percent)}',
+                        '฿${NumberFormat("#,###.##").format(vat7percent)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -1179,7 +1087,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Text(
-                        '${NumberFormat("#,###.##").format(noShippingPrice)}',
+                        '฿${NumberFormat("#,###.##").format(noShippingPrice)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -1205,7 +1113,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: Text('${NumberFormat("#,###.##").format(profit)}',
+                    child: Text('฿${NumberFormat("#,###.##").format(profit)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -1364,7 +1272,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                               Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: Text(
-                                    '(${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                    '(฿${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12, color: Colors.grey)),
@@ -1382,7 +1290,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 const Icon(Icons.local_shipping,
                                     color: Colors.greenAccent, size: 15),
                                 Text(
-                                    ' + (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                    ' + (฿  ${NumberFormat("#,###,###,###.##").format(shippingCost)})',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12,
@@ -1402,7 +1310,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                                 Padding(
                                   padding: const EdgeInsets.all(5.0),
                                   child: Text(
-                                      '(-${NumberFormat("#,###,###,###.##").format(discountPercentPrice)})',
+                                      '(-฿${NumberFormat("#,###,###,###.##").format(discountPercentPrice)})',
                                       textAlign: TextAlign.left,
                                       style: const TextStyle(
                                           fontSize: 12,
@@ -1416,7 +1324,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                          '${NumberFormat("#,###,###,###.##").format(showtotalPrice + shippingCost)}',
+                          '฿${NumberFormat("#,###,###,###.##").format(showtotalPrice + shippingCost)}',
                           textAlign: TextAlign.left,
                           style: const TextStyle(
                               fontSize: 15, color: Colors.grey)),
@@ -1429,7 +1337,7 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                 children: [
                   Text(
                     "คำร้องขอพิเศษ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -1476,11 +1384,6 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                     onTap: () {
                       setState(() {
                         isDelivered = !isDelivered;
-                        if (isDelivered == false) {
-                          print('ยังไม่ได้รับสินค้า');
-                        } else {
-                          print('ได้รับสินค้าแล้ว');
-                        }
                       });
                     },
                     child: Container(
@@ -1514,12 +1417,11 @@ class _SellingNavAddState extends State<SellingNavAdd> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: Colors.white,
                         ),
                       ),
                       Text(
                         "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
-                        style: TextStyle(fontSize: 15, color: Colors.white),
+                        style: TextStyle(fontSize: 15),
                       ),
                     ],
                   ),

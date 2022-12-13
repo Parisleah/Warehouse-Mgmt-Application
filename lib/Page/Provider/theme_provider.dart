@@ -24,7 +24,7 @@ const scafBG_light_Color = LinearGradient(
 // Color.fromRGBO(31, 31, 31, 1.0),
 
 // New
-// Color.fromRGBO(76, 58, 151, 1.0),
+// Color. fromRGBO(76, 58, 151, 1.0),
 //     Color.fromARGB(255, 47, 41, 81),
 
 const scafBG_dark_Color = LinearGradient(
@@ -41,10 +41,10 @@ const tabbarGred = LinearGradient(
   end: Alignment.bottomCenter,
 );
 // Dark
-const dark_primary_accent_color = Color.fromARGB(255, 101, 82, 150);
+const dark_primary_accent_color = Color.fromARGB(255, 143, 121, 199);
 const dark_secondary_accent_color = Color.fromARGB(255, 106, 81, 170);
 // Light
-const light_primary_accent_color = Color.fromARGB(255, 72, 179, 127);
+const light_primary_accent_color = Color.fromARGB(255, 143, 121, 199);
 
 class MyThemes {
   static final darkTheme = ThemeData(
@@ -141,25 +141,29 @@ class MyThemes {
     // Main Colors
     scaffoldBackgroundColor: Color.fromARGB(255, 19, 19, 44),
     colorScheme: const ColorScheme.dark(
-        secondary: const Color.fromRGBO(56, 48, 77, 1.0),
-        surface: light_primary_accent_color,
-        // Search TextField
-        background: Color.fromARGB(255, 22, 22, 50),
-        error: light_primary_accent_color,
-        // Elevated Button Theme Text Color
-        onPrimary: Colors.white,
-        onSecondary: Color.fromRGBO(29, 29, 65, 1.0),
-        onSurface: light_primary_accent_color,
-        onBackground: light_primary_accent_color,
-        onError: light_primary_accent_color,
-        brightness: Brightness.light,
-        primary: Color.fromARGB(255, 16, 16, 41)),
+      secondary: const Color.fromRGBO(56, 48, 77, 1.0),
+      surface: light_primary_accent_color,
+      // Search TextField
+      background: Color.fromARGB(255, 22, 22, 50),
+      error: light_primary_accent_color,
+      // Elevated Button Theme Text Color
+      onPrimary: Colors.white,
+      onSecondary: Color.fromRGBO(29, 29, 65, 1.0),
+      onSurface: light_primary_accent_color,
+      onBackground: light_primary_accent_color,
+      onError: light_primary_accent_color,
+      brightness: Brightness.light,
+      primary: Color.fromRGBO(10, 10, 10, 1.0),
+    ),
 
     backgroundColor: light_primary_accent_color,
 
     // Text Theme
     textTheme: const TextTheme(
-      headline2: TextStyle(color: light_primary_accent_color, fontSize: 20),
+      headline2: TextStyle(
+        color: light_primary_accent_color,
+        fontSize: 20,
+      ),
     ),
 
     // Font
@@ -174,7 +178,7 @@ class MyThemes {
           fontFamily: 'NotoSansThai',
           textBaseline: TextBaseline.alphabetic),
       elevation: 10.0,
-      backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+      backgroundColor: Color.fromARGB(255, 14, 14, 14),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(30))),
     ),
@@ -200,7 +204,7 @@ class MyThemes {
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       unselectedItemColor: Colors.white,
       selectedItemColor: light_primary_accent_color,
-      backgroundColor: const Color.fromRGBO(30, 30, 65, 1.0),
+      backgroundColor: Color.fromARGB(255, 14, 14, 14),
       type: BottomNavigationBarType.fixed,
     ),
     switchTheme: SwitchThemeData(

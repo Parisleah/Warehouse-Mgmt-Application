@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
@@ -64,12 +65,15 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(210),
+        preferredSize: const Size.fromHeight(190),
         child: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: themeProvider.isDark
+              ? Colors.transparent
+              : Theme.of(context).appBarTheme.backgroundColor,
           elevation: 0,
           automaticallyImplyLeading: false,
           title: Row(
@@ -112,13 +116,18 @@ class _ProductPageState extends State<ProductPage> {
                           LengthLimitingTextInputFormatter(100),
                         ],
                         controller: searchProductController,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 15),
+                        style: TextStyle(
+                            color: themeProvider.isDark
+                                ? Colors.white
+                                : Colors.black,
+                            fontSize: 15),
                         cursorColor: primary_color,
                         decoration: InputDecoration(
                           // labelText: title,
                           filled: true,
-                          fillColor: Theme.of(context).colorScheme.background,
+                          fillColor: themeProvider.isDark
+                              ? Theme.of(context).colorScheme.background
+                              : Theme.of(context).colorScheme.onPrimary,
                           border: const OutlineInputBorder(
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(20),
@@ -138,8 +147,10 @@ class _ProductPageState extends State<ProductPage> {
                           hintText: 'ชื่อสินค้า',
                           hintStyle:
                               const TextStyle(color: Colors.grey, fontSize: 14),
-                          prefixIcon:
-                              const Icon(Icons.search, color: Colors.white),
+                          prefixIcon: Icon(Icons.search,
+                              color: themeProvider.isDark
+                                  ? Colors.white
+                                  : Color.fromRGBO(14, 14, 14, 1.0)),
                           suffixIcon: searchProductController.text.isEmpty
                               ? Container(
                                   width: 0,
@@ -149,9 +160,11 @@ class _ProductPageState extends State<ProductPage> {
                                     searchProductController.clear();
                                     refreshPage();
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.close_sharp,
-                                    color: Colors.white,
+                                    color: themeProvider.isDark
+                                        ? Colors.white
+                                        : Color.fromRGBO(14, 14, 14, 1.0),
                                   ),
                                 ),
                         )),
@@ -219,9 +232,11 @@ class _ProductPageState extends State<ProductPage> {
                                                   .size
                                                   .width /
                                               1.5),
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .background,
+                                          color: themeProvider.isDark
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .background
+                                              : Color.fromRGBO(10, 10, 10, 1.0),
                                           child: ListView.builder(
                                               scrollDirection: Axis.horizontal,
                                               padding: EdgeInsets.zero,
@@ -300,7 +315,17 @@ class _ProductPageState extends State<ProductPage> {
       body: SingleChildScrollView(
         child: Container(
           height: (MediaQuery.of(context).size.height * 1.05),
-          decoration: BoxDecoration(gradient: scafBG_dark_Color),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark == true
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -338,10 +363,8 @@ class _ProductPageState extends State<ProductPage> {
                               child: Container(
                                 height:
                                     MediaQuery.of(context).size.height * 0.62,
-                                width: 440.0,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(14),
-                                  // color: Color.fromRGBO(37, 35, 53, 1.0),
                                 ),
                                 child: RefreshIndicator(
                                   onRefresh: refreshPage,
@@ -479,9 +502,12 @@ class _ProductPageState extends State<ProductPage> {
                                                     BorderRadius.circular(10),
                                                 child: Container(
                                                   decoration: BoxDecoration(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
+                                                    color: themeProvider.isDark
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .primary
+                                                        : Color.fromRGBO(
+                                                            10, 10, 10, 1.0),
                                                   ),
                                                   height: 90,
                                                   width: 400,
@@ -545,14 +571,14 @@ class _ProductPageState extends State<ProductPage> {
                                                               ),
                                                             ),
                                                             Text(
-                                                                'ต้นทุน (บาท) ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
+                                                                'ต้นทุน ฿${NumberFormat("#,###.##").format(_minCost)} - ฿${NumberFormat("#,###.##").format(_maxCost)}',
                                                                 style: const TextStyle(
                                                                     color: Colors
                                                                         .grey,
                                                                     fontSize:
                                                                         12)),
                                                             Text(
-                                                                'ราคาขาย (บาท) ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
+                                                                'ราคาขาย ฿${NumberFormat("#,###.##").format(_minPrice)} - ฿${NumberFormat("#,###.##").format(_maxPrice)}',
                                                                 style: const TextStyle(
                                                                     color: Colors
                                                                         .white,

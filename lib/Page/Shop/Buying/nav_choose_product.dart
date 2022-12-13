@@ -5,9 +5,11 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 
 import '../../../db/database.dart';
 import '../../Model/ProductCategory.dart';
@@ -67,6 +69,7 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -90,12 +93,6 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
               baselineType: TextBaseline.alphabetic,
               child: Container(
                 padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .background
-                        .withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(15)),
                 height: 70,
                 child: TextFormField(
                     keyboardType: TextInputType.text,
@@ -114,7 +111,9 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                     decoration: InputDecoration(
                       // labelText: title,
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.background,
+                      fillColor: themeProvider.isDark
+                          ? Theme.of(context).colorScheme.background
+                          : Theme.of(context).colorScheme.onPrimary,
                       border: const OutlineInputBorder(
                           borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(20),
@@ -134,7 +133,10 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                       hintText: 'ชื่อสินค้า',
                       hintStyle:
                           const TextStyle(color: Colors.grey, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Colors.white),
+                      prefixIcon: Icon(Icons.search,
+                          color: themeProvider.isDark
+                              ? Colors.white
+                              : Color.fromRGBO(14, 14, 14, 1.0)),
                       suffixIcon: searchController.text.isEmpty
                           ? Container(
                               width: 0,
@@ -153,7 +155,9 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
               ),
             ),
           ),
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: themeProvider.isDark
+              ? Theme.of(context).colorScheme.onSecondary
+              : Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
@@ -161,15 +165,17 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
           height: (MediaQuery.of(context).size.height),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Column(children: [
             SizedBox(height: 180),
             // ListView
@@ -315,12 +321,12 @@ class _BuyiingNavChooseProductState extends State<BuyiingNavChooseProduct> {
                                                 ),
                                               ),
                                               Text(
-                                                  'ต้นทุน (บาท) ${NumberFormat("#,###.##").format(_minCost)} - ${NumberFormat("#,###.##").format(_maxCost)}',
+                                                  'ต้นทุน ฿${NumberFormat("#,###.##").format(_minCost)} - ฿${NumberFormat("#,###.##").format(_maxCost)}',
                                                   style: const TextStyle(
                                                       color: Colors.grey,
                                                       fontSize: 12)),
                                               Text(
-                                                  'ราคาขาย (บาท) ${NumberFormat("#,###.##").format(_minPrice)} - ${NumberFormat("#,###.##").format(_maxPrice)}',
+                                                  'ราคาขาย ฿${NumberFormat("#,###.##").format(_minPrice)} - ฿${NumberFormat("#,###.##").format(_maxPrice)}',
                                                   style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12)),

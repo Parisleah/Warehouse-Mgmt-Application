@@ -259,6 +259,7 @@ class _OtpScreenState extends State<OtpScreen> {
         image: widget.profile.image,
         loginDateTime: DateTime.now(),
         isDisable: false,
+        isDarkTheme: true,
         pin: pin);
     await DatabaseManager.instance.updateProfile(profile);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

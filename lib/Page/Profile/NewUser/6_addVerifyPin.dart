@@ -273,6 +273,7 @@ class _OtpScreenState extends State<OtpScreen> {
         image: widget.profileImg,
         loginDateTime: null,
         isDisable: false,
+        isDarkTheme: true,
         pin: pin);
     await DatabaseManager.instance.createProfile(profile);
     int count = 0;

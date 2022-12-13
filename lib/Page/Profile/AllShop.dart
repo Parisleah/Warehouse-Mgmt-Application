@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Shop.dart';
 import 'package:warehouse_mnmt/Page/Profile/1_addShopName.dart';
 import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
@@ -45,12 +46,14 @@ class _AllShopPageState extends State<AllShopPage> {
     setState(() {});
   }
 
-  showAlertDeleteShop(Shop shop) async {
+  showAlertDeleteShop(Shop shop, themeProvider) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: themeProvider.isDark
+                ? Theme.of(context).colorScheme.onSecondary
+                : Theme.of(context).colorScheme.primary,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0)), //this right here
             child: SizedBox(
@@ -174,6 +177,7 @@ class _AllShopPageState extends State<AllShopPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
         // ignore: prefer_const_literals_to_create_immutables
         // Blackgroud
@@ -305,6 +309,7 @@ class _AllShopPageState extends State<AllShopPage> {
                                     await Navigator.of(context)
                                         .push(MaterialPageRoute(
                                             builder: (context) => MyHomePage(
+                                                  profile: widget.profile,
                                                   shop: shop,
                                                 )));
                                     setState(() {
@@ -427,7 +432,8 @@ class _AllShopPageState extends State<AllShopPage> {
                                                         IconButton(
                                                             onPressed: () {
                                                               showAlertDeleteShop(
-                                                                  shop);
+                                                                  shop,
+                                                                  themeProvider);
                                                             },
                                                             icon: const Icon(
                                                               Icons

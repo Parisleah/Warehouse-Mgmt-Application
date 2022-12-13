@@ -8,6 +8,7 @@ class ProfileFields {
     image,
     loginDateTime,
     isDisable,
+    isDarkTheme,
     pin
   ];
 
@@ -17,6 +18,7 @@ class ProfileFields {
   static final String image = 'image';
   static final String loginDateTime = 'loginDateTime';
   static final String isDisable = 'isDisable';
+  static final String isDarkTheme = 'isDarkTheme';
   static final String pin = 'pin';
 }
 
@@ -27,6 +29,7 @@ class Profile {
   final String image;
   final DateTime? loginDateTime;
   final bool isDisable;
+  final bool isDarkTheme;
   final String pin;
 
   Profile({
@@ -36,6 +39,7 @@ class Profile {
     required this.image,
     this.loginDateTime,
     required this.isDisable,
+    required this.isDarkTheme,
     required this.pin,
   });
   Profile copy({
@@ -45,6 +49,7 @@ class Profile {
     String? image,
     DateTime? loginDateTime,
     bool? isDisable,
+    bool? isDarkTheme,
     String? pin,
   }) =>
       Profile(
@@ -54,6 +59,7 @@ class Profile {
         image: image ?? this.image,
         loginDateTime: loginDateTime ?? this.loginDateTime,
         isDisable: isDisable ?? this.isDisable,
+        isDarkTheme: isDarkTheme ?? this.isDarkTheme,
         pin: pin ?? this.pin,
       );
   static Profile fromJson(Map<String, Object?> json) => Profile(
@@ -65,6 +71,7 @@ class Profile {
             ? null
             : DateTime.parse(json[ProfileFields.loginDateTime] as String),
         isDisable: json[ProfileFields.isDisable] == 1,
+        isDarkTheme: json[ProfileFields.isDarkTheme] == 1,
         pin: json[ProfileFields.pin] as String,
       );
   Map<String, Object?> toJson() => {
@@ -74,6 +81,7 @@ class Profile {
         ProfileFields.image: image,
         ProfileFields.loginDateTime: loginDateTime?.toIso8601String(),
         ProfileFields.isDisable: isDisable ? 1 : 0,
+        ProfileFields.isDarkTheme: isDarkTheme ? 1 : 0,
         ProfileFields.pin: pin,
       };
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:warehouse_mnmt/Page/Model/Customer.dart';
 import 'package:warehouse_mnmt/Page/Model/CustomerAdress.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
@@ -12,6 +13,7 @@ import 'package:warehouse_mnmt/Page/Model/Product.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/Selling.dart';
 import 'package:warehouse_mnmt/Page/Model/Selling_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 import 'package:warehouse_mnmt/Page/Shop/Buying/nav_choose_shipping.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/selling_nav_chooseCustomer.dart';
 import 'package:warehouse_mnmt/Page/Shop/Selling/nav_choose_product.dart';
@@ -132,6 +134,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -224,7 +227,9 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 ),
               ],
               offset: Offset(0, 80),
-              color: Theme.of(context).colorScheme.onSecondary,
+              color: themeProvider.isDark
+                  ? Theme.of(context).colorScheme.onSecondary
+                  : Theme.of(context).colorScheme.primary,
               elevation: 2,
             ),
           ],
@@ -245,22 +250,26 @@ class _SellingNavEditState extends State<SellingNavEdit> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: themeProvider.isDark
+              ? Theme.of(context).colorScheme.onSecondary
+              : Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
         child: Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(29, 29, 65, 1.0),
-              Color.fromRGBO(31, 31, 31, 1.0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
+          decoration: BoxDecoration(
+              gradient: themeProvider.isDark
+                  ? scafBG_dark_Color
+                  : LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 219, 219, 219),
+                        Color.fromARGB(255, 219, 219, 219),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(children: [
@@ -278,7 +287,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                     children: [
                       Icon(
                         Icons.calendar_month,
-                        color: Colors.white,
                       ),
                       Spacer(),
                       Text(
@@ -297,7 +305,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 children: [
                   Text(
                     "ลูกค้า",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -320,17 +328,20 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                           children: [
                             Text(widget.customer.cName,
                                 style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white)),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                )),
                             SizedBox(
                               width: 10,
                             ),
-                            Text(widget.customerAddress!.cPhone,
+                            Text(
+                                widget.customerAddress!.cPhone.replaceAllMapped(
+                                    RegExp(r'(\d{3})(\d{3})(\d+)'),
+                                    (Match m) => "${m[1]}-${m[2]}-${m[3]}"),
                                 style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey)),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                )),
                           ],
                         ),
                         Column(
@@ -352,7 +363,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 children: [
                   Text(
                     "รายการสินค้า",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -415,9 +426,13 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                               child: Container(
                                                 height: 80,
                                                 width: 400,
-                                                color: Color.fromRGBO(
-                                                        56, 54, 76, 1.0)
-                                                    .withOpacity(0.4),
+                                                color: themeProvider.isDark
+                                                    ? Color.fromRGBO(
+                                                            56, 54, 76, 1.0)
+                                                        .withOpacity(0.4)
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
                                                 child: Row(
                                                   children: <Widget>[
                                                     Container(
@@ -517,7 +532,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                                             ],
                                                           ),
                                                           Text(
-                                                              'ราคา ${NumberFormat("#,###.##").format(selling.total)}',
+                                                              'รวม ฿${NumberFormat("#,###.##").format(selling.total)}',
                                                               style: const TextStyle(
                                                                   color: Colors
                                                                       .grey,
@@ -576,7 +591,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                             children: [
                               Text(
                                 'น้ำหนักรวม ',
-                                style: const TextStyle(color: Colors.white),
                               ),
                               Text(
                                   '${NumberFormat("#,###.##").format(totalWeight)}',
@@ -588,12 +602,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                                       fontWeight: FontWeight.bold)),
                               Text(
                                 ' กรัม',
-                                style: const TextStyle(color: Colors.white),
                               ),
                               const Spacer(),
                               Text(
                                 'ทั้งหมด ',
-                                style: const TextStyle(color: Colors.white),
                               ),
                               Container(
                                 decoration: BoxDecoration(
@@ -612,7 +624,6 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                               ),
                               Text(
                                 'รายการ ',
-                                style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           )
@@ -627,7 +638,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 children: [
                   Text(
                     "สรุปรายการ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -639,12 +650,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: Text("การจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    child: Text("การจัดส่ง", style: TextStyle(fontSize: 15)),
                   ),
                   company?.dcisRange == false
-                      ? Text(' (อัตราคงที่)',
-                          style: TextStyle(fontSize: 15, color: Colors.grey))
+                      ? Text(' (อัตราคงที่)', style: TextStyle(fontSize: 15))
                       : Container(),
                   const Spacer(),
                   Container(
@@ -672,11 +681,10 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   const Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: Text("ค่าจัดส่ง",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    child: Text("ค่าจัดส่ง", style: TextStyle(fontSize: 15)),
                   ),
                   const Spacer(),
-                  Text('${NumberFormat("#,###.##").format(shippingCost)}',
+                  Text('฿${NumberFormat("#,###.##").format(shippingCost)}',
                       style: TextStyle(fontSize: 15, color: Colors.grey)),
                 ]),
               ),
@@ -696,14 +704,13 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: const Text("ราคาสินค้า",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                        style: TextStyle(fontSize: 15)),
                   ),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: Text(
-                        //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
-                        '${NumberFormat("#,###.##").format(noShippingPrice - noShippingPrice * 7 / 100)}',
+                        '฿${NumberFormat("#,###.##").format(noShippingPrice - noShippingPrice * 7 / 100)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -721,14 +728,14 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: const Text("ภาษี (7%)",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    child:
+                        const Text("ภาษี (7%)", style: TextStyle(fontSize: 15)),
                   ),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: Text(
-                        '${NumberFormat("#,###.##").format(noShippingPrice * 7 / 100)}',
+                        '฿${NumberFormat("#,###.##").format(noShippingPrice * 7 / 100)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -749,14 +756,13 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: const Text("ราคาสินค้า + ภาษี (7%)",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                        style: TextStyle(fontSize: 15)),
                   ),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: Text(
-                        //หัก 7%(${NumberFormat("#,###.##").format(noVatPrice)})
-                        '${NumberFormat("#,###.##").format(noShippingPrice)}',
+                        '฿${NumberFormat("#,###.##").format(noShippingPrice)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -773,8 +779,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: Text("ส่วนลด ",
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
+                    child: Text("ส่วนลด ", style: TextStyle(fontSize: 15)),
                   ),
                   Spacer(),
                   Padding(
@@ -799,9 +804,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                     padding: const EdgeInsets.only(left: 10),
                     child: const Text("ราคารวมสุทธิ ",
                         style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
+                            fontSize: 15, fontWeight: FontWeight.bold)),
                   ),
                   if (products.length != 0)
                     Column(
@@ -809,15 +812,13 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.shopping_cart_rounded,
-                                color: Colors.white, size: 15),
+                            const Icon(Icons.shopping_cart_rounded, size: 15),
                             Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: Text(
-                                  'สินค้า (${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
+                                  'สินค้า (฿${NumberFormat("#,###,###,###.##").format(noShippingPrice)})',
                                   textAlign: TextAlign.left,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
+                                  style: const TextStyle(fontSize: 12)),
                             ),
                           ],
                         ),
@@ -829,7 +830,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                               Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: Text(
-                                    '+ (${NumberFormat("#,###,###,###.##").format(shippingCost)})',
+                                    '+ (฿${NumberFormat("#,###,###,###.##").format(shippingCost)})',
                                     textAlign: TextAlign.left,
                                     style: const TextStyle(
                                         fontSize: 12,
@@ -849,7 +850,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                             Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: Text(
-                                  '(-${NumberFormat("#,###,###,###.##").format(noShippingPrice * discountPercent / 100)})',
+                                  '-(฿${NumberFormat("#,###,###,###.##").format(noShippingPrice * discountPercent / 100)})',
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.redAccent)),
@@ -862,7 +863,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Text(
-                        '${NumberFormat("#,###,###,###.##").format(showtotalPrice + shippingCost)}',
+                        '฿${NumberFormat("#,###,###,###.##").format(showtotalPrice + shippingCost)}',
                         textAlign: TextAlign.left,
                         style:
                             const TextStyle(fontSize: 15, color: Colors.grey)),
@@ -874,7 +875,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 children: [
                   Text(
                     "คำร้องขอพิเศษ",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -884,7 +885,7 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                 width: 400,
                 height: 70,
                 child: Text(widget.selling.speacialReq!,
-                    style: TextStyle(fontSize: 15, color: Colors.white)),
+                    style: TextStyle(fontSize: 15)),
               ),
               // Container of คำร้องขอพิเศษ
               Row(
@@ -939,17 +940,23 @@ class _SellingNavEditState extends State<SellingNavEdit> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color:
-                              isDelivered == true ? Colors.grey : Colors.white,
+                          color: isDelivered == true
+                              ? Colors.grey
+                              : themeProvider.isDark
+                                  ? Colors.white
+                                  : Colors.black,
                         ),
                       ),
                       Text(
                         "(สินค้าคงเหลือจะได้รับการปรับปรุง)",
                         style: TextStyle(
-                            fontSize: 15,
-                            color: isDelivered == true
-                                ? Colors.grey
-                                : Colors.white),
+                          fontSize: 15,
+                          color: isDelivered == true
+                              ? Colors.grey
+                              : themeProvider.isDark
+                                  ? Colors.white
+                                  : Colors.black,
+                        ),
                       ),
                     ],
                   ),

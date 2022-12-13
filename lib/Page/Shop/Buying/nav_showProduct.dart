@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:provider/provider.dart';
 
 import 'package:warehouse_mnmt/Page/Component/SearchBox.dart';
 import 'package:warehouse_mnmt/Page/Component/TextField/CustomTextField.dart';
@@ -15,6 +16,7 @@ import 'package:warehouse_mnmt/Page/Model/ProductCategory.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductLot.dart';
 import 'package:warehouse_mnmt/Page/Model/ProductModel.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing_item.dart';
+import 'package:warehouse_mnmt/Page/Provider/theme_provider.dart';
 
 import '../../../db/database.dart';
 import '../../Model/Product.dart';
@@ -130,6 +132,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
@@ -157,23 +160,26 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
           actions: [
             // ?
           ],
-          backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+          backgroundColor: themeProvider.isDark
+              ? Theme.of(context).colorScheme.onSecondary
+              : Theme.of(context).colorScheme.primary,
         ),
       ),
       body: SingleChildScrollView(
         child: Container(
-            // height: (MediaQuery.of(context).size.height),
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(29, 29, 65, 1.0),
-                Color.fromRGBO(31, 31, 31, 1.0),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            )),
+            decoration: BoxDecoration(
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 219, 219, 219),
+                          Color.fromARGB(255, 219, 219, 219),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -230,16 +236,16 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                   Text(
                     widget.product.prodDescription!,
                     style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey),
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                   Text(
                     "คงเหลือสินค้าทั้งหมด ${NumberFormat("#,###").format(widget.productTotalAmount)} ชิ้น",
                     style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey),
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                   SizedBox(
                     height: 10,
@@ -395,14 +401,14 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                             width: 10,
                                                           ),
                                                           Text(
-                                                              'ต้นทุน ${NumberFormat("#,###.##").format(item.cost)}',
+                                                              'ต้นทุน ฿${NumberFormat("#,###.##").format(item.cost)}',
                                                               style: const TextStyle(
                                                                   color: Colors
                                                                       .grey,
                                                                   fontSize:
                                                                       12)),
                                                           Text(
-                                                              ' ราคา ${NumberFormat("#,###.##").format(item.price)}',
+                                                              'ราคาขาย ฿${NumberFormat("#,###.##").format(item.price)}',
                                                               style: const TextStyle(
                                                                   color: Colors
                                                                       .white,
@@ -550,8 +556,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                           children: [
                             Text(
                               "กำหนดจำนวน",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
+                              style: TextStyle(fontSize: 20),
                             ),
                             Container(
                               padding: const EdgeInsets.all(5),
@@ -597,8 +602,6 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                             selectedItems.remove(indItem);
                                             amountControllers.removeAt(found);
                                           }
-                                          print(
-                                              'Controller Length : ${amountControllers.length}');
 
                                           setState(() {});
                                         },
@@ -659,7 +662,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                           width: 10,
                                                         ),
                                                         Text(
-                                                            'ต้นทุน ${NumberFormat("#,###.##").format(indItem.cost)}',
+                                                            'ต้นทุน ฿${NumberFormat("#,###.##").format(indItem.cost)}',
                                                             style:
                                                                 const TextStyle(
                                                                     color: Colors
@@ -667,7 +670,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                                     fontSize:
                                                                         12)),
                                                         Text(
-                                                            ' ราคา ${NumberFormat("#,###.##").format(indItem.price)}',
+                                                            ' ราคาขาย ฿${NumberFormat("#,###.##").format(indItem.price)}',
                                                             style:
                                                                 const TextStyle(
                                                                     color: Colors
@@ -683,7 +686,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                               .end,
                                                       children: [
                                                         Text(
-                                                            ' (${NumberFormat("#,###.##").format(subTotal)})',
+                                                            '(฿${NumberFormat("#,###.##").format(subTotal)})',
                                                             style:
                                                                 const TextStyle(
                                                                     color: Colors
@@ -796,7 +799,7 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                     children: [
                       Text(
                         "สรุปรายการ",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: TextStyle(fontSize: 20),
                       ),
                       Container(
                         padding: const EdgeInsets.all(5),
@@ -868,13 +871,13 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(
-                                              ' ต้นทุน (${NumberFormat("#,###.##").format(indItem.cost)}) x ${NumberFormat("#,###.##").format(amount)}',
+                                              ' ต้นทุน (฿${NumberFormat("#,###.##").format(indItem.cost)}) x ${NumberFormat("#,###.##").format(amount)}',
                                               style: const TextStyle(
                                                   color: Colors.grey,
                                                   fontSize: 12)),
                                           Spacer(),
                                           Text(
-                                              '${NumberFormat("#,###.##").format(indItem.cost * amount)}',
+                                              '฿${NumberFormat("#,###.##").format(indItem.cost * amount)}',
                                               style: const TextStyle(
                                                   color: Colors.grey,
                                                   fontSize: 12)),
@@ -892,17 +895,16 @@ class _BuyingNavShowProdState extends State<BuyingNavShowProd> {
                             children: [
                               Text(
                                 "รวมทั้งหมด",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
+                                style: TextStyle(fontSize: 15),
                               ),
                               Text(
-                                "(จำนวน ${NumberFormat("#,###,###.##").format(_calculateTotalAmount(allTotalAmount))} ชิ้น)",
+                                " (จำนวน ${NumberFormat("#,###,###.##").format(_calculateTotalAmount(allTotalAmount))} ชิ้น)",
                                 style:
                                     TextStyle(color: Colors.grey, fontSize: 15),
                               ),
                               Spacer(),
                               Text(
-                                "${NumberFormat("#,###,###.##").format(_calculateTotal(allTotal))}",
+                                "฿${NumberFormat("#,###,###.##").format(_calculateTotal(allTotal))}",
                                 style:
                                     TextStyle(color: Colors.grey, fontSize: 15),
                               ),

@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import 'package:warehouse_mnmt/Page/Component/change_theme_btn.dart';
 import 'package:warehouse_mnmt/Page/Model/DeliveryCompany.dart';
@@ -73,6 +74,7 @@ class _EditShippingPageState extends State<EditShippingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -80,7 +82,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: AppBar(
-            backgroundColor: Color.fromRGBO(30, 30, 65, 1.0),
+            backgroundColor: themeProvider.isDark
+                ? Theme.of(context).colorScheme.onSecondary
+                : Color.fromRGBO(10, 10, 10, 1.0),
             automaticallyImplyLeading: true,
             actions: [],
             title: Text(
@@ -92,7 +96,17 @@ class _EditShippingPageState extends State<EditShippingPage> {
         body: SingleChildScrollView(
           child: Container(
             height: (MediaQuery.of(context).size.height),
-            decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            decoration: BoxDecoration(
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 219, 219, 219),
+                          Color.fromARGB(255, 219, 219, 219),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -106,7 +120,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
                     child: Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.background,
+                          color: themeProvider.isDark
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(15)),
                       width: 400,
                       height: 70,
@@ -160,7 +176,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
                           child: RadioListTile(
                             title: Text(
                               "อัตราค่าบริการคงที่",
-                              style: TextStyle(fontSize: 14),
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
                             ),
                             value: "onlyOne",
                             groupValue: deliveryOptions,
@@ -176,7 +194,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
                           child: SizedBox(
                             child: RadioListTile(
                               title: Text("คำนวณตามน้ำหนัก",
-                                  style: TextStyle(fontSize: 14)),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  )),
                               value: "range",
                               groupValue: deliveryOptions,
                               onChanged: (value) {
@@ -205,7 +225,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
                             children: [
                               Row(
                                 children: [
-                                  Text('ช่วงน้ำหนัก (${deliveryRates.length})'),
+                                  Text(
+                                    'ช่วงน้ำหนัก (${deliveryRates.length})',
+                                  ),
                                   Text(
                                     ' หน่วยเป็นกรัม',
                                     style: TextStyle(color: Colors.grey),
@@ -213,7 +235,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                   const SizedBox(
                                     width: 400 / 9,
                                   ),
-                                  Text('ค่าจัดส่ง'),
+                                  Text(
+                                    'ค่าจัดส่ง',
+                                  ),
                                   SizedBox(
                                     width: 10,
                                   ),
@@ -301,18 +325,24 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                                 child: Row(children: [
                                                   Text('${index + 1} ',
                                                       style: TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.white)),
+                                                        fontSize: 15,
+                                                      )),
                                                   Expanded(
                                                     child: Container(
                                                       padding:
                                                           const EdgeInsets.all(
                                                               5),
                                                       decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
+                                                          color: themeProvider
+                                                                  .isDark
+                                                              ? Theme.of(
+                                                                      context)
                                                                   .colorScheme
-                                                                  .background,
+                                                                  .onSecondary
+                                                              : Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(
@@ -398,10 +428,6 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                                                 EdgeInsets.all(
                                                                     10),
                                                             // labelText: title,
-                                                            fillColor: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .background,
 
                                                             hoverColor: Theme
                                                                     .of(context)
@@ -462,10 +488,16 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                                           const EdgeInsets.all(
                                                               5),
                                                       decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
+                                                          color: themeProvider
+                                                                  .isDark
+                                                              ? Theme.of(
+                                                                      context)
                                                                   .colorScheme
-                                                                  .background,
+                                                                  .onSecondary
+                                                              : Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(
@@ -502,10 +534,6 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                                                 EdgeInsets.all(
                                                                     10),
                                                             // labelText: title,
-                                                            fillColor: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .background,
 
                                                             hoverColor: Theme
                                                                     .of(context)
@@ -566,10 +594,16 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                                           const EdgeInsets.all(
                                                               5),
                                                       decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
+                                                          color: themeProvider
+                                                                  .isDark
+                                                              ? Theme.of(
+                                                                      context)
                                                                   .colorScheme
-                                                                  .background,
+                                                                  .onSecondary
+                                                              : Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(
@@ -613,10 +647,6 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                                                 EdgeInsets.all(
                                                                     10),
                                                             // labelText: title,
-                                                            fillColor: Theme.of(
-                                                                    context)
-                                                                .colorScheme
-                                                                .background,
 
                                                             hoverColor: Theme
                                                                     .of(context)
@@ -708,7 +738,9 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                 children: [
                                   Text(
                                     "ค่าบริการจัดส่งสินค้า",
-                                    style: TextStyle(fontSize: 14),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -734,9 +766,13 @@ class _EditShippingPageState extends State<EditShippingPage> {
                                         decoration: InputDecoration(
                                           hintText: 'ราคา',
                                           filled: true,
-                                          fillColor: Theme.of(context)
-                                              .colorScheme
-                                              .background,
+                                          fillColor: themeProvider.isDark
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
                                           border: const OutlineInputBorder(
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(10)),

@@ -248,7 +248,8 @@ class _AddShopDeliveryCompanyPageState
                           children: [
                             Text(
                               " ชื่อ",
-                              style: TextStyle(fontSize: 14),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
                             ),
                             SizedBox(
                               width: 320,
@@ -312,7 +313,8 @@ class _AddShopDeliveryCompanyPageState
                               child: RadioListTile(
                                 title: Text(
                                   "อัตราค่าบริการคงที่",
-                                  style: TextStyle(fontSize: 14),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14),
                                 ),
                                 value: "onlyOne",
                                 groupValue: deliveryOptions,
@@ -328,7 +330,8 @@ class _AddShopDeliveryCompanyPageState
                               child: SizedBox(
                                 child: RadioListTile(
                                   title: Text("คำนวณตามน้ำหนัก",
-                                      style: TextStyle(fontSize: 14)),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 14)),
                                   value: "range",
                                   groupValue: deliveryOptions,
                                   onChanged: (value) {
@@ -360,7 +363,11 @@ class _AddShopDeliveryCompanyPageState
                                 Row(
                                   children: [
                                     Text(
-                                        'ช่วงน้ำหนัก (${deliveryRates.length})'),
+                                      'ช่วงน้ำหนัก (${deliveryRates.length})',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                     Text(
                                       ' หน่วยเป็นกรัม',
                                       style: TextStyle(color: Colors.grey),
@@ -368,7 +375,9 @@ class _AddShopDeliveryCompanyPageState
                                     const SizedBox(
                                       width: 400 / 9,
                                     ),
-                                    Text('ค่าจัดส่ง'),
+                                    Text('ค่าจัดส่ง',style: TextStyle(
+                                        color: Colors.white,
+                                      ),),
                                     SizedBox(
                                       width: 10,
                                     ),
@@ -859,7 +868,8 @@ class _AddShopDeliveryCompanyPageState
                                   children: [
                                     Text(
                                       "ค่าบริการจัดส่งสินค้า",
-                                      style: TextStyle(fontSize: 14),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 14),
                                     ),
                                     SizedBox(
                                       width: 10,

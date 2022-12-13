@@ -73,6 +73,7 @@ class _MyAppState extends State<MyApp> {
       create: (context) => ThemeProvider(),
       builder: (context, _) {
         final themeProvider = Provider.of<ThemeProvider>(context);
+
         return MaterialApp(
           theme: MyThemes.lightTheme,
           darkTheme: MyThemes.darkTheme,
@@ -85,8 +86,10 @@ class _MyAppState extends State<MyApp> {
 
 class MyHomePage extends StatefulWidget {
   final Shop shop;
+  final Profile profile;
 
-  const MyHomePage({required this.shop, Key? key}) : super(key: key);
+  const MyHomePage({required this.shop, Key? key, required this.profile})
+      : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -106,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
       SellingPage(shop: shop),
       BuyingPage(shop: shop),
       ProductPage(shop: shop),
-      ShopPage(shop: shop),
+      ShopPage(Profile: widget.profile, shop: shop),
     ];
 
     return Scaffold(

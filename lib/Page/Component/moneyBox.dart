@@ -46,16 +46,7 @@ class MoneyBox extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(
-                children: [
-                  // this.mainIcon,
-                  // Spacer(),
-                  // this.trendIcon,
-                  // Text(
-                  //   '${NumberFormat("#,###,###.##").format(amount / 7)} ฿',
-                  //   style: TextStyle(fontSize: 15, color: amountFontColor),
-                  //   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
-                  // )
-                ],
+                children: [],
               ),
               Flexible(
                 child: Text(
@@ -69,7 +60,7 @@ class MoneyBox extends StatelessWidget {
               ),
               Center(
                 child: Text(
-                  '${NumberFormat("#,###,###.##").format(amount)} ฿',
+                  '฿${NumberFormat("#,###,###.##").format(amount)}',
                   style: TextStyle(fontSize: 15, color: amountFontColor),
                   // color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_file.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'package:warehouse_mnmt/Page/Model/Dealer.dart';
 import 'package:warehouse_mnmt/Page/Model/Purchasing.dart';
@@ -173,6 +174,7 @@ class _BuyingPageState extends State<BuyingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -180,8 +182,9 @@ class _BuyingPageState extends State<BuyingPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(180),
           child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
+            backgroundColor: themeProvider.isDark
+                ? Colors.transparent
+                : Theme.of(context).appBarTheme.backgroundColor,
             automaticallyImplyLeading: false,
             toolbarHeight: 70,
             title: const Text(
@@ -222,12 +225,17 @@ class _BuyingPageState extends State<BuyingPage> {
                             LengthLimitingTextInputFormatter(100),
                           ],
                           controller: searchDealerController,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 15),
+                          style: TextStyle(
+                              color: themeProvider.isDark
+                                  ? Colors.white
+                                  : Colors.black,
+                              fontSize: 15),
                           decoration: InputDecoration(
                             // labelText: title,
                             filled: true,
-                            fillColor: Theme.of(context).colorScheme.background,
+                            fillColor: themeProvider.isDark
+                                ? Theme.of(context).colorScheme.background
+                                : Theme.of(context).colorScheme.onPrimary,
                             border: const OutlineInputBorder(
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(20),
@@ -247,8 +255,10 @@ class _BuyingPageState extends State<BuyingPage> {
                             hintText: 'ชื่อตัวแทนจำหน่าย หรือ เบอร์โทรศัพท์',
                             hintStyle: const TextStyle(
                                 color: Colors.grey, fontSize: 14),
-                            prefixIcon:
-                                const Icon(Icons.search, color: Colors.white),
+                            prefixIcon: Icon(Icons.search,
+                                color: themeProvider.isDark
+                                    ? Colors.white
+                                    : Color.fromRGBO(14, 14, 14, 1.0)),
                             suffixIcon: searchDealerController.text.isEmpty
                                 ? Container(
                                     width: 0,
@@ -258,9 +268,11 @@ class _BuyingPageState extends State<BuyingPage> {
                                       searchDealerController.clear();
                                       refreshPurchasings();
                                     },
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.close_sharp,
-                                      color: Colors.white,
+                                      color: themeProvider.isDark
+                                          ? Colors.white
+                                          : Color.fromRGBO(14, 14, 14, 1.0),
                                     ),
                                   ),
                           )),
@@ -346,7 +358,17 @@ class _BuyingPageState extends State<BuyingPage> {
         body: SingleChildScrollView(
           child: Container(
             height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(gradient: scafBG_dark_Color),
+            decoration: BoxDecoration(
+                gradient: themeProvider.isDark
+                    ? scafBG_dark_Color
+                    : LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 255, 255, 255),
+                          Color.fromARGB(255, 255, 255, 255),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )),
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -543,7 +565,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                         ? 'ลูกค้า-'
                                                         : "ลบรายการสั่งซื้อ ${_dealer.dName}"),
                                                     Text(
-                                                        ' ยอด ${NumberFormat("#,###.##").format(purchasing.total)}',
+                                                        ' ยอด ฿ ${NumberFormat("#,###.##").format(purchasing.total)}',
                                                         style: const TextStyle(
                                                             color: Colors.grey,
                                                             fontWeight:
@@ -593,9 +615,12 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                 .width /
                                                             4),
                                                     width: 400,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
+                                                    color: themeProvider.isDark
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .primary
+                                                        : Color.fromRGBO(
+                                                            10, 10, 10, 1.0),
                                                     child: Row(
                                                       children: <Widget>[
                                                         Container(
@@ -766,7 +791,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                                                                       size: 15,
                                                                                                                     ),
                                                                                                               Text(
-                                                                                                                '${NumberFormat("#,###.##").format(selectedItemInd.total)} ฿',
+                                                                                                                '฿ ${NumberFormat("#,###.##").format(selectedItemInd.total)}',
                                                                                                                 style: TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold),
                                                                                                               ),
                                                                                                             ],
@@ -897,7 +922,7 @@ class _BuyingPageState extends State<BuyingPage> {
                                                                           .greenAccent,
                                                                     ),
                                                               Text(
-                                                                '${NumberFormat("#,###.##").format(purchasing.total)} ฿',
+                                                                '฿${NumberFormat("#,###.##").format(purchasing.total)}',
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         14,
