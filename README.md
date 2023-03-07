@@ -1,4 +1,6 @@
-# warehouse_mnmt
+# WarehousePal 
+Mobile Appliation for Android Platform
+Available on Playstore
 
 A new Flutter project.
 
